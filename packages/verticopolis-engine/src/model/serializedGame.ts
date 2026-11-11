@@ -1,7 +1,7 @@
 // Type-only imports (erased at compile), mirroring the calendar.ts pattern:
 // types.ts re-exports SerializedGame back so the 16-odd importers of the wire
 // format keep their single "./types" doorway.
-import type { CalendarKind } from "./calendar";
+import type { CalendarKind } from "./engineTypes";
 import type { GameMode, LogEntry, SerializedUnit, SerializedView, Transport } from "./types";
 
 /**

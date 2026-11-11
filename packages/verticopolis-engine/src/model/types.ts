@@ -1,12 +1,14 @@
 /**
- * Core type definitions for the SimTower clone engine.
+ * Core type definitions for the tower model, shared by the engine binding, the
+ * frontend and the TypeScript reference engine (which re-exports them from
+ * `src/engine/types.ts` until it is deleted, #1875).
  *
  * The tower is modelled as a grid of cells. Each floor is a row; columns are
  * "tiles". A facility occupies a contiguous run of tiles on a single floor.
  */
 
-import type { ElevatorSchedule } from "./elevatorSchedule";
-import { VACATE_REASON_TEXT as sharedVacateReasonText } from "../shared/vacateReasonText";
+import type { ElevatorSchedule } from "./engineTypes";
+import { VACATE_REASON_TEXT as sharedVacateReasonText } from "./vacateReasonText";
 
 /** Cosmetic sky weather, derived deterministically from the day. */
 export type WeatherKind = "clear" | "cloudy" | "rain";
