@@ -43,6 +43,10 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    # Paused until the game builds from this repository's packages. Until
+    # then the action pins are updated in Verticopolis/web and copied here
+    # with the rest of the history, so a PR here would only diverge.
+    open-pull-requests-limit: 0
     rebase-strategy: auto
     groups:
       actions:
