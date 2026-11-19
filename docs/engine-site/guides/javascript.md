@@ -63,9 +63,10 @@ SHA-256 checksum, to its GitHub release
 `engine-v<version>` up to 1.57.2), for
 anyone who would rather not use a registry. Up to 1.57.2, two more tarballs
 sat beside it, `verticopolis-engine-tooling` and
-`verticopolis-engine-conformance`; from 1.57.3 the package carries both
-itself (see "Test builds and the conformance suite" below). Versions released before the package moved to npm were
-published only to GitHub Packages, as `@maniator/verticopolis-engine`, and
+`verticopolis-engine-conformance`; from the release after 1.57.2 the package
+carries both itself (see "Test builds and the conformance suite" below).
+Versions released before the package moved to npm were published only to
+GitHub Packages, as `@maniator/verticopolis-engine`, and
 stay there.
 
 ## Quick start (Node)

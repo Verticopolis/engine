@@ -4,7 +4,8 @@
  * the browser and engine-rs/pkg-player/ for Node; the tooling build (`wasm`
  * and `tooling`, which adds the tier 3 ops the tests and harnesses use) goes to
  * engine-rs/pkg/ for Node and engine-rs/pkg-web-tooling/ for the browser.
- * scripts/pack-engine.sh packs them into the release tarballs.
+ * scripts/pack-engine.sh packs them into the npm package (the tooling build
+ * under tooling/).
  * Each is `cargo rustc` for wasm32 as a cdylib, `wasm-bindgen`
  * for the JavaScript glue, and a package.json marking the output CommonJS (the
  * repository is ESM, and wasm-bindgen's Node target emits `require`). For the
@@ -212,7 +213,7 @@ if (which === "engine") {
     webPackage(resolve(crate, "pkg-web-tooling"), `${target.dir}/pkg-web-tooling`, toolingRecord);
     // The tooling Node build's declaration (pkg/verticopolis_engine.d.ts) is
     // the one a frontend's binding types against, since it names the tier 3
-    // ops the player build leaves out. The tooling tarball carries it.
+    // ops the player build leaves out. The package carries it under tooling/.
   }
   // The gameplay event types and the bridge's runtime rules come from the
   // catalog both engines are held to, so they are refreshed with the

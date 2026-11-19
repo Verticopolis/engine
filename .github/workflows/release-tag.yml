@@ -155,7 +155,9 @@ jobs:
             printf '\nThe registry copies appear once the owner approves the publish run (`engine-publish.yml`).\n'
           } >> notes.md
           # Attach while a draft, then publish, so a published release is never edited.
-          # This repository releases only the engine, so its newest release is Latest.
+          # This repository releases only the engine, so its newest release is
+          # Latest. If release lines ever branch, a patch to an older line
+          # would need --latest=false here.
           gh release create "$tag" --target "$GITHUB_SHA" --title "$tag" --notes-file notes.md --latest --draft
           gh release upload "$tag" dist/*
           gh release edit "$tag" --draft=false --latest
