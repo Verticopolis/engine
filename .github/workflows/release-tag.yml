@@ -1,33 +1,32 @@
 name: Release tags
 
-# Tags each release when its release PR merges (CONTRIBUTING.md "Change notes
-# and the release PR"), so every app and crate version gets a GitHub release
-# without a maintainer pushing a tag:
+# Publishes each engine version as a GitHub release when the pull request that
+# raises it merges (CONTRIBUTING.md "Releasing"), so every crate version gets
+# a release without a maintainer pushing a tag. A push to main that changes
+# the crate version in engine-rs/Cargo.toml tags engine-v<version> on that
+# commit and publishes the release with that version's engine-rs/CHANGELOG.md
+# section. It carries the three tarballs scripts/pack-engine.sh packs (the
+# player build, the tooling build and the conformance suite), each with its
+# checksum. When the repository variable ENGINE_REGISTRY_PUBLISH is `on`, the
+# run then dispatches engine-publish.yml, which waits for the owner's approval
+# and publishes the crate to crates.io and the player tarball to npm as
+# @verticopolis/engine (CONTRIBUTING.md "The registries").
 #
-# - an app version change in package.json tags v<version> on the merge commit
-#   and dispatches github-release.yml for it, which publishes the release with
-#   the version's player notes and then hands the tag to sprite-atlas.yml to
-#   attach the sprite atlas, and dispatches deploy-production.yml, which
-#   deploys production from the tag. A tag created with the
-#   workflow token does not start a tag-push workflow, so this dispatches the
-#   runs itself (a workflow_dispatch from the workflow token does run);
-# - a crate version change in engine-rs/Cargo.toml publishes engine-v<version>
-#   as its own release with that version's engine-rs/CHANGELOG.md section. It
-#   is never marked Latest, so the app release stays the repo's Latest. It
-#   carries the three tarballs scripts/pack-engine.sh packs (the player
-#   build, the tooling build and the conformance suite), each with its
-#   checksum, and the crate release dispatches
-#   engine-publish.yml, which waits for the owner's approval and then
-#   publishes the crate to crates.io and that tarball to npm as
-#   @verticopolis/engine. When the app version did not move, the crate tag
-#   dispatches the production deploy.
-#
-# A tag or release that already exists is left alone, so a re-run is safe.
-# Parked until the split's cut: maniator/verticopolis still runs this
-# workflow, and its other triggers (in this file's history) come back once
-# this repository is the engine's home. Until then it starts only by hand.
+# A tag this workflow creates with its own token starts no tag-push workflow,
+# so it packs the release itself rather than leaving it to engine-pack.yml.
+# A tag or release that already exists is left alone, so a re-run is safe. To
+# finish a version whose run failed, run this workflow by hand from main with
+# that version: it must be the version engine-rs/Cargo.toml holds.
 on:
+  push:
+    branches: [main]
+    paths: ["engine-rs/Cargo.toml"]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Engine version to release (x.y.z, the one engine-rs/Cargo.toml holds on main)"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -39,6 +38,8 @@ permissions:
 
 jobs:
   tag:
+    # A run by hand releases what main holds, never a branch's unmerged code.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -49,65 +50,59 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Read the versions before and after the push
+      - name: Read the crate version before and after the push
         id: versions
         env:
           BEFORE: ${{ github.event.before }}
+          EVENT: ${{ github.event_name }}
+          REQUESTED: ${{ inputs.version }}
         run: |
-          read_app() { node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(0, "utf8")).version)'; }
           read_crate() { awk '/^\[package\]/ { p = 1; next } /^\[/ { p = 0 } p && /^version *=/ { gsub(/.*= *"|".*/, ""); print; exit }'; }
-          echo "app=$(read_app < package.json)" >> "$GITHUB_OUTPUT"
-          echo "crate=$(read_crate < engine-rs/Cargo.toml)" >> "$GITHUB_OUTPUT"
+          crate="$(read_crate < engine-rs/Cargo.toml)"
+          echo "crate=$crate" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            if [ "$REQUESTED" != "$crate" ]; then
+              echo "::error::engine-rs/Cargo.toml on this commit holds $crate, not $REQUESTED."
+              exit 1
+            fi
+            echo "Releasing $crate by hand."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           # A new branch or a force-push has no usable "before"; tag nothing then.
           if ! printf '%s' "$BEFORE" | grep -Eq '^[0-9a-f]{40}$' || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
             || ! git fetch --no-tags --quiet --depth=1 origin "$BEFORE"; then
             echo "No previous main commit to compare with; tagging nothing."
-            echo "compare=false" >> "$GITHUB_OUTPUT"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          echo "compare=true" >> "$GITHUB_OUTPUT"
-          echo "app_was=$(git show "$BEFORE:package.json" | read_app)" >> "$GITHUB_OUTPUT"
-          echo "crate_was=$(git show "$BEFORE:engine-rs/Cargo.toml" | read_crate)" >> "$GITHUB_OUTPUT"
-
-      - name: Tag the app version and publish its release
-        if: ${{ steps.versions.outputs.compare == 'true' && steps.versions.outputs.app != steps.versions.outputs.app_was }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          VERSION: ${{ steps.versions.outputs.app }}
-        run: |
-          set -euo pipefail
-          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then echo "::error::App version $VERSION is not a plain x.y.z."; exit 1; fi
-          tag="v$VERSION"
-          if gh api "repos/$GH_REPO/git/ref/tags/$tag" > /dev/null 2>&1; then
-            echo "$tag already exists; leaving it."
+          was="$(git show "$BEFORE:engine-rs/Cargo.toml" | read_crate)"
+          if [ "$was" = "$crate" ]; then
+            echo "The crate stays at $crate; tagging nothing."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            gh api "repos/$GH_REPO/git/refs" -f ref="refs/tags/$tag" -f sha="$GITHUB_SHA" > /dev/null
-            echo "Tagged $tag at $GITHUB_SHA."
+            echo "The crate moved from $was to $crate."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
-          gh workflow run github-release.yml --ref main -f tag="$tag"
-          echo "Dispatched the GitHub release for $tag."
-          gh workflow run deploy-production.yml --ref main -f tag="$tag"
-          echo "Dispatched the production deploy for $tag."
 
       # The crate release carries the built WASM package. These steps run only
       # for a crate version change, and the package usually comes from the
       # cache the test runs already filled for this engine source.
       - name: Use Node.js (from .nvmrc)
-        if: ${{ steps.versions.outputs.compare == 'true' && steps.versions.outputs.crate != steps.versions.outputs.crate_was }}
+        if: ${{ steps.versions.outputs.changed == 'true' }}
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
 
       - name: Install dependencies
-        if: ${{ steps.versions.outputs.compare == 'true' && steps.versions.outputs.crate != steps.versions.outputs.crate_was }}
+        if: ${{ steps.versions.outputs.changed == 'true' }}
         run: npm ci
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
       - name: Engine WASM package
-        if: ${{ steps.versions.outputs.compare == 'true' && steps.versions.outputs.crate != steps.versions.outputs.crate_was }}
+        if: ${{ steps.versions.outputs.changed == 'true' }}
         uses: ./.github/actions/engine-wasm
 
       # scripts/pack-engine.sh packs the release's three tarballs, each with a
@@ -119,7 +114,7 @@ jobs:
       # workflow, so it packs here rather than leaving it to engine-pack.yml.
       - name: Pack the engine
         id: pack
-        if: ${{ steps.versions.outputs.compare == 'true' && steps.versions.outputs.crate != steps.versions.outputs.crate_was }}
+        if: ${{ steps.versions.outputs.changed == 'true' }}
         env:
           VERSION: ${{ steps.versions.outputs.crate }}
         run: |
@@ -160,33 +155,16 @@ jobs:
           gh release edit "$tag" --draft=false --latest=false
           echo "Published $tag with $(ls dist | tr '\n' ' ')"
 
-      # A release that raised only the crate still changes the engine the web
-      # game ships, so it deploys too, from the crate tag the step above
-      # created. An app release already dispatched its own deploy. A failed
-      # crate release holds this deploy; re-run this workflow, or run Deploy
-      # production by hand with the crate tag once it exists.
-      - name: Deploy production for a crate-only release
-        if: ${{ steps.pack.outcome == 'success' && steps.versions.outputs.app == steps.versions.outputs.app_was }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          VERSION: ${{ steps.versions.outputs.crate }}
-        run: |
-          set -euo pipefail
-          tag="engine-v$VERSION"
-          gh workflow run deploy-production.yml --ref main -f tag="$tag"
-          echo "Dispatched the production deploy for $tag."
-
       # The registries: engine-publish.yml publishes the crate to crates.io
       # and the release's npm tarball to npm, each through trusted publishing
       # (a short-lived OIDC token, no stored registry token). Its publish jobs
       # wait on the `registry` environment, so nothing reaches a registry
       # until the owner approves that run. A run for a version a registry
       # already holds leaves that registry alone, so a re-run is safe.
-      # Publishing is off until the owner turns it on: the step runs only
-      # when the repository variable ENGINE_REGISTRY_PUBLISH is `on`, so a
-      # release ships the game and its GitHub releases without touching a
-      # registry (held while the engine and game repositories are split).
+      # The step runs only when the repository variable
+      # ENGINE_REGISTRY_PUBLISH is `on` (the owner's switch, on since the
+      # first publish of 1.57.1), so turning it off ships GitHub releases
+      # without touching a registry.
       - name: Hand the crate release to the registry publish
         if: ${{ steps.pack.outcome == 'success' && vars.ENGINE_REGISTRY_PUBLISH == 'on' }}
         env:

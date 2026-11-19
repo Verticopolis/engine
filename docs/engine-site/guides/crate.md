@@ -30,7 +30,7 @@ published from the repository's release workflow with each engine release.
 Its API reference is the
 [Rust API reference](https://docs.verticopolis.com/rust/verticopolis_engine/)
 on this site. The conformance suite itself is not in the package yet
-([#893](https://github.com/Verticopolis/web/issues/893)); see
+([#47](https://github.com/Verticopolis/engine/issues/47)); see
 [Proving conformance](#proving-conformance).
 
 ## Add it
@@ -257,7 +257,7 @@ cargo add verticopolis-engine --features conformance
 ```
 
 The suite's files are not in the crate package yet
-([#893](https://github.com/Verticopolis/web/issues/893)), so a host reads
+([#47](https://github.com/Verticopolis/engine/issues/47)), so a host reads
 them from a checkout of the repository at the engine's `engine-v<version>`
 tag.
 
@@ -273,7 +273,7 @@ replay one scenario against a copy of the suite, which is what
   A change that keeps all of these, such as a speed-up, does not raise it on
   its own.
 - **No semver promise yet.** Until the compatibility policy is written
-  ([#893](https://github.com/Verticopolis/web/issues/893)), a minor
+  ([#47](https://github.com/Verticopolis/engine/issues/47)), a minor
   version can change a call's shape or the game's behavior. Pin an exact
   version (`verticopolis-engine = "=<version>"`) or tag and read the
   [changelog](https://github.com/Verticopolis/engine/blob/main/engine-rs/CHANGELOG.md)

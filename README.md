@@ -43,9 +43,13 @@ npm install @verticopolis/engine
 [JavaScript guide](https://docs.verticopolis.com/javascript/) shows how to
 load it and drive a tower.
 
-Neither package is on its registry yet. Until the first release goes up, the
-WebAssembly package for each engine version is attached to the game's
-`engine-v` releases.
+Both are on the registries:
+[`verticopolis-engine`](https://crates.io/crates/verticopolis-engine) on
+crates.io and [`@verticopolis/engine`](https://www.npmjs.com/package/@verticopolis/engine)
+on npm. The first version, 1.57.1, was published by hand; every later
+version comes from this repository's release workflow. Each [`engine-v<version>` release](https://github.com/Verticopolis/engine/releases)
+also carries the npm tarball, the tooling build and the conformance suite as
+tarballs, each with its SHA-256 checksum.
 
 ## Documentation
 
@@ -93,8 +97,8 @@ The engine came out of the game's repository, and its rules came with it:
 American English, no em-dashes in prose, a 500-line ceiling per source file,
 no host access in the simulation (`engine-rs/tests/independence.rs`), and a
 regenerated conformance lock in the same PR as any change to how the game
-plays. Every change that touches the crate declares its version tier in a
-change note.
+plays. [CONTRIBUTING.md](CONTRIBUTING.md) covers pull requests, releases
+and the registries.
 
 The engine lives here now. Pull requests open here once the game builds
 from this repository's packages, which takes a few days. Until then, engine
