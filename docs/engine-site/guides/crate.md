@@ -39,12 +39,20 @@ on this site. The conformance suite itself is not in the package yet
 cargo add verticopolis-engine
 ```
 
-Or depend on an engine release by git tag (`engine-v<version>`), or on any
-commit with `rev = "<sha>"`:
+Or pin an exact version in `Cargo.toml` (there is no semver promise yet; see
+[Versioning and stability](#versioning-and-stability)):
 
 ```toml
 [dependencies]
-verticopolis-engine = { git = "https://github.com/Verticopolis/engine", tag = "engine-v1.57.2" }
+verticopolis-engine = "=1.57.2"
+```
+
+To build against a commit that has not been released yet, depend on the
+repository by `rev = "<sha>"` instead:
+
+```toml
+[dependencies]
+verticopolis-engine = { git = "https://github.com/Verticopolis/engine", rev = "<sha>" }
 ```
 
 The crate needs the Rust release named by `rust-version` in its `Cargo.toml`
@@ -275,7 +283,7 @@ replay one scenario against a copy of the suite, which is what
 - **No semver promise yet.** Until the compatibility policy is written
   ([#47](https://github.com/Verticopolis/engine/issues/47)), a minor
   version can change a call's shape or the game's behavior. Pin an exact
-  version (`verticopolis-engine = "=<version>"`) or tag and read the
+  version (`verticopolis-engine = "=<version>"`) and read the
   [changelog](https://github.com/Verticopolis/engine/blob/main/engine-rs/CHANGELOG.md)
   before you move.
 - **The lock is the contract.** Every change to simulation behavior lands
