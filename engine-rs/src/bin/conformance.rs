@@ -5,7 +5,7 @@
 //! It also checks each mode's catalog against `conformance/catalog-digests.json`.
 
 use std::collections::BTreeMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::exit;
 
 use verticopolis_engine::scenario::{run_scenario, Checkpoint, Run, RunError, Scenario};
@@ -64,44 +64,25 @@ fn main() {
     }
     // Every scenario is its own engine, so they replay on separate threads;
     // the report prints sorted by id, the order the lock is written in. A
-    // panic inside one scenario (a save the loader refuses) is caught and
-    // reported as that scenario's failure instead of aborting the referee.
-    let runs: Vec<Result<Run, String>> = std::thread::scope(|scope| {
-        let handles: Vec<_> = want
-            .keys()
-            .map(|id| {
-                let path = root.join("scenarios").join(format!("{id}.json"));
-                let root = &root;
-                scope.spawn(move || -> Result<Run, String> {
-                    let text = std::fs::read_to_string(&path)
-                        .map_err(|e| format!("cannot read {}: {e}", path.display()))?;
-                    let scenario = Scenario::parse(&text)?;
-                    // The internal id equals the stem, so a copied scenario
-                    // cannot run under another file's lock entry.
-                    if scenario.id != *id {
-                        return Err(format!(
-                            "{}: scenario id {:?} does not match the file stem {:?}",
-                            path.display(),
-                            scenario.id,
-                            id
-                        ));
-                    }
-                    std::panic::catch_unwind(|| run_scenario(&scenario, root)).map_err(|p| {
-                        let msg = p
-                            .downcast_ref::<String>()
-                            .cloned()
-                            .or_else(|| p.downcast_ref::<&str>().map(|s| s.to_string()))
-                            .unwrap_or_else(|| "panic".to_string());
-                        format!("engine panicked: {msg}")
-                    })
+    // WebAssembly build (the wasm32-wasip1 referee) has no threads, so it
+    // replays them one after another.
+    let runs: Vec<Result<Run, String>> = if cfg!(target_family = "wasm") {
+        want.keys().map(|id| replay(&root, id)).collect()
+    } else {
+        std::thread::scope(|scope| {
+            let handles: Vec<_> = want
+                .keys()
+                .map(|id| {
+                    let root = &root;
+                    scope.spawn(move || replay(root, id))
                 })
-            })
-            .collect();
-        handles
-            .into_iter()
-            .map(|h| h.join().expect("scenario thread"))
-            .collect()
-    });
+                .collect();
+            handles
+                .into_iter()
+                .map(|h| h.join().expect("scenario thread"))
+                .collect()
+        })
+    };
     let mut all_ok = true;
     for ((id, want), run) in want.iter().zip(runs.iter()) {
         let run = match run {
@@ -168,6 +149,34 @@ fn main() {
     if !all_ok {
         exit(1);
     }
+}
+
+/// Replays one scenario. A panic inside it (a save the loader refuses) is
+/// caught and reported as that scenario's failure instead of aborting the
+/// referee, where the target unwinds (a WebAssembly build aborts instead).
+fn replay(root: &Path, id: &str) -> Result<Run, String> {
+    let path = root.join("scenarios").join(format!("{id}.json"));
+    let text = std::fs::read_to_string(&path)
+        .map_err(|e| format!("cannot read {}: {e}", path.display()))?;
+    let scenario = Scenario::parse(&text)?;
+    // The internal id equals the stem, so a copied scenario cannot run under
+    // another file's lock entry.
+    if scenario.id != id {
+        return Err(format!(
+            "{}: scenario id {:?} does not match the file stem {:?}",
+            path.display(),
+            scenario.id,
+            id
+        ));
+    }
+    std::panic::catch_unwind(|| run_scenario(&scenario, root)).map_err(|p| {
+        let msg = p
+            .downcast_ref::<String>()
+            .cloned()
+            .or_else(|| p.downcast_ref::<&str>().map(|s| s.to_string()))
+            .unwrap_or_else(|| "panic".to_string());
+        format!("engine panicked: {msg}")
+    })
 }
 
 /// Each mode's catalog digest against `catalog-digests.json`, the lock the

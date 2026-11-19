@@ -269,6 +269,49 @@ jobs:
         if: ${{ cancelled() }}
         run: exit 1
 
+  # The referee again, compiled to WebAssembly (wasm32-wasip1) and run under
+  # Node's WASI, so the pinned checkpoints also hold for the engine built the
+  # way a browser runs it. Scenarios replay one after another there (no
+  # threads). The flag works around a Node crash in WASI's fast write path
+  # (scripts/conformance-wasi.ts).
+  wasm-referee:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Rust toolchain
+        run: |
+          rustup toolchain install 1.97.0 --profile minimal
+          rustup default 1.97.0
+          rustup target add wasm32-wasip1
+          rustup toolchain uninstall stable || true
+
+      - name: Cargo cache
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          prefix-key: v1-wasm-referee
+          workspaces: ". -> engine-rs/target"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Build the referee for wasm32-wasip1
+        working-directory: engine-rs
+        run: cargo build --locked --release --features conformance --bin conformance --target wasm32-wasip1
+
+      - name: Conformance under WASI
+        run: node --no-turbo-fast-api-calls scripts/conformance-wasi.ts engine-rs/target/wasm32-wasip1/release/conformance.wasm conformance
+
+      - name: Fail a cancelled run
+        if: ${{ cancelled() }}
+        run: exit 1
+
   # Line coverage of the unit tests and the referee, split out of the rust
   # job so the two run side by side: coverage alone takes about 8 minutes,
   # and after the unit tests it made the rust job the longest PR check.
@@ -347,7 +390,7 @@ jobs:
         run: exit 1
 
   engine-rs:
-    needs: [consumer, rust-lint, rust, rust-coverage]
+    needs: [consumer, rust-lint, rust, wasm-referee, rust-coverage]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -357,10 +400,11 @@ jobs:
           CONSUMER: ${{ needs.consumer.result }}
           LINT: ${{ needs.rust-lint.result }}
           RUST: ${{ needs.rust.result }}
+          WASM: ${{ needs.wasm-referee.result }}
           COVERAGE: ${{ needs.rust-coverage.result }}
         run: |
-          echo "consumer: $CONSUMER, rust-lint: $LINT, rust: $RUST, rust-coverage: $COVERAGE"
-          test "$CONSUMER" = success && test "$LINT" = success && test "$RUST" = success && test "$COVERAGE" = success
+          echo "consumer: $CONSUMER, rust-lint: $LINT, rust: $RUST, wasm-referee: $WASM, rust-coverage: $COVERAGE"
+          test "$CONSUMER" = success && test "$LINT" = success && test "$RUST" = success && test "$WASM" = success && test "$COVERAGE" = success
 
       - name: Fail a cancelled run
         if: ${{ cancelled() }}
