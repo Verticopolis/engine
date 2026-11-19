@@ -5,7 +5,7 @@
  * referee sees the conformance directory as `/conformance` and nothing else.
  *
  *   cargo build --locked --release --features conformance --bin conformance --target wasm32-wasip1
- *   node --no-turbo-fast-api-calls scripts/conformance-wasi.ts \
+ *   node --no-turbo-fast-api-calls scripts/conformance-wasi.mts \
  *     engine-rs/target/wasm32-wasip1/release/conformance.wasm conformance
  *
  * Run Node with `--no-turbo-fast-api-calls`: without it, Node 26 can crash
@@ -18,7 +18,7 @@ import { WASI } from "node:wasi";
 
 const [wasmPath, root] = process.argv.slice(2);
 if (!wasmPath || !root) {
-  console.error("usage: conformance-wasi.ts <conformance.wasm> <conformance dir>");
+  console.error("usage: conformance-wasi.mts <conformance.wasm> <conformance dir>");
   process.exit(2);
 }
 const wasi = new WASI({

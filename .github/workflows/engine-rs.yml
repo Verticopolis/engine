@@ -273,7 +273,7 @@ jobs:
   # Node's WASI, so the pinned checkpoints also hold for the engine built the
   # way a browser runs it. Scenarios replay one after another there (no
   # threads). The flag works around a Node crash in WASI's fast write path
-  # (scripts/conformance-wasi.ts).
+  # (scripts/conformance-wasi.mts).
   wasm-referee:
 
     runs-on: ubuntu-latest
@@ -285,7 +285,7 @@ jobs:
 
       - name: Rust toolchain
         run: |
-          rustup toolchain install 1.97.0 --profile minimal
+          rustup toolchain install 1.97.0 --profile minimal --component clippy
           rustup default 1.97.0
           rustup target add wasm32-wasip1
           rustup toolchain uninstall stable || true
@@ -301,12 +301,16 @@ jobs:
         with:
           node-version-file: ".nvmrc"
 
+      - name: Lint the referee for wasm32-wasip1
+        working-directory: engine-rs
+        run: cargo clippy --locked --features conformance --bin conformance --target wasm32-wasip1 -- -D warnings
+
       - name: Build the referee for wasm32-wasip1
         working-directory: engine-rs
         run: cargo build --locked --release --features conformance --bin conformance --target wasm32-wasip1
 
       - name: Conformance under WASI
-        run: node --no-turbo-fast-api-calls scripts/conformance-wasi.ts engine-rs/target/wasm32-wasip1/release/conformance.wasm conformance
+        run: node --no-turbo-fast-api-calls scripts/conformance-wasi.mts engine-rs/target/wasm32-wasip1/release/conformance.wasm conformance
 
       - name: Fail a cancelled run
         if: ${{ cancelled() }}

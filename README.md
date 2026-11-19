@@ -92,7 +92,7 @@ cargo run --release --features conformance --bin conformance   # the referee
 ```
 
 CI also runs the referee compiled to WebAssembly, under Node's WASI
-(`scripts/conformance-wasi.ts` has the two commands), so the checkpoints hold
+(`scripts/conformance-wasi.mts` has the two commands), so the checkpoints hold
 for the engine built the way a browser runs it.
 
 `engine-rs/README.md` lists the other tools: the checkpoint dump, the `.TDT`
