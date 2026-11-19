@@ -30,7 +30,7 @@ published from the repository's release workflow with each engine release.
 Its API reference is the
 [Rust API reference](https://docs.verticopolis.com/rust/verticopolis_engine/)
 on this site. The conformance suite itself is not in the package yet
-([#893](https://github.com/maniator/verticopolis/issues/893)); see
+([#893](https://github.com/Verticopolis/web/issues/893)); see
 [Proving conformance](#proving-conformance).
 
 ## Add it
@@ -44,7 +44,7 @@ commit with `rev = "<sha>"`:
 
 ```toml
 [dependencies]
-verticopolis-engine = { git = "https://github.com/maniator/verticopolis", tag = "engine-v1.57.1" }
+verticopolis-engine = { git = "https://github.com/Verticopolis/web", tag = "engine-v1.57.1" }
 ```
 
 The crate needs the Rust release named by `rust-version` in its `Cargo.toml`
@@ -104,7 +104,7 @@ shows the host API only; the engine's internals are public for its tests and
 hidden there.
 
 A fuller host, which every CI run builds and runs from outside the engine,
-is [`engine-rs/consumer/`](https://github.com/maniator/verticopolis/tree/main/engine-rs/consumer).
+is [`engine-rs/consumer/`](https://github.com/Verticopolis/engine/tree/main/engine-rs/consumer).
 
 ## How the engine works
 
@@ -141,7 +141,7 @@ is [`engine-rs/consumer/`](https://github.com/maniator/verticopolis/tree/main/en
 ## The host API
 
 These are the calls a frontend makes, in short. The repository's
-[`engine-rs/API.md`](https://github.com/maniator/verticopolis/blob/main/engine-rs/API.md)
+[`engine-rs/API.md`](https://github.com/Verticopolis/engine/blob/main/engine-rs/API.md)
 gives each one in full; a test there names each of its calls, so a rename
 fails CI until that page and the example host follow.
 
@@ -247,7 +247,7 @@ The crate has no default features.
 ## Proving conformance
 
 The repository's
-[`conformance/`](https://github.com/maniator/verticopolis/tree/main/conformance)
+[`conformance/`](https://github.com/Verticopolis/engine/tree/main/conformance)
 directory is a suite of scripted games with the state hash pinned at each
 checkpoint (`expected.json`). An engine at a given version replays every
 scenario exactly. With the `conformance` feature a host replays it itself:
@@ -257,7 +257,7 @@ cargo add verticopolis-engine --features conformance
 ```
 
 The suite's files are not in the crate package yet
-([#893](https://github.com/maniator/verticopolis/issues/893)), so a host reads
+([#893](https://github.com/Verticopolis/web/issues/893)), so a host reads
 them from a checkout of the repository at the engine's `engine-v<version>`
 tag.
 
@@ -273,10 +273,10 @@ replay one scenario against a copy of the suite, which is what
   A change that keeps all of these, such as a speed-up, does not raise it on
   its own.
 - **No semver promise yet.** Until the compatibility policy is written
-  ([#893](https://github.com/maniator/verticopolis/issues/893)), a minor
+  ([#893](https://github.com/Verticopolis/web/issues/893)), a minor
   version can change a call's shape or the game's behavior. Pin an exact
   version (`verticopolis-engine = "=<version>"`) or tag and read the
-  [changelog](https://github.com/maniator/verticopolis/blob/main/engine-rs/CHANGELOG.md)
+  [changelog](https://github.com/Verticopolis/engine/blob/main/engine-rs/CHANGELOG.md)
   before you move.
 - **The lock is the contract.** Every change to simulation behavior lands
   with an updated `conformance/expected.json`, and that diff is what you take
@@ -288,7 +288,7 @@ replay one scenario against a copy of the suite, which is what
 Each engine release also publishes this crate's WebAssembly build as the
 npm package [`@verticopolis/engine`](https://www.npmjs.com/package/@verticopolis/engine),
 with builds for Node and the browser. The
-[JavaScript package guide](https://github.com/maniator/verticopolis/blob/main/docs/engine-site/guides/javascript.md)
+[JavaScript package guide](https://github.com/Verticopolis/engine/blob/main/docs/engine-site/guides/javascript.md)
 covers installing and calling it from JavaScript.
 
 ## License

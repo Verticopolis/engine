@@ -47,7 +47,7 @@ verticopolis-engine = { path = "../verticopolis/engine-rs" }
 ```toml
 [dependencies]
 # Pinned to a commit:
-verticopolis-engine = { git = "https://github.com/maniator/verticopolis", rev = "<sha>" }
+verticopolis-engine = { git = "https://github.com/Verticopolis/web", rev = "<sha>" }
 ```
 
 The crate has no default features. The `wasm` feature is the JavaScript
@@ -60,7 +60,7 @@ feature is the harness that replays the lock (tier 2 below); a host turns
 it on only to prove conformance, as `consumer/` does:
 
 ```toml
-verticopolis-engine = { git = "https://github.com/maniator/verticopolis", rev = "<sha>", features = ["conformance"] }
+verticopolis-engine = { git = "https://github.com/Verticopolis/web", rev = "<sha>", features = ["conformance"] }
 ```
 
 The JavaScript binding's exports carry tiers of their own, separate from

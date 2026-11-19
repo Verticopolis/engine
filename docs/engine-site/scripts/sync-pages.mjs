@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 const site = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repo = resolve(site, "..", "..");
 const ref = process.env.DOCS_REF || "main";
-const GITHUB = "https://github.com/maniator/verticopolis";
+const GITHUB = "https://github.com/Verticopolis/engine";
 const { pages, aliases } = JSON.parse(readFileSync(join(site, "pages.json"), "utf8"));
 
 /** Repository path (a file, or a folder whose README is a page) to its site page. */
@@ -49,7 +49,7 @@ export function rewriteTarget(target, source) {
   const path = hash === -1 ? target : target.slice(0, hash);
   const anchor = hash === -1 ? "" : target.slice(hash);
   if (path === "") return target;
-  const ours = path.match(/^https:\/\/github\.com\/maniator\/verticopolis\/(?:blob|tree)\/main\/(.+)$/);
+  const ours = path.match(/^https:\/\/github\.com\/Verticopolis\/engine\/(?:blob|tree)\/main\/(.+)$/);
   if (ours) return siteLink(unalias(ours[1]), anchor) ?? githubLink(unalias(ours[1]), anchor);
   if (/^[a-z][a-z0-9+.-]*:/i.test(path) || path.startsWith("/")) return target;
   const repoPath = unalias(posix.normalize(posix.join(posix.dirname(source), path)));
@@ -85,10 +85,10 @@ function main() {
   }
   mkdirSync(join(site, "src/assets"), { recursive: true });
   mkdirSync(join(site, "public"), { recursive: true });
-  copyFileSync(join(repo, "src/public/icon-1024x1024.png"), join(site, "src/assets/logo.png"));
-  copyFileSync(join(repo, "src/public/favicon.png"), join(site, "public/favicon.png"));
-  copyFileSync(join(repo, "src/public/splash-skyline.svg"), join(site, "public/splash-skyline.svg"));
-  copyFileSync(join(repo, "src/styles/retro-tokens.css"), join(site, "src/styles/retro-tokens.css"));
+  copyFileSync(join(site, "brand/icon-1024x1024.png"), join(site, "src/assets/logo.png"));
+  copyFileSync(join(site, "brand/favicon.png"), join(site, "public/favicon.png"));
+  copyFileSync(join(site, "brand/splash-skyline.svg"), join(site, "public/splash-skyline.svg"));
+  copyFileSync(join(site, "brand/retro-tokens.css"), join(site, "src/styles/retro-tokens.css"));
   console.log(`synced ${pages.length} pages at ${ref}`);
 }
 

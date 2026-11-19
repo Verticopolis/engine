@@ -53,7 +53,7 @@ export function chrome(ref) {
   const { pages } = JSON.parse(readFileSync(join(site, "pages.json"), "utf8"));
   const titles = new Map(pages.map((page) => [page.slug, page.title]));
   const style = [
-    readFileSync(join(repo, "src/styles/retro-tokens.css"), "utf8"),
+    readFileSync(join(site, "brand/retro-tokens.css"), "utf8"),
     readFileSync(join(site, "src/styles/title-bar.css"), "utf8"),
     readFileSync(join(site, "rustdoc/theme.css"), "utf8"),
   ].join("\n");

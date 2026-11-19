@@ -14,11 +14,23 @@ name: Docs preview
 # workflow runs from main, takes only the built files, and publishes them
 # under the pull request's own path. A pull request from a fork gets no
 # preview, because its pages would go out on the project's domain.
-# Parked until the split's cut: maniator/verticopolis still runs this
-# workflow, and its other triggers (in this file's history) come back once
-# this repository is the engine's home. Until then it starts only by hand.
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Engine docs"]
+    types: [completed]
+  # The same paths as Engine docs builds a pull request for.
+  pull_request_target:
+    types: [closed]
+    paths:
+      - "docs/engine-site/**"
+      - "packages/verticopolis-engine/README.md"
+      - "engine-rs/CRATE_README.md"
+      - "engine-rs/API.md"
+      - "engine-rs/CHANGELOG.md"
+      - "engine-rs/Cargo.toml"
+      - "engine-rs/src/**"
+      - "conformance/README.md"
+      - ".github/workflows/engine-docs.yml"
 
 permissions: {}
 

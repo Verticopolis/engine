@@ -36,8 +36,8 @@ The full guide lives on the engine docs site,
 - [Changelog](./CHANGELOG.md), one section per engine version.
 
 The source is in
-[`engine-rs/`](https://github.com/maniator/verticopolis/tree/main/engine-rs)
-of the [Verticopolis repository](https://github.com/maniator/verticopolis).
+[`engine-rs/`](https://github.com/Verticopolis/engine/tree/main/engine-rs)
+of the [Verticopolis engine repository](https://github.com/Verticopolis/engine).
 
 ## License
 

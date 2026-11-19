@@ -13,7 +13,7 @@
 /** The game. */
 export const GAME = "https://verticopolis.com/";
 
-export const GITHUB = "https://github.com/maniator/verticopolis";
+export const GITHUB = "https://github.com/Verticopolis/engine";
 
 // The GitHub mark, as Starlight's own header draws it.
 export const GITHUB_ICON =
