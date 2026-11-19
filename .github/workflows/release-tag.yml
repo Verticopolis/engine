@@ -3,17 +3,19 @@ name: Release tags
 # Publishes each engine version as a GitHub release when the pull request that
 # raises it merges (CONTRIBUTING.md "Releasing"), so every crate version gets
 # a release without a maintainer pushing a tag. A push to main that changes
-# the crate version in engine-rs/Cargo.toml tags engine-v<version> on that
-# commit and publishes the release with that version's engine-rs/CHANGELOG.md
-# section. It carries the three tarballs scripts/pack-engine.sh packs (the
-# player build, the tooling build and the conformance suite), each with its
-# checksum. When the repository variable ENGINE_REGISTRY_PUBLISH is `on`, the
-# run then dispatches engine-publish.yml, which waits for the owner's approval
-# and publishes the crate to crates.io and the player tarball to npm as
+# the crate version in engine-rs/Cargo.toml tags v<version> on that commit
+# and publishes the release, named after the tag and marked Latest, with that
+# version's engine-rs/CHANGELOG.md section. Versions up to 1.57.2 were tagged
+# engine-v<version>; their releases are left alone. The release carries the
+# three tarballs scripts/pack-engine.sh packs (the player build, the tooling
+# build and the conformance suite), each with its checksum. When the
+# repository variable ENGINE_REGISTRY_PUBLISH is `on`, the run then
+# dispatches engine-publish.yml, which waits for the owner's approval and
+# publishes the crate to crates.io and the player tarball to npm as
 # @verticopolis/engine (CONTRIBUTING.md "The registries").
 #
-# A tag this workflow creates with its own token starts no tag-push workflow,
-# so it packs the release itself rather than leaving it to engine-pack.yml.
+# This is the only workflow that creates a release. It packs the release
+# itself; engine-pack.yml packs the same tarballs only as run artifacts.
 # A tag or release that already exists is left alone, so a re-run is safe. To
 # finish a version whose run failed, run this workflow by hand from main with
 # that version: it must be the version engine-rs/Cargo.toml holds.
@@ -135,7 +137,11 @@ jobs:
           NPM_NAME: ${{ steps.pack.outputs.npm }}
         run: |
           set -euo pipefail
-          tag="engine-v$VERSION"
+          tag="v$VERSION"
+          if [ "$(gh release view "engine-v$VERSION" --json isDraft --jq .isDraft 2>/dev/null || true)" = false ]; then
+            echo "$VERSION was released as engine-v$VERSION; leaving it."
+            exit 0
+          fi
           # A published release is left alone; a draft from a failed run is redone.
           if draft="$(gh release view "$tag" --json isDraft --jq .isDraft 2>/dev/null)"; then
             if [ "$draft" != "true" ]; then echo "$tag already has a release; leaving it."; exit 0; fi
@@ -150,9 +156,10 @@ jobs:
             printf '\nThe registry copies appear once the owner approves the publish run (`engine-publish.yml`).\n'
           } >> notes.md
           # Attach while a draft, then publish, so a published release is never edited.
-          gh release create "$tag" --target "$GITHUB_SHA" --title "Engine crate $VERSION" --notes-file notes.md --latest=false --draft
+          # This repository releases only the engine, so its newest release is Latest.
+          gh release create "$tag" --target "$GITHUB_SHA" --title "$tag" --notes-file notes.md --latest --draft
           gh release upload "$tag" dist/*
-          gh release edit "$tag" --draft=false --latest=false
+          gh release edit "$tag" --draft=false --latest
           echo "Published $tag with $(ls dist | tr '\n' ' ')"
 
       # The registries: engine-publish.yml publishes the crate to crates.io

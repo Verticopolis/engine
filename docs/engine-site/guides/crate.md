@@ -266,8 +266,8 @@ cargo add verticopolis-engine --features conformance
 
 The suite's files are not in the crate package yet
 ([#47](https://github.com/Verticopolis/engine/issues/47)), so a host reads
-them from a checkout of the repository at the engine's `engine-v<version>`
-tag.
+them from a checkout of the repository at the engine's release tag
+(`v<version>`, or `engine-v<version>` up to 1.57.2).
 
 `scenario::Scenario::parse` and `scenario::run_scenario(&scenario, suite)`
 replay one scenario against a copy of the suite, which is what

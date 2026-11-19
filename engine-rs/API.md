@@ -182,7 +182,8 @@ unavailable, never as a failure of the engine.
 ## Stability
 
 - **No semver promise yet.** Each crate release is published to crates.io
-  as `verticopolis-engine` and tagged `engine-v<version>`; a consumer pins an
+  as `verticopolis-engine` and tagged `v<version>` (`engine-v<version>` up
+  to 1.57.2); a consumer pins an
   exact version, a tag or a commit. Each crate release also publishes the
   WASM build to npm as `@verticopolis/engine`. The version goes up with the
   conformance lock, the save, frame layout, view layout, catalog and

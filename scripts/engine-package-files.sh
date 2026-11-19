@@ -3,7 +3,7 @@
 # node/ and web/ trees: adds the package's own README, the browser build's
 # declarations, the license and the engine changelog, and writes package.json.
 # release-tag.yml runs it for each new crate release; the packed tarball goes
-# on the engine-v<version> GitHub release, and engine-publish.yml publishes
+# on the v<version> GitHub release, and engine-publish.yml publishes
 # that same tarball to npm as @verticopolis/engine.
 #
 #   scripts/engine-package-files.sh DIR VERSION REPO [CHANGELOG]

@@ -41,8 +41,8 @@ A release is one merged pull request that raises the crate version.
 2. **Merge it.** The push to `main` that changes the crate version starts
    **Release tags** (`.github/workflows/release-tag.yml`). It builds the
    engine, packs the three tarballs with `scripts/pack-engine.sh`, tags
-   `engine-v<version>` on the merge commit and publishes the GitHub release
-   with the changelog section. It refuses a version with no changelog
+   `v<version>` on the merge commit and publishes the GitHub release, named
+   after the tag and marked Latest, with the changelog section. It refuses a version with no changelog
    section.
 3. **Approve the publish.** The same run dispatches **Publish engine to
    registries** (`engine-publish.yml`), whose publish jobs wait on the
@@ -57,8 +57,9 @@ version instead.
 
 `engine-pack.yml` also packs the tarballs on every pull request and every
 push to `main`, as workflow artifacts, so a release never packs something no
-run has packed before. A tag pushed by hand (`engine-v<version>`) gets the
-same release from `engine-pack.yml`, without the registry publish.
+run has packed before. It creates no release: **Release tags** creates every
+release, so a tag pushed by hand gets none. Versions up to 1.57.2 were
+tagged `engine-v<version>`; those tags and releases stay as they are.
 
 ## The registries
 

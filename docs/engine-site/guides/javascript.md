@@ -59,7 +59,8 @@ has none.
 
 Each engine release also attaches the same package as a tarball, with a
 SHA-256 checksum, to its GitHub release
-([`engine-v<version>`](https://github.com/Verticopolis/engine/releases)), for
+([`v<version>`](https://github.com/Verticopolis/engine/releases), or
+`engine-v<version>` up to 1.57.2), for
 anyone who would rather not use a registry. Two more tarballs sit beside it:
 `verticopolis-engine-tooling`, the same engine with the binding's tier 3 ops
 for test suites and harnesses, and `verticopolis-engine-conformance`, the
@@ -298,7 +299,7 @@ The package version is the engine crate's version (`engine-rs/Cargo.toml`),
 which is separate from the web game's version. Each engine release:
 
 - publishes this package at that version;
-- tags the repository `engine-v<version>` and publishes a GitHub release with
+- tags the repository `v<version>` and publishes a GitHub release with
   that version's changelog section and the zipped builds;
 - adds a section to the [changelog](https://github.com/Verticopolis/engine/blob/main/engine-rs/CHANGELOG.md),
   written for people who build on the engine.
