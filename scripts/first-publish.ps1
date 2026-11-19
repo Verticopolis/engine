@@ -41,7 +41,7 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-$Repo = 'maniator/verticopolis'
+$Repo = 'Verticopolis/engine'
 $Crate = 'verticopolis-engine'
 $Package = '@verticopolis/engine'
 $Tag = "engine-v$Version"
@@ -176,12 +176,12 @@ Last step, once per site: let the release workflow publish from now on.
 
 crates.io: https://crates.io/crates/$Crate/settings
   Trusted Publishing > Add > GitHub
-  Repository owner: maniator    Repository name: verticopolis
+  Repository owner: Verticopolis    Repository name: engine
   Workflow filename: $Workflow    Environment: $Environment
 
 npm: https://www.npmjs.com/package/$Package/access
   Trusted Publisher > GitHub Actions
-  Organization or user: maniator    Repository: verticopolis
+  Organization or user: Verticopolis    Repository: engine
   Workflow filename: $Workflow    Environment name: $Environment
   Then, under Publishing access, choose to require two-factor
   authentication and disallow tokens.

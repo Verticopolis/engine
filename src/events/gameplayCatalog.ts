@@ -2,7 +2,7 @@
  * The gameplay event catalog (`engine-rs/src/gameplay/catalog.json`) as data:
  * its shape, the payload rule both engines hold it to, a check for one
  * drained event, and the renderer that writes `src/events/gameplayEvents.d.ts`
- * from it (`npm run gen:events`, and `npm run wasm:build`). The Rust twin is
+ * from it (`npm run wasm:build`). The Rust twin is
  * `engine-rs/src/gameplay.rs` (`check_catalog`, `check_event`). Pure: no file
  * access here, so the script and the tests hand it the parsed catalog.
  */
@@ -172,7 +172,7 @@ function doc(text: string, indent: string): string {
 /** The text of `src/events/gameplayEvents.d.ts` for a checked catalog. */
 export function renderGameplayEventsDts(catalog: GameplayCatalog): string {
   const out: string[] = [
-    "// Generated from engine-rs/src/gameplay/catalog.json by `npm run gen:events`.",
+    "// Generated from engine-rs/src/gameplay/catalog.json by `npm run wasm:build`.",
     "// Do not edit: change the catalog and regenerate (src/events/gameplayCatalog.test.ts fails while this is stale).",
     "",
     doc(catalog.about, ""),
@@ -219,7 +219,7 @@ export function renderGameplayEventRules(catalog: GameplayCatalog): string {
     return `    { name: ${JSON.stringify(e.name)}, payload: {${fields.length ? ` ${fields.join(", ")} ` : ""}} },`;
   });
   return [
-    "// Generated from engine-rs/src/gameplay/catalog.json by `npm run gen:events`.",
+    "// Generated from engine-rs/src/gameplay/catalog.json by `npm run wasm:build`.",
     "// Do not edit: change the catalog and regenerate (src/events/gameplayCatalog.test.ts fails while this is stale).",
     'import type { GameplayEventRules } from "./gameplayCatalog";',
     "",
