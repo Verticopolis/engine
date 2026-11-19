@@ -16,6 +16,10 @@ raised the version, so they are documentation only.
 There is no entry for 0.17.0, which only
 existed as a step inside a stacked branch.
 
+## 1.57.2 (2026-11-19)
+
+- No change to the engine's contract or behavior. This is the first version published from this repository's release workflow, so its npm package carries a provenance statement (1.57.1 was published by hand).
+
 ## 1.57.1 (2026-11-19)
 
 - A trip's patience (`GIVE_UP`, `STAFF_GIVE_UP`) counts only the time spent waiting for a car, in both modes, and the per-floor allowance at car speed is gone. A person's `age` is now that waiting time from the trip's start, and the give-up check runs only in the `Waiting` state (#2386).
