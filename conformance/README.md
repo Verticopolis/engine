@@ -21,8 +21,10 @@ Frontends may differ. Simulations may not.
   run's records, as `fuzz --replay` writes them).
 
 The runner is `src/tests/conformance/scenario.ts`. It drives any engine
-behind its `ScenarioEngine` interface. The Rust engine answers twice:
-natively through `cargo run --release --features conformance --bin conformance`, and through its WASM
+behind its `ScenarioEngine` interface. The Rust engine answers three times:
+natively through `cargo run --release --features conformance --bin conformance`;
+as WebAssembly, with the same referee built for `wasm32-wasip1` and run under
+Node's WASI (`scripts/conformance-wasi.mts`, CI job `wasm-referee`); and through its WASM
 binding from Node (`npm run wasm:build && npm run test:wasm`, see
 `engine-rs/README.md`), where `conformanceWasm.integration.test.ts` replays
 every scenario against this lock. A mismatch fails the build and names the

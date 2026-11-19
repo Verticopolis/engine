@@ -104,6 +104,9 @@ cd engine-rs
 cargo test                                  # unit tests (rng, number formatting, hash)
 # The referee and the tools below are the `conformance` feature.
 cargo run --release --features conformance --bin conformance       # replay every scenario against expected.json
+# The same referee as WebAssembly under Node's WASI (rustup target add wasm32-wasip1):
+cargo build --locked --release --features conformance --bin conformance --target wasm32-wasip1
+(cd .. && node --no-turbo-fast-api-calls scripts/conformance-wasi.mts engine-rs/target/wasm32-wasip1/release/conformance.wasm conformance)
 cargo llvm-cov --no-report test --features conformance && cargo llvm-cov --no-report run --features conformance --bin conformance \
   && cargo llvm-cov report               # what the tests and the referee reach; CI floors lines at 87%
 cargo run --release --features conformance --bin dump -- starter-classic t+60   # canonical JSON of one checkpoint
