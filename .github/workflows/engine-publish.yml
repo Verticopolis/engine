@@ -150,5 +150,6 @@ jobs:
           tgz="verticopolis-engine-$VERSION.tgz"
           gh release download "engine-v$VERSION" --pattern "$tgz" --pattern "$tgz.sha256" --dir release
           (cd release && sha256sum -c "$tgz.sha256")
-          npm publish "release/$tgz" --access public --provenance
+          # The ./ keeps npm from reading release/<file> as a GitHub owner/repo.
+          npm publish "./release/$tgz" --access public --provenance
           echo "Published @verticopolis/engine@$VERSION."
