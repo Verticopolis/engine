@@ -20,6 +20,15 @@ console.log(engine.money());
 engine.free();
 ```
 
+## Test builds and the conformance suite
+
+The package also holds `tooling/`, the same engine with the test and tooling
+calls (`require("@verticopolis/engine/tooling")`, for test suites and
+harnesses only, never shipped to players), and `conformance/`, the
+conformance suite's files. A game that imports neither bundles nothing from
+them. See
+[Test builds and the conformance suite](https://docs.verticopolis.com/javascript/#test-builds-and-the-conformance-suite).
+
 ## Documentation
 
 The full guide lives on the engine docs site,

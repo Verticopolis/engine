@@ -40,9 +40,9 @@ A release is one merged pull request that raises the crate version.
    in the same PR.
 2. **Merge it.** The push to `main` that changes the crate version starts
    **Release tags** (`.github/workflows/release-tag.yml`). It builds the
-   engine, packs the three tarballs with `scripts/pack-engine.sh`, tags
-   `engine-v<version>` on the merge commit and publishes the GitHub release
-   with the changelog section. It refuses a version with no changelog
+   engine, packs the npm tarball with `scripts/pack-engine.sh`, tags
+   `v<version>` on the merge commit and publishes the GitHub release, named
+   after the tag and marked Latest, with the changelog section. It refuses a version with no changelog
    section.
 3. **Approve the publish.** The same run dispatches **Publish engine to
    registries** (`engine-publish.yml`), whose publish jobs wait on the
@@ -57,8 +57,9 @@ version instead.
 
 `engine-pack.yml` also packs the tarballs on every pull request and every
 push to `main`, as workflow artifacts, so a release never packs something no
-run has packed before. A tag pushed by hand (`engine-v<version>`) gets the
-same release from `engine-pack.yml`, without the registry publish.
+run has packed before. It creates no release: **Release tags** creates every
+release, so a tag pushed by hand gets none. Versions up to 1.57.2 were
+tagged `engine-v<version>`; those tags and releases stay as they are.
 
 ## The registries
 
@@ -94,8 +95,8 @@ leaked token cannot publish it. The crate's `include` list in
 in `engine-rs.yml` packages the crate on every engine change and builds the
 consumer crate against the packaged copy, so a file the library needs from
 outside `engine-rs/` fails there. The conformance suite is not in the crate
-yet ([#47](https://github.com/Verticopolis/engine/issues/47)); it ships as the
-`verticopolis-engine-conformance` tarball on each release.
+yet ([#47](https://github.com/Verticopolis/engine/issues/47)); it ships in
+the npm package as `@verticopolis/engine/conformance/`.
 
 **The first version of each** went up by hand, because both registries set
 up trusted publishing only for a package that already exists. The owner

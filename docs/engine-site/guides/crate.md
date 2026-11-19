@@ -181,7 +181,7 @@ The crate has no default features.
 | --- | --- |
 | `conformance` | The harness that replays the conformance suite (`scenario`, `suite`, the `.TDT` referee) and the command-line tools. It reads the suite's files, so a host turns it on only to prove conformance. |
 | `wasm` | The JavaScript binding, for a `wasm32-unknown-unknown` build through wasm-bindgen. A native host leaves it off. |
-| `tooling` | The binding's test and tooling calls (raw edits that skip the game's charges, scripted events, seeding), on top of `wasm`. The web game's tests and tooling build it; the game it ships and the npm package do not. A host leaves it off. |
+| `tooling` | The binding's test and tooling calls (raw edits that skip the game's charges, scripted events, seeding), on top of `wasm`. The web game's tests and tooling build it; the game it ships and the npm package's player build leave it off (the npm package carries the tooling build separately, as `tooling/`). A host leaves it off. |
 
 ## Saves
 
@@ -266,8 +266,8 @@ cargo add verticopolis-engine --features conformance
 
 The suite's files are not in the crate package yet
 ([#47](https://github.com/Verticopolis/engine/issues/47)), so a host reads
-them from a checkout of the repository at the engine's `engine-v<version>`
-tag.
+them from a checkout of the repository at the engine's release tag
+(`v<version>`, or `engine-v<version>` up to 1.57.2).
 
 `scenario::Scenario::parse` and `scenario::run_scenario(&scenario, suite)`
 replay one scenario against a copy of the suite, which is what

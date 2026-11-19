@@ -3,17 +3,20 @@ name: Release tags
 # Publishes each engine version as a GitHub release when the pull request that
 # raises it merges (CONTRIBUTING.md "Releasing"), so every crate version gets
 # a release without a maintainer pushing a tag. A push to main that changes
-# the crate version in engine-rs/Cargo.toml tags engine-v<version> on that
-# commit and publishes the release with that version's engine-rs/CHANGELOG.md
-# section. It carries the three tarballs scripts/pack-engine.sh packs (the
-# player build, the tooling build and the conformance suite), each with its
-# checksum. When the repository variable ENGINE_REGISTRY_PUBLISH is `on`, the
-# run then dispatches engine-publish.yml, which waits for the owner's approval
-# and publishes the crate to crates.io and the player tarball to npm as
+# the crate version in engine-rs/Cargo.toml tags v<version> on that commit
+# and publishes the release, named after the tag and marked Latest, with that
+# version's engine-rs/CHANGELOG.md section. Versions up to 1.57.2 were tagged
+# engine-v<version>; their releases are left alone. The release carries the
+# tarball scripts/pack-engine.sh packs, @verticopolis/engine with its tooling/
+# and conformance/ subpaths, and its checksum. (Up to 1.57.2 the tooling
+# build and the conformance suite were separate tarballs.) When the
+# repository variable ENGINE_REGISTRY_PUBLISH is `on`, the run then
+# dispatches engine-publish.yml, which waits for the owner's approval and
+# publishes the crate to crates.io and the player tarball to npm as
 # @verticopolis/engine (CONTRIBUTING.md "The registries").
 #
-# A tag this workflow creates with its own token starts no tag-push workflow,
-# so it packs the release itself rather than leaving it to engine-pack.yml.
+# This is the only workflow that creates a release. It packs the release
+# itself; engine-pack.yml packs the same tarballs only as run artifacts.
 # A tag or release that already exists is left alone, so a re-run is safe. To
 # finish a version whose run failed, run this workflow by hand from main with
 # that version: it must be the version engine-rs/Cargo.toml holds.
@@ -105,13 +108,11 @@ jobs:
         if: ${{ steps.versions.outputs.changed == 'true' }}
         uses: ./.github/actions/engine-wasm
 
-      # scripts/pack-engine.sh packs the release's three tarballs, each with a
-      # checksum, the same way engine-pack.yml does on every pull request:
-      # @verticopolis/engine (the player build, which engine-publish.yml
-      # publishes to npm, so the bytes on npm are the ones here),
-      # @verticopolis/engine-tooling and @verticopolis/engine-conformance. A
-      # tag this workflow creates with its own token starts no tag-push
-      # workflow, so it packs here rather than leaving it to engine-pack.yml.
+      # scripts/pack-engine.sh packs the release's tarball, with a checksum,
+      # the same way engine-pack.yml does on every pull request:
+      # @verticopolis/engine (the player build, plus its tooling/ and
+      # conformance/ subpaths), which engine-publish.yml publishes to npm, so
+      # the bytes on npm are the ones here.
       - name: Pack the engine
         id: pack
         if: ${{ steps.versions.outputs.changed == 'true' }}
@@ -135,7 +136,11 @@ jobs:
           NPM_NAME: ${{ steps.pack.outputs.npm }}
         run: |
           set -euo pipefail
-          tag="engine-v$VERSION"
+          tag="v$VERSION"
+          if [ "$(gh release view "engine-v$VERSION" --json isDraft --jq .isDraft 2>/dev/null || true)" = false ]; then
+            echo "$VERSION was released as engine-v$VERSION; leaving it."
+            exit 0
+          fi
           # A published release is left alone; a draft from a failed run is redone.
           if draft="$(gh release view "$tag" --json isDraft --jq .isDraft 2>/dev/null)"; then
             if [ "$draft" != "true" ]; then echo "$tag already has a release; leaving it."; exit 0; fi
@@ -146,13 +151,16 @@ jobs:
           if ! grep -q '[^[:space:]]' notes.md; then echo "::error::engine-rs/CHANGELOG.md has no $VERSION section."; exit 1; fi
           {
             printf '\nThe crate is [`verticopolis-engine` %s](https://crates.io/crates/verticopolis-engine/%s) on crates.io, or `verticopolis-engine = { git = "https://github.com/%s", tag = "%s" }` through git.\n' "$VERSION" "$VERSION" "$GH_REPO" "$tag"
-            printf '\n`%s` holds the player build (`node/` for Node, `web/` for the browser, `events/` for the gameplay event types). The tooling build and the conformance suite are beside it, each tarball with its SHA-256 checksum. The player build is [`%s@%s`](https://www.npmjs.com/package/%s/v/%s) on npm, published from `%s`.\n' "$TGZ" "$NPM_NAME" "$VERSION" "$NPM_NAME" "$VERSION" "$TGZ"
+            printf '\n`%s`, with its SHA-256 checksum, is [`%s@%s`](https://www.npmjs.com/package/%s/v/%s) as npm serves it: the player build (`node/` for Node, `web/` for the browser), `events/` (the gameplay event types), `tooling/` (the tooling build with the tier 3 ops, for test suites and harnesses) and `conformance/` (the conformance suite).\n' "$TGZ" "$NPM_NAME" "$VERSION" "$NPM_NAME" "$VERSION"
             printf '\nThe registry copies appear once the owner approves the publish run (`engine-publish.yml`).\n'
           } >> notes.md
           # Attach while a draft, then publish, so a published release is never edited.
-          gh release create "$tag" --target "$GITHUB_SHA" --title "Engine crate $VERSION" --notes-file notes.md --latest=false --draft
+          # This repository releases only the engine, so its newest release is
+          # Latest. If release lines ever branch, a patch to an older line
+          # would need --latest=false here.
+          gh release create "$tag" --target "$GITHUB_SHA" --title "$tag" --notes-file notes.md --latest --draft
           gh release upload "$tag" dist/*
-          gh release edit "$tag" --draft=false --latest=false
+          gh release edit "$tag" --draft=false --latest
           echo "Published $tag with $(ls dist | tr '\n' ' ')"
 
       # The registries: engine-publish.yml publishes the crate to crates.io

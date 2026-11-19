@@ -26,6 +26,8 @@
     "node",
     "web",
     "events",
+    "tooling",
+    "conformance",
     "CHANGELOG.md"
   ],
   "publishConfig": {

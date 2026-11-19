@@ -1,6 +1,7 @@
 name: Publish engine to registries
 
-# Publishes one engine release (engine-v<version>) to crates.io, as the crate
+# Publishes one engine release (v<version>, or engine-v<version> up to 1.57.2)
+# to crates.io, as the crate
 # verticopolis-engine, and to npm, as @verticopolis/engine. release-tag.yml
 # dispatches it when a release PR raises the crate version; a maintainer can
 # also run it from the Actions tab with the version, to finish a run that
@@ -27,7 +28,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Engine version to publish (x.y.z, with a published engine-v<version> release)"
+        description: "Engine version to publish (x.y.z, with a published v<version> release)"
         required: true
         type: string
 
@@ -43,8 +44,11 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
     steps:
       - name: Check the release, its crate version and its npm tarball
+        id: release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -52,7 +56,9 @@ jobs:
         run: |
           set -euo pipefail
           if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then echo "::error::$VERSION is not a plain x.y.z."; exit 1; fi
-          tag="engine-v$VERSION"
+          # Versions up to 1.57.2 were tagged engine-v<version>.
+          tag="v$VERSION"
+          if ! gh release view "$tag" > /dev/null 2>&1 && gh release view "engine-v$VERSION" > /dev/null 2>&1; then tag="engine-v$VERSION"; fi
           if ! draft="$(gh release view "$tag" --json isDraft --jq .isDraft)"; then echo "::error::$tag has no GitHub release."; exit 1; fi
           if [ "$draft" != "false" ]; then echo "::error::The $tag release is still a draft."; exit 1; fi
           # awk reads to the end (no early exit), so base64 never writes to a
@@ -66,6 +72,7 @@ jobs:
           named="$(tar -xOzf "release/$tgz" package/package.json | jq -r '.name + "@" + .version')"
           if [ "$named" != "@verticopolis/engine@$VERSION" ]; then echo "::error::$tgz holds $named, not @verticopolis/engine@$VERSION."; exit 1; fi
           echo "$tag is ready: crate $crate and $tgz ($named)."
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
   crate:
     needs: check
@@ -78,7 +85,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/tags/engine-v${{ inputs.version }}
+          ref: refs/tags/${{ needs.check.outputs.tag }}
           persist-credentials: false
 
       # The toolchain the engine pins (rust-version), as the rust job uses.
@@ -123,7 +130,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/tags/engine-v${{ inputs.version }}
+          ref: refs/tags/${{ needs.check.outputs.tag }}
           persist-credentials: false
           sparse-checkout: .nvmrc
           sparse-checkout-cone-mode: false
@@ -140,6 +147,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ inputs.version }}
+          TAG: ${{ needs.check.outputs.tag }}
         run: |
           set -euo pipefail
           # Trusted publishing needs npm 11.5.1 or later.
@@ -150,7 +158,7 @@ jobs:
             exit 0
           fi
           tgz="verticopolis-engine-$VERSION.tgz"
-          gh release download "engine-v$VERSION" --pattern "$tgz" --pattern "$tgz.sha256" --dir release
+          gh release download "$TAG" --pattern "$tgz" --pattern "$tgz.sha256" --dir release
           (cd release && sha256sum -c "$tgz.sha256")
           # The ./ keeps npm from reading release/<file> as a GitHub owner/repo.
           npm publish "./release/$tgz" --access public --provenance

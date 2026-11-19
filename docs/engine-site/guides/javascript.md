@@ -59,12 +59,14 @@ has none.
 
 Each engine release also attaches the same package as a tarball, with a
 SHA-256 checksum, to its GitHub release
-([`engine-v<version>`](https://github.com/Verticopolis/engine/releases)), for
-anyone who would rather not use a registry. Two more tarballs sit beside it:
-`verticopolis-engine-tooling`, the same engine with the binding's tier 3 ops
-for test suites and harnesses, and `verticopolis-engine-conformance`, the
-conformance suite. Versions released before the package moved to npm were
-published only to GitHub Packages, as `@maniator/verticopolis-engine`, and
+([`v<version>`](https://github.com/Verticopolis/engine/releases), or
+`engine-v<version>` up to 1.57.2), for
+anyone who would rather not use a registry. Up to 1.57.2, two more tarballs
+sat beside it, `verticopolis-engine-tooling` and
+`verticopolis-engine-conformance`; from the release after 1.57.2 the package
+carries both itself (see "Test builds and the conformance suite" below).
+Versions released before the package moved to npm were published only to
+GitHub Packages, as `@maniator/verticopolis-engine`, and
 stay there.
 
 ## Quick start (Node)
@@ -226,8 +228,26 @@ The binding exports more than this table. The rest are the web game's own
 plumbing: packed number-array answers its host decodes. They can change in
 any release, so build on the calls above. The test hooks and raw edits that
 skip the game's charges (`setMoney`, `setCars`, `startFire` and the like) are
-not in the published package at all: only the crate's `tooling` feature
-builds them, for the web game's own tests and tooling.
+not in the player build: only the crate's `tooling` feature builds them, and
+the package carries that build separately (below).
+
+### Test builds and the conformance suite
+
+The package holds two more trees beside the player build. A game that
+imports neither bundles nothing from them; they only make the install
+bigger.
+
+- **`tooling/`**: the same engine built with the `tooling` feature, laid out
+  like the player build (`tooling/node/` for Node, `tooling/web/` for the
+  browser). It adds the test hooks and raw edits above, for test suites and
+  harnesses, and never ships to players. `require("@verticopolis/engine/tooling")`
+  loads the Node build; from ESM or a bundler, import
+  `@verticopolis/engine/tooling/node/verticopolis_engine.js` or
+  `@verticopolis/engine/tooling/web/verticopolis_engine.js`.
+- **`conformance/`**: the conformance suite (scenarios, pinned checkpoint
+  hashes, fixtures and cases), as files a test reads from
+  `node_modules/@verticopolis/engine/conformance/`. See the
+  [conformance guide](/conformance/).
 
 ## Saves
 
@@ -298,7 +318,7 @@ The package version is the engine crate's version (`engine-rs/Cargo.toml`),
 which is separate from the web game's version. Each engine release:
 
 - publishes this package at that version;
-- tags the repository `engine-v<version>` and publishes a GitHub release with
+- tags the repository `v<version>` and publishes a GitHub release with
   that version's changelog section and the zipped builds;
 - adds a section to the [changelog](https://github.com/Verticopolis/engine/blob/main/engine-rs/CHANGELOG.md),
   written for people who build on the engine.

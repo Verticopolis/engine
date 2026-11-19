@@ -1,24 +1,23 @@
 name: Engine packages
 
-# Builds the engine's WASM packages and packs the three tarballs a game pins
-# (scripts/pack-engine.sh): @verticopolis/engine (the player build),
-# @verticopolis/engine-tooling (with the tier 3 ops test suites and harnesses
-# use) and @verticopolis/engine-conformance (conformance/). It also runs the
+# Builds the engine's WASM packages and packs the tarball a game pins
+# (scripts/pack-engine.sh): @verticopolis/engine, the player build with the
+# tooling build (tooling/, with the tier 3 ops test suites and harnesses use)
+# and the conformance suite (conformance/) as subpaths. It also runs the
 # packer's own TypeScript tests.
 #
-# - A pull request or a push to main uploads the tarballs as a run artifact.
-#   A PR's tarballs are versioned <crate>-pr.<number>.<run> so a game PR can
+# - A pull request or a push to main uploads the tarball as a run artifact.
+#   A PR's tarball is versioned <crate>-pr.<number>.<run> so a game PR can
 #   try them without mistaking them for a release.
-# - A pushed engine-v<version> tag attaches them, with their checksums, to
-#   that tag's GitHub release, creating the release when it does not exist.
-#   The tag must name the crate version in engine-rs/Cargo.toml. Nothing here
-#   publishes to npm or crates.io (engine-publish.yml does, on its own).
+#
+# Releases come from release-tag.yml alone, which packs the same tarballs
+# for the release it creates; nothing here creates a release or publishes to
+# npm or crates.io.
 on:
   pull_request:
     branches: [main]
   push:
     branches: [main]
-    tags: ["engine-v*"]
   workflow_dispatch:
 
 concurrency:
@@ -58,25 +57,12 @@ jobs:
         id: version
         env:
           EVENT: ${{ github.event_name }}
-          REF: ${{ github.ref }}
           PR: ${{ github.event.pull_request.number }}
           RUN: ${{ github.run_number }}
         run: |
           set -euo pipefail
           crate=$(awk '/^\[package\]/ { p = 1; next } /^\[/ { p = 0 } p && /^version *=/ { gsub(/.*= *"|".*/, ""); print; exit }' engine-rs/Cargo.toml)
-          case "$REF" in
-            refs/tags/engine-v*)
-              tag="${REF#refs/tags/}"
-              if [ "$tag" != "engine-v$crate" ]; then
-                echo "::error::Tag $tag does not match the crate version $crate in engine-rs/Cargo.toml."
-                exit 1
-              fi
-              version="$crate"
-              ;;
-            *)
-              if [ "$EVENT" = pull_request ]; then version="$crate-pr.$PR.$RUN"; else version="$crate-main.$RUN"; fi
-              ;;
-          esac
+          if [ "$EVENT" = pull_request ]; then version="$crate-pr.$PR.$RUN"; else version="$crate-main.$RUN"; fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Pack
@@ -92,32 +78,3 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  release:
-    name: Attach to the release
-    needs: pack
-    if: startsWith(github.ref, 'refs/tags/engine-v')
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          pattern: engine-packages-*
-          path: dist
-          merge-multiple: true
-
-      - name: Create or update the release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          TAG: ${{ github.ref_name }}
-        run: |
-          set -euo pipefail
-          # No --clobber: a game pins these tarballs by hash, so a re-run that
-          # finds them attached fails instead of replacing them.
-          if ! gh release view "$TAG" > /dev/null 2>&1; then
-            gh release create "$TAG" --verify-tag --title "Engine ${TAG#engine-v}" \
-              --notes "The engine's packages for ${TAG#engine-v}: the player build, the tooling build and the conformance suite, each with its SHA-256 checksum. See https://docs.verticopolis.com/javascript/ for how to load them."
-          fi
-          gh release upload "$TAG" dist/*
