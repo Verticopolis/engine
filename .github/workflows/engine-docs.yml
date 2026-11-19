@@ -18,45 +18,15 @@ name: Engine docs
 # Pages takes the whole site in one deploy, so the live docs and the previews
 # are kept together on the docs-pages branch; docs-pages-publish.yml stores
 # this build there and deploys.
+# Parked until the split's cut: maniator/verticopolis still runs this
+# workflow, and its other triggers (in this file's history) come back once
+# this repository is the engine's home. Until then it starts only by hand.
 on:
   workflow_dispatch:
     inputs:
       tag:
         description: "main, or an existing engine tag (engine-v<version>) to publish instead"
         required: true
-  push:
-    branches: [main]
-    paths:
-      - "docs/engine-site/**"
-      - "src/styles/retro-tokens.css"
-      - "src/public/favicon.png"
-      - "src/public/icon-1024x1024.png"
-      - "src/public/splash-skyline.svg"
-      - "packages/verticopolis-engine/README.md"
-      - "engine-rs/CRATE_README.md"
-      - "engine-rs/API.md"
-      - "engine-rs/CHANGELOG.md"
-      - "engine-rs/Cargo.toml"
-      - "engine-rs/src/**"
-      - "conformance/README.md"
-      - ".github/workflows/engine-docs.yml"
-      - ".github/workflows/docs-pages-publish.yml"
-  pull_request:
-    paths:
-      - "docs/engine-site/**"
-      - "src/styles/retro-tokens.css"
-      - "src/public/favicon.png"
-      - "src/public/icon-1024x1024.png"
-      - "src/public/splash-skyline.svg"
-      - "packages/verticopolis-engine/README.md"
-      - "engine-rs/CRATE_README.md"
-      - "engine-rs/API.md"
-      - "engine-rs/CHANGELOG.md"
-      - "engine-rs/Cargo.toml"
-      - "engine-rs/src/**"
-      - "conformance/README.md"
-      - ".github/workflows/engine-docs.yml"
-      - ".github/workflows/docs-pages-publish.yml"
 
 permissions:
   contents: read
