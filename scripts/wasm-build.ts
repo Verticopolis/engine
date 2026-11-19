@@ -1,18 +1,16 @@
 /**
  * Build a Rust crate's WASM binding. With no argument it builds the engine
- * twice. The player build (the `wasm` feature) goes to src/public/engine/ for
+ * twice. The player build (the `wasm` feature) goes to engine-rs/pkg-web/ for
  * the browser and engine-rs/pkg-player/ for Node; the tooling build (`wasm`
  * and `tooling`, which adds the tier 3 ops the tests and harnesses use) goes to
  * engine-rs/pkg/ for Node and engine-rs/pkg-web-tooling/ for the browser.
+ * scripts/pack-engine.sh packs them into the release tarballs.
  * Each is `cargo rustc` for wasm32 as a cdylib, `wasm-bindgen`
  * for the JavaScript glue, and a package.json marking the output CommonJS (the
  * repository is ESM, and wasm-bindgen's Node target emits `require`). For the
- * engine, the declaration wasm-bindgen writes is copied to
- * src/engineBinding/engine.d.ts, the one checked-in file, so the TypeScript side
- * types against the binding as the Rust source declares it (CI fails when the
- * copy is stale). The engine build also refreshes src/events/gameplayEvents.d.ts
- * (and the bridge's rules beside it, src/events/gameplayEventRules.ts)
- * from engine-rs/src/gameplay/catalog.json (the same as `npm run gen:events`).
+ * engine, the build also writes the gameplay event types and the bridge's
+ * rules (engine-rs/pkg-events/gameplayEvents.d.ts and gameplayEventRules.ts)
+ * from engine-rs/src/gameplay/catalog.json, for the packages to carry.
  * Each browser target lands with a BUILD.json naming the
  * sources it came from (see src/wasmhost/packageHash.ts) and the digests of
  * its glue and binary (src/wasmhost/enginePackageRecord.ts) and a
@@ -24,7 +22,7 @@
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -40,9 +38,8 @@ const CRATES: Record<string, { dir: string; lib: string }> = {
   engine: { dir: "engine-rs", lib: "verticopolis_engine" },
 };
 // `--player-only` builds the engine's player package alone and skips the
-// tooling build. A Vercel deploy uses it: a deploy never ships the tooling
-// package (vite.config.ts refuses VC_TOOLING=1 there), so compiling it would
-// only spend build minutes.
+// tooling build, for a build that never ships the tooling package, where
+// compiling it would only spend build minutes.
 const args = process.argv.slice(2);
 const playerOnly = args.includes("--player-only");
 const positional = args.filter((a) => a !== "--player-only");
@@ -82,14 +79,12 @@ if (which === "engine") {
   if (!rustVersion) throw new Error(`${target.dir}/Cargo.toml declares no rust-version`);
   checkToolchain(crate, rustVersion);
 }
-// The engine is built twice (#1057). The player build (`wasm`) is what ships:
-// src/public/engine/ for the browser and engine-rs/pkg-player/ for the npm
-// package's Node tree. The tooling build (`tooling`, which adds the binding's
-// tier 3 ops, src/engineBinding/exportTiers.ts) is what the test suites and
-// the screenshot and e2e harnesses drive: engine-rs/pkg/ for Node and
-// engine-rs/pkg-web-tooling/ for the browser, which a VC_TOOLING=1 build and
-// a dev serve put in place of src/public/engine/ (vite.config.ts). The other
-// crates have one build, into pkg/.
+// The engine is built twice (Verticopolis/web#1057). The player build (`wasm`)
+// is what ships: engine-rs/pkg-web/ for the browser and engine-rs/pkg-player/
+// for the npm package's Node tree. The tooling build (`tooling`, which adds the
+// binding's tier 3 ops) is what a frontend's test suites and its screenshot and
+// e2e harnesses drive: engine-rs/pkg/ for Node and engine-rs/pkg-web-tooling/
+// for the browser. The other crates have one build, into pkg/.
 const PLAYER_FEATURES = "wasm";
 const TOOLING_FEATURES = "wasm,tooling";
 const run = (cmd: string, args: string[], env?: NodeJS.ProcessEnv) => execFileSync(cmd, args, { cwd: crate, stdio: "inherit", env });
@@ -156,9 +151,8 @@ function nodePackage(dir: string): void {
 /**
  * The browser target into `web`, with the BUILD.json and THIRD-PARTY.json
  * the served package carries. Its BUILD.json records a hash of the Rust
- * sources it was built from: CI keys its cache on that hash, and
- * src/wasmhost/packageHash.test.ts fails when the sources moved on without a
- * rebuild. `record` is the crates and standard library compiled in, with
+ * sources it was built from: CI keys its cache on that hash, and a host can
+ * refuse a package whose sources moved on without a rebuild. `record` is the crates and standard library compiled in, with
  * their licenses (#955).
  */
 function webPackage(web: string, label: string, record: ReturnType<typeof engineThirdParty>): void {
@@ -208,28 +202,27 @@ if (which === "engine") {
   const toolingRecord = playerOnly ? undefined : engineThirdParty(crate, TOOLING_FEATURES);
   // The old packages go first, so a failed run leaves no stale package behind
   // for the suite to replay.
-  for (const dir of ["pkg", "pkg-player", "pkg-web-tooling"]) rmSync(resolve(crate, dir), { recursive: true, force: true });
+  for (const dir of ["pkg", "pkg-player", "pkg-web", "pkg-web-tooling", "pkg-events"]) rmSync(resolve(crate, dir), { recursive: true, force: true });
   compile(PLAYER_FEATURES);
-  webPackage(resolve(crate, "../src/public/engine"), "src/public/engine", playerRecord);
+  webPackage(resolve(crate, "pkg-web"), `${target.dir}/pkg-web`, playerRecord);
   nodePackage("pkg-player");
   if (toolingRecord) {
     compile(TOOLING_FEATURES);
     nodePackage("pkg");
     webPackage(resolve(crate, "pkg-web-tooling"), `${target.dir}/pkg-web-tooling`, toolingRecord);
-    // The class declaration is the same for both targets; the tooling Node copy
-    // is the committed one (`src/engineBinding/binding.ts` types against it),
-    // so the tooling harnesses type against the tier 3 ops the player build
-    // leaves out. A player-only build leaves the committed copy as it is.
-    copyFileSync(resolve(crate, "pkg/verticopolis_engine.d.ts"), resolve(crate, "../src/engineBinding/engine.d.ts"));
+    // The tooling Node build's declaration (pkg/verticopolis_engine.d.ts) is
+    // the one a frontend's binding types against, since it names the tier 3
+    // ops the player build leaves out. The tooling tarball carries it.
   }
   // The gameplay event types and the bridge's runtime rules come from the
   // catalog both engines are held to, so they are refreshed with the
   // binding's own declaration.
   const catalog = checkCatalog(JSON.parse(readFileSync(resolve(crate, "src/gameplay/catalog.json"), "utf8")));
-  writeFileSync(resolve(crate, "../src/events/gameplayEvents.d.ts"), renderGameplayEventsDts(catalog));
-  writeFileSync(resolve(crate, "../src/events/gameplayEventRules.ts"), renderGameplayEventRules(catalog));
-  if (toolingRecord) console.log("src/public/engine and engine-rs/pkg-player (player build), engine-rs/pkg and engine-rs/pkg-web-tooling (tooling build): built; src/engineBinding/engine.d.ts, src/events/gameplayEvents.d.ts and gameplayEventRules.ts refreshed");
-  else console.log("src/public/engine and engine-rs/pkg-player (player build): built, tooling build skipped (--player-only); src/events/gameplayEvents.d.ts and gameplayEventRules.ts refreshed");
+  mkdirSync(resolve(crate, "pkg-events"), { recursive: true });
+  writeFileSync(resolve(crate, "pkg-events/gameplayEvents.d.ts"), renderGameplayEventsDts(catalog));
+  writeFileSync(resolve(crate, "pkg-events/gameplayEventRules.ts"), renderGameplayEventRules(catalog));
+  if (toolingRecord) console.log("engine-rs/pkg-web and engine-rs/pkg-player (player build), engine-rs/pkg and engine-rs/pkg-web-tooling (tooling build), engine-rs/pkg-events: built");
+  else console.log("engine-rs/pkg-web and engine-rs/pkg-player (player build), engine-rs/pkg-events: built, tooling build skipped (--player-only)");
 } else {
   // The old package goes first here too, so a failed compile leaves none.
   rmSync(resolve(crate, "pkg"), { recursive: true, force: true });
