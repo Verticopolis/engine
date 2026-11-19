@@ -31,10 +31,13 @@ cp LICENSE "$dir/LICENSE"
 
 # The package is defined by the repository root's package.json; the version
 # comes from the release (the crate's), so no package.json version is ever
-# edited by hand.
+# edited by hand. The root's scripts and dev dependencies build the package
+# and do not ship in it.
 VERSION="$version" DIR="$dir" node -e '
   const fs = require("fs");
   const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
   pkg.version = process.env.VERSION;
+  delete pkg.scripts;
+  delete pkg.devDependencies;
   fs.writeFileSync(`${process.env.DIR}/package.json`, JSON.stringify(pkg, null, 2) + "\n");'
 echo "@verticopolis/engine"

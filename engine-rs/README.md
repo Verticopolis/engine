@@ -247,13 +247,13 @@ npm run test:wasm           # every scenario through the binding, the frame-day 
 
 `wasm:build` compiles the crate twice (#1057). The player build
 (`--features wasm`) is the one the game ships and npm publishes: the browser
-package in `src/public/engine/` and the Node package in `engine-rs/pkg-player/`.
+package in `engine-rs/pkg-web/` and the Node package in `engine-rs/pkg-player/`.
 The tooling build (`--features tooling`, which turns `wasm` on too) adds the
 binding's tier 3 ops (raw edits, scripted events and seeding calls, listed in
 `src/engineBinding/exportTiers.ts`) that the tests and the tooling harnesses
 call: the Node package in `engine-rs/pkg/`, which the WASM suites load, and
 the browser package in `engine-rs/pkg-web-tooling/`, which a `VC_TOOLING=1`
-build and a dev serve put in place of `src/public/engine/`. The build guard
+build and a dev serve put in place of the player's browser package. The build guard
 (`scripts/verify-engine-bundle.ts`) fails a production build whose engine has
 a tier 3 op and a tooling build whose engine lacks one.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install the toolchain the engine's WASM package needs, then build it with
-# `npm run wasm:build`: the player build (src/public/engine/ for the browser,
+# `npm run wasm:build`: the player build (engine-rs/pkg-web/ for the browser,
 # engine-rs/pkg-player/ for Node) and the tooling build with the binding's
 # tier 3 ops (engine-rs/pkg/ for Node, engine-rs/pkg-web-tooling/ for a
 # VC_TOOLING=1 browser build, #1057). Arguments pass through to
