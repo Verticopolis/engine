@@ -7,8 +7,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import { GITHUB, sidebar, siteTitle } from "./site.mjs";
 
-// DOCS_REF is main, or an engine tag (engine-v1.24.0) when a maintainer
-// publishes a release instead; the workflow sets it.
+// DOCS_REF names the ref the pages link to; the workflow sets it to main.
 const title = siteTitle(process.env.DOCS_REF);
 
 // DOCS_BASE puts a pull request's preview under /pr-preview/pr-<number>/

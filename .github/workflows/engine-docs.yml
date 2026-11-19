@@ -8,9 +8,9 @@ name: Engine docs
 # The site shows main, as the engine READMEs do: a push to main that touches
 # the site, a page it shows or the engine's sources (the Rust API reference
 # comes from their doc comments) deploys it, and so does the release merge
-# that writes the engine changelog. A maintainer can run it by hand for main, or
-# for an engine tag made after the site existed to show that release instead
-# (until the next push to main). A pull request that touches the same files
+# that writes the engine changelog. A maintainer can run it by hand from main.
+# A run builds the ref it was started on and checks out no other, so a manual
+# run never executes a tag's code in main's cache scope. A pull request that touches the same files
 # (or the crate's Cargo.toml) builds it under its preview path, so a missing
 # page or a build error fails there first, and docs-preview.yml publishes the
 # build at docs.verticopolis.com/pr-preview/pr-<number>/.
@@ -20,10 +20,6 @@ name: Engine docs
 # this build there and deploys.
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "main, or an existing engine tag (engine-v<version>) to publish instead"
-        required: true
   push:
     branches: [main]
     paths:
@@ -67,18 +63,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Check the tag
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        env:
-          TAG: ${{ inputs.tag }}
+      # Pages deploys only from main, so a manual run from any other ref
+      # stops here.
+      - name: Check the run is on main
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' }}
         run: |
-          if [ "$TAG" != main ] && ! printf '%s' "$TAG" | grep -Eq '^engine-v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::$TAG is neither an engine-v<x.y.z> tag nor main."; exit 1
-          fi
+          echo "::error::Run this from main; the docs show main."; exit 1
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && (inputs.tag == 'main' && 'refs/heads/main' || format('refs/tags/{0}', inputs.tag)) || '' }}
           persist-credentials: false
 
       # The toolchain the crate pins (rust-version), as engine-rs.yml installs it.
@@ -86,13 +79,6 @@ jobs:
         run: |
           rustup toolchain install 1.97.0 --profile minimal
           rustup default 1.97.0
-
-      # A tag from before the site existed has nothing to build.
-      - name: Check the site exists
-        run: |
-          if [ ! -f docs/engine-site/package.json ]; then
-            echo "::error::This checkout predates the docs site. Publish a later engine tag, or main."; exit 1
-          fi
 
       # The site's own npm project, installed from its lockfile.
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -106,14 +92,11 @@ jobs:
 
       - name: Build the site
         env:
-          TAG: ${{ inputs.tag }}
           PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          # DOCS_REF names a release in the title and points the pages'
-          # repository links at the same commit; a push or a pull request
-          # builds as main.
-          export DOCS_REF="${TAG:-main}"
+          # The pages' repository links point at main.
+          export DOCS_REF=main
           # A pull request builds for its preview path (docs-preview.yml).
           if [ -n "$PR" ]; then export DOCS_BASE="/pr-preview/pr-$PR/"; fi
           npm run build --prefix docs/engine-site
