@@ -44,7 +44,7 @@ commit with `rev = "<sha>"`:
 
 ```toml
 [dependencies]
-verticopolis-engine = { git = "https://github.com/Verticopolis/web", tag = "engine-v1.57.1" }
+verticopolis-engine = { git = "https://github.com/Verticopolis/engine", tag = "engine-v1.57.2" }
 ```
 
 The crate needs the Rust release named by `rust-version` in its `Cargo.toml`
