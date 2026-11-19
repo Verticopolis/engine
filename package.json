@@ -1,0 +1,15 @@
+{
+  "name": "@verticopolis/engine",
+  "version": "0.0.0",
+  "description": "The Verticopolis simulation engine as WebAssembly: node/ for Node, web/ for the browser.",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/Verticopolis/engine.git", "directory": "engine-rs" },
+  "homepage": "https://docs.verticopolis.com/javascript/",
+  "bugs": { "url": "https://github.com/Verticopolis/engine/issues" },
+  "keywords": ["verticopolis", "simulation", "game-engine", "webassembly", "wasm", "tower"],
+  "main": "node/verticopolis_engine.js",
+  "types": "node/verticopolis_engine.d.ts",
+  "files": ["node", "web", "CHANGELOG.md"],
+  "publishConfig": { "registry": "https://registry.npmjs.org/", "access": "public", "provenance": true },
+  "engines": { "node": ">=22" }
+}

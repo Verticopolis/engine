@@ -29,21 +29,12 @@ cp packages/verticopolis-engine/README.md "$dir/README.md"
 cp "$changelog" "$dir/CHANGELOG.md"
 cp LICENSE "$dir/LICENSE"
 
-VERSION="$version" GH_REPO="$repo" DIR="$dir" node -e '
-  const e = process.env;
-  const pkg = {
-    name: "@verticopolis/engine",
-    version: e.VERSION,
-    description: "The Verticopolis simulation engine as WebAssembly: node/ for Node, web/ for the browser.",
-    license: "MIT",
-    repository: { type: "git", url: `git+https://github.com/${e.GH_REPO}.git`, directory: "engine-rs" },
-    homepage: "https://docs.verticopolis.com/javascript/",
-    bugs: { url: `https://github.com/${e.GH_REPO}/issues` },
-    keywords: ["verticopolis", "simulation", "game-engine", "webassembly", "wasm", "tower"],
-    main: "node/verticopolis_engine.js",
-    types: "node/verticopolis_engine.d.ts",
-    files: ["node", "web", "CHANGELOG.md"],
-    publishConfig: { registry: "https://registry.npmjs.org/", access: "public", provenance: true },
-  };
-  require("fs").writeFileSync(`${e.DIR}/package.json`, JSON.stringify(pkg, null, 2) + "\n");'
+# The package is defined by the repository root's package.json; the version
+# comes from the release (the crate's), so no package.json version is ever
+# edited by hand.
+VERSION="$version" DIR="$dir" node -e '
+  const fs = require("fs");
+  const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+  pkg.version = process.env.VERSION;
+  fs.writeFileSync(`${process.env.DIR}/package.json`, JSON.stringify(pkg, null, 2) + "\n");'
 echo "@verticopolis/engine"
