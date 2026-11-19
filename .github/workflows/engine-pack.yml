@@ -114,8 +114,10 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
+          # No --clobber: a game pins these tarballs by hash, so a re-run that
+          # finds them attached fails instead of replacing them.
           if ! gh release view "$TAG" > /dev/null 2>&1; then
             gh release create "$TAG" --verify-tag --title "Engine ${TAG#engine-v}" \
               --notes "The engine's packages for ${TAG#engine-v}: the player build, the tooling build and the conformance suite, each with its SHA-256 checksum. See https://docs.verticopolis.com/javascript/ for how to load them."
           fi
-          gh release upload "$TAG" dist/* --clobber
+          gh release upload "$TAG" dist/*

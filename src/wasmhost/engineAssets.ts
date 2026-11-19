@@ -1,7 +1,7 @@
 /**
- * Every file the engine package build writes into `src/public/engine/` (and so
- * into `dist/engine/`), each marked by whether the game fetches it at run
- * time. The audio layer has the same list in src/audio/audioAssets.ts.
+ * Every file the engine's browser package build writes into
+ * `engine-rs/pkg-web/` (which a game serves, for example from its
+ * `dist/engine/`), each marked by whether the game fetches it at run time. The audio layer has the same list in src/audio/audioAssets.ts.
  *
  * An installed game must start the engine offline (#945, #985), so every
  * `runtime` file has to be in the service worker's precache:
@@ -45,7 +45,7 @@ export interface EngineFile {
   readBy: string;
 }
 
-/** Every file the package build leaves in `src/public/engine/`. Add a new
+/** Every file the package build leaves in `engine-rs/pkg-web/`. Add a new
  *  one here in the same change that writes it. */
 export const ENGINE_PACKAGE: readonly EngineFile[] = [
   { name: ENGINE_GLUE, runtime: true, readBy: "the WASM host and the engine worker, through the verified loader (loadEngineModule.ts), which imports the checked bytes" },

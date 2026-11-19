@@ -52,13 +52,12 @@ cp -R engine-rs/pkg-player/. "$work/player/node/"
 cp -R engine-rs/pkg-web/. "$work/player/web/"
 cp -R engine-rs/pkg-events/. "$work/player/events/"
 sh scripts/engine-package-files.sh "$work/player" "${version%%-*}" "$repo" > /dev/null
+# A pull request's or main's build carries its prerelease suffix.
 VERSION="$version" DIR="$work/player" node -e '
   const fs = require("fs");
   const file = `${process.env.DIR}/package.json`;
   const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
   pkg.version = process.env.VERSION;
-  delete pkg.scripts;
-  delete pkg.devDependencies;
   fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + "\n");'
 pack "$work/player"
 

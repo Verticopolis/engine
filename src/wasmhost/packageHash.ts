@@ -3,7 +3,7 @@ import { existsSync, lstatSync, readdirSync, readFileSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 
 /** Build output (the crate's own, or a nested crate's), never an input. */
-const SKIP_DIRS = new Set(["target", "pkg", "pkg-player", "pkg-web-tooling"]);
+const SKIP_DIRS = new Set(["target", "pkg", "pkg-player", "pkg-web", "pkg-web-tooling", "pkg-events"]);
 /** Folders at the crate's top that are separate crates the WASM build never
  *  compiles: `consumer/` builds against the packaged engine (#1945). A file
  *  in one still counts when a source includes it or a manifest points at it. */
@@ -271,7 +271,7 @@ function manifestPaths(text: string, file: string): string[] {
 
 /**
  * A hash over everything the served package is built from, by path and
- * content, so `src/public/engine/BUILD.json` can say which engine it holds,
+ * content, so a package's `BUILD.json` can say which engine it holds,
  * CI can key its package cache on it, and a test can tell when the sources
  * moved on without a rebuild. It covers:
  *
