@@ -16,7 +16,7 @@ raised the version, so they are documentation only.
 There is no entry for 0.17.0, which only
 existed as a step inside a stacked branch.
 
-## Unreleased
+## 1.58.0 (2026-11-19)
 
 - **minor**: the npm package `@verticopolis/engine` carries the tooling build
   (`tooling/`, with the binding's tier 3 ops; `require("@verticopolis/engine/tooling")`)
