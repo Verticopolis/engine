@@ -9,9 +9,10 @@ name: engine-fuzz
 # (Until 3.x the scenarios were also replayed on the TypeScript reference
 # engine; that leg went with src/engine/, #1875.)
 
+# Parked until the split's cut: maniator/verticopolis still runs this
+# workflow, and its other triggers (in this file's history) come back once
+# this repository is the engine's home. Until then it starts only by hand.
 on:
-  schedule:
-    - cron: "37 4 * * *"
   workflow_dispatch:
     inputs:
       seeds:

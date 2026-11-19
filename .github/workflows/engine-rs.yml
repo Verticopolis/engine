@@ -14,190 +14,17 @@ concurrency:
 on:
   push:
     branches: [main]
-    paths:
-      - "engine-rs/**"
-      - "conformance/**"
-      - "src/events/**"
-      - "src/shared/vacateReasonText.ts"
-      - "src/storage/**"
-      - "src/catalog/**"
-      - "src/tests/conformance/**"
-      - "src/tests/integration/conformanceWasm.integration.test.ts"
-      - "src/tests/integration/conformanceWasmLoadFidelity.integration.test.ts"
-      - "src/tests/integration/conformanceWasmCanBuild.integration.test.ts"
-      - "src/tests/integration/conformanceWasmVctower.integration.test.ts"
-      - "src/tests/integration/conformanceWasmBinaryVctower.integration.test.ts"
-      - "src/tests/integration/conformanceWasmSaves.integration.test.ts"
-      - "src/tests/integration/chargeBindingRaw.integration.test.ts"
-      - "src/tests/integration/panelGettersWasm.integration.test.ts"
-      - "src/tests/integration/panelGettersCost.integration.test.ts"
-      - "src/tests/integration/engineView.integration.test.ts"
-      - "src/tests/integration/viewReader.integration.test.ts"
-      - "src/engineBinding/**"
-      - "src/wasmhost/**"
-      - "e2e/wasmEngine.spec.ts"
-      - "src/game/frameLoop.ts"
-      - "src/tests/fixtures/tdtBuilder.ts"
-      - "src/tests/fixtures/tdtLayout.ts"
-      - "scripts/wasm-build.ts"
-      - "scripts/build-engine-wasm.sh"
-      - "scripts/gen-gameplay-events.ts"
-      - ".github/actions/engine-wasm/**"
-      - "scripts/engine-third-party.ts"
-      - "scripts/license-files.ts"
-      - "src/build/thirdPartyNotices.ts"
-      - "src/build/rustNotices.ts"
-      - "src/build/engineCompat.ts"
-      - "package.json"
-      - "package-lock.json"
-      - ".nvmrc"
-      - "vite.config.ts"
-      - "scripts/fuzz-compare.ts"
-      - "scripts/fuzz-corpus.ts"
-      - "scripts/fuzz-key.ts"
-      - "scripts/fuzz-shrink.ts"
-      - "tsconfig.json"
-      - ".github/workflows/engine-fuzz.yml"
-      - ".github/workflows/engine-rs.yml"
-  # Every PR runs this workflow, because engine-rs is a required check: a
-  # path filter here would leave a PR that touches none of these files
-  # waiting on a check that never starts. The changes job below reads this
-  # same push.paths list at runtime, so the workflow owns its filter once.
-  # An unreadable list fails closed and runs the engine jobs.
   pull_request:
     branches: [main]
-  # The merge queue (test.yml says why): the jobs run when the queued change
-  # touches the engine, and engine-rs reports either way.
   merge_group:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  # Whether this change touches the engine. Pushes to main only fire on
-  # the push paths above, so they always run; a PR runs the jobs below
-  # when one of these files changed or when this filter cannot decide.
-  changes:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      pull-requests: read
-    outputs:
-      engine: ${{ steps.filter.outputs.engine }}
-    steps:
-      # Only this workflow file is needed, for its path list. A full-history
-      # fetch (fetch-depth: 0) pulls every branch and tag, and on this
-      # repository it ran past the job's five minutes and was cancelled, so
-      # the changed files come from the pull request files API instead of a
-      # git diff.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
-        with:
-          persist-credentials: false
-          sparse-checkout-cone-mode: false
-          sparse-checkout: |
-            /.github/workflows/engine-rs.yml
-      - id: filter
-        env:
-          EVENT: ${{ github.event_name }}
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          QUEUE_BASE: ${{ github.event.merge_group.base_sha }}
-          QUEUE_HEAD: ${{ github.event.merge_group.head_sha }}
-        run: |
-          if [ "$EVENT" != "pull_request" ] && [ "$EVENT" != "merge_group" ]; then
-            echo "engine=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          # A missing number or a failed API call fails this job, which runs
-          # the engine checks below (they skip only on a successful "false").
-          # The files API lists the pull request's own changes, from the merge
-          # base as the three-dot diff does, so engine changes that landed on
-          # main after the branch split do not count as this PR's. A renamed
-          # file lists its old path too (previous_filename), so a file moved
-          # out of an engine path still counts. Each line is "F <path>" for a
-          # file or "P <path>" for the old path of a rename. A path with a
-          # newline in it splits into pieces; a piece can only add a match, so
-          # that errs toward running the engine checks.
-          # A merge queue entry lists what it adds to main instead, through the
-          # compare API, which stops at 300 files.
-          list="$RUNNER_TEMP/changed-files"
-          entry='"F " + .filename, (if .previous_filename then "P " + .previous_filename else empty end)'
-          if [ "$EVENT" = "merge_group" ]; then
-            [ -n "$QUEUE_BASE" ] && [ -n "$QUEUE_HEAD" ] || { echo "::error::missing merge queue commits"; exit 1; }
-            limit=300
-            gh api "repos/$REPO/compare/$QUEUE_BASE...$QUEUE_HEAD" --jq ".files[]? | $entry" > "$list" || exit 1
-          else
-            [ -n "$PR_NUMBER" ] || { echo "::error::missing PR number"; exit 1; }
-            limit=3000
-            gh api --paginate "repos/$REPO/pulls/$PR_NUMBER/files?per_page=100" --jq ".[] | $entry" > "$list" || exit 1
-          fi
-          # Past the API's listing limit, the change fails closed.
-          files="$(grep -c '^F ' "$list" || true)"
-          if [ "$files" -ge "$limit" ]; then
-            echo "::warning::$files changed files reach the listing limit; running the engine checks"
-            echo "engine=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          # Reuse the authoritative on.push.paths globs for pull requests.
-          # Bash case patterns match slashes (including a trailing **).
-          # If someone changes the YAML shape, fail closed rather than
-          # silently skipping required engine checks.
-          mapfile -t patterns < <(
-            awk '
-              /^  push:$/ { push = 1; next }
-              push && /^    paths:$/ { paths = 1; next }
-              paths && /^      - "/ {
-                sub(/^      - "/, "", $0)
-                sub(/"$/, "", $0)
-                print
-                next
-              }
-              paths { exit }
-            ' .github/workflows/engine-rs.yml
-          )
-          if [ "${#patterns[@]}" -lt 30 ]; then
-            echo "::error::Cannot read the engine path filter from on.push.paths"
-            exit 1
-          fi
-          engine=false
-          while IFS= read -r f; do
-            [ -z "$f" ] && continue
-            for pattern in "${patterns[@]}"; do
-              case "$f" in
-                $pattern) engine=true; break ;;
-              esac
-            done
-            [ "$engine" = true ] && break
-          done < <(sed 's/^[FP] //' "$list")
-          echo "engine=$engine" >> "$GITHUB_OUTPUT"
-
-  # A host outside the web game. The job runs in the official Rust image
-  # (pinned by digest), which has the toolchain and git and no Node.js, so
-  # nothing on the runner is changed or removed. The checkout holds only
-  # engine-rs/ and conformance/. engine-rs/consumer/ is then copied out of
-  # the checkout and built there against the engine by an absolute path, the
-  # way a crate in its own repository would depend on a local clone, and it
-  # lints, tests, runs the smoke and replays every scenario of the lock
-  # (API.md). The engine's own tests and referee run in the rust job, not
-  # again here. The consumer still replays the full suite against a copied
-  # fixture directory outside the checkout. The crate is packaged first, as
-  # `cargo publish` would send it to crates.io, and the outside consumer
-  # builds against that packaged copy. What this proves and what it does
-  # not: the engine builds, tests and runs with no web game and no Node.js,
-  # from the files a registry release holds; the conformance suite itself is
-  # not in the package yet (#893), so the consumer reads it from the checkout.
   consumer:
-    needs: changes
-    # Fail closed: run unless the filter succeeded and found no engine file.
-    # !cancelled(), not always(): an always() job still starts in a run that a
-    # newer push cancelled (during the changes job, say) and runs to the end on
-    # the stale commit, which defeats cancel-in-progress. The required
-    # engine-rs job below keeps always() and fails a cancelled run, so a
-    # skipped job here cannot pass the check.
-    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.engine == 'true') }}
+
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -212,13 +39,16 @@ jobs:
           persist-credentials: false
           sparse-checkout-cone-mode: false
           sparse-checkout: |
+            /Cargo.toml
+            /Cargo.lock
+            /.cargo/
             /engine-rs/
             /conformance/
 
       - name: Only the engine and the conformance suite are checked out
         run: |
           top="$(ls -A | grep -vx '.git' | sort | tr '\n' ' ')"
-          if [ "$top" != "conformance engine-rs " ]; then
+          if [ "$top" != ".cargo Cargo.lock Cargo.toml conformance engine-rs " ]; then
             echo "the checkout holds: $top"; exit 1
           fi
           test -f engine-rs/Cargo.toml
@@ -250,7 +80,7 @@ jobs:
         with:
           prefix-key: v1-rust
           workspaces: |
-            engine-rs -> target
+            . -> engine-rs/target
             engine-rs/consumer -> target
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
@@ -278,6 +108,8 @@ jobs:
           rm -rf "$crate"
           mkdir -p "$crate"
           tar -C engine-rs --exclude=./target --exclude=./pkg --exclude=./consumer -cf - . | tar -C "$crate" -xf -
+          # The workspace's lock, which the packaged crate carries.
+          cp Cargo.lock "$crate/Cargo.lock"
           cd "$crate"
           cargo package --locked
           version="$(cargo metadata --locked --no-deps --format-version 1 | grep -o '"version":"[^"]*"' | head -n 1 | cut -d'"' -f4)"
@@ -326,11 +158,7 @@ jobs:
   # them: together they took a minute or more at the head of the rust job,
   # which is the longest engine job now that coverage is faster.
   rust-lint:
-    needs: changes
-    # Fail closed: run unless the filter succeeded and found no engine file.
-    # !cancelled(), not always(), as the consumer job above explains: a run a
-    # newer push cancelled must stop here. The engine-rs job fails it.
-    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.engine == 'true') }}
+
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -361,7 +189,7 @@ jobs:
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           prefix-key: v1-rust
-          workspaces: engine-rs -> target
+          workspaces: ". -> engine-rs/target"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Format
@@ -383,11 +211,7 @@ jobs:
         run: exit 1
 
   rust:
-    needs: changes
-    # Fail closed: run unless the filter succeeded and found no engine file.
-    # !cancelled(), not always(), as the consumer job above explains: a run a
-    # newer push cancelled must stop here. The engine-rs job fails it.
-    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.engine == 'true') }}
+
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -418,7 +242,7 @@ jobs:
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           prefix-key: v1-rust
-          workspaces: engine-rs -> target
+          workspaces: ". -> engine-rs/target"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Unit tests
@@ -449,11 +273,7 @@ jobs:
   # job so the two run side by side: coverage alone takes about 8 minutes,
   # and after the unit tests it made the rust job the longest PR check.
   rust-coverage:
-    needs: changes
-    # Fail closed: run unless the filter succeeded and found no engine file.
-    # !cancelled(), not always(), as the consumer job above explains: a run a
-    # newer push cancelled must stop here. The engine-rs job fails it.
-    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.engine == 'true') }}
+
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # The instrumented tests and the referee build at opt-level 1, as the
@@ -493,7 +313,7 @@ jobs:
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           prefix-key: v1-rust
-          workspaces: engine-rs -> target
+          workspaces: ". -> engine-rs/target"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       # The prebuilt cargo-llvm-cov release, checked against the hash the
@@ -526,144 +346,21 @@ jobs:
         if: ${{ cancelled() }}
         run: exit 1
 
-  # Verify the WASM binding builds and its generated declarations match
-  # the sources. The host-driven WASM conformance and golden suites are
-  # executed ONCE in the required test-engine (host) check
-  # from test.yml. Running them again here would duplicate billed minutes.
-  # This job and fuzz-corpus below need Node.js; the native Rust jobs do not.
-  # The package comes from .github/actions/engine-wasm, shared by cache with
-  # the other workflows, and built on a miss using a pinned wasm-bindgen CLI
-  # verified by scripts/build-engine-wasm.sh and scripts/wasm-build.ts.
-  wasm-binding:
-    needs: changes
-    # Fail closed, as the rust job above.
-    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.engine == 'true') }}
-    runs-on: ubuntu-latest
-    # A cache miss compiles the crate for wasm32 (a few minutes, with the
-    # prebuilt CLI); anything near this is a hang.
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Use Node.js (from .nvmrc)
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: ".nvmrc"
-          cache: "npm"
-
-      - name: Install dependencies
-        env:
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-        run: npm ci
-
-      - uses: ./.github/actions/engine-wasm
-
-      # The checked-in declarations have to be the ones the package's build
-      # wrote. The action checks the package was built from this tree's
-      # sources, so its declaration is the build's own, cached or not
-      # (scripts/wasm-build.ts copies it to src/engineBinding/engine.d.ts byte for
-      # byte, and on a cache miss has just done so). The gameplay event files
-      # come from the event catalog through npm run gen:events.
-      - name: The declarations match the build
-        run: |
-          test -f engine-rs/pkg/verticopolis_engine.d.ts || { echo "the engine package has no engine-rs/pkg/verticopolis_engine.d.ts"; exit 1; }
-          cmp engine-rs/pkg/verticopolis_engine.d.ts src/engineBinding/engine.d.ts || { echo "src/engineBinding/engine.d.ts is stale: run npm run wasm:build and commit it"; exit 1; }
-          npm run gen:events
-          test -z "$(git status --porcelain -- src/engineBinding/engine.d.ts src/events/gameplayEvents.d.ts src/events/gameplayEventRules.ts)" || { echo "src/engineBinding/engine.d.ts, src/events/gameplayEvents.d.ts or src/events/gameplayEventRules.ts is stale or untracked: run npm run wasm:build (or npm run gen:events for the two event files) and commit them"; exit 1; }
-
-      - name: Fail a cancelled run
-        if: ${{ cancelled() }}
-        run: exit 1
-
-  # The seeded differential's corpus (conformance/fuzz-corpus/): scenarios the
-  # nightly once diverged on, shrunk by scripts/fuzz-shrink.ts, plus smoke
-  # entries so the job never runs on nothing. Each is replayed on the native
-  # Rust engine (the fuzzer's --replay mode), which must reproduce the entry's
-  # pinned golden (conformance/fuzz-corpus/goldens/), and through the shipped
-  # WASM build, which must agree with the native run at every checkpoint. The
-  # nightly keeps growing new seeds; this job only holds what it already
-  # found. The script stops at its own 240 s budget and fails rather than
-  # skip an entry; the job's limit leaves room for a cache-miss WASM build.
-  fuzz-corpus:
-    needs: changes
-    # Fail closed, as the rust job above.
-    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.engine == 'true') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Use Node.js (from .nvmrc)
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: ".nvmrc"
-          cache: "npm"
-
-      - name: Install dependencies
-        env:
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-        run: npm ci
-
-      - name: Rust toolchain
-        run: |
-          rustup toolchain install 1.97.0 --profile minimal
-          rustup default 1.97.0
-
-      - name: Cargo cache
-        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-        with:
-          prefix-key: v1-rust
-          workspaces: engine-rs -> target
-          save-if: ${{ github.ref == 'refs/heads/main' }}
-
-      - name: Build the fuzzer
-        run: cargo build --locked --release --features conformance --bin fuzz
-        working-directory: engine-rs
-
-      # The engine's Node package (engine-rs/pkg/, the tooling build with the
-      # binding's tier 3 ops, #1057), from the shared cache and built on a
-      # miss with the pinned wasm-bindgen CLI.
-      - uses: ./.github/actions/engine-wasm
-
-      - name: Replay the corpus natively and through the WASM build
-        run: npx tsx scripts/fuzz-corpus.ts --budget 240
-
-      - name: Fail a cancelled run
-        if: ${{ cancelled() }}
-        run: exit 1
-
-  # The check branch protection requires on main. It always runs and
-  # passes in two cases only: the changes filter succeeded and found no
-  # engine file (every engine job above skipped on purpose), or all of
-  # them passed. Anything else (a failure, a cancellation, a skip the
-  # filter did not ask for) fails it, so the binding's checks and the
-  # Node-free consumer gate a merge alongside the Rust job.
   engine-rs:
-    needs: [changes, consumer, rust-lint, rust, rust-coverage, wasm-binding, fuzz-corpus]
+    needs: [consumer, rust-lint, rust, rust-coverage]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Every engine job passed, or the change touches no engine file
+      - name: Every engine job passed
         env:
-          FILTER: ${{ needs.changes.result }}
-          ENGINE: ${{ needs.changes.outputs.engine }}
           CONSUMER: ${{ needs.consumer.result }}
           LINT: ${{ needs.rust-lint.result }}
           RUST: ${{ needs.rust.result }}
           COVERAGE: ${{ needs.rust-coverage.result }}
-          BINDING: ${{ needs.wasm-binding.result }}
-          CORPUS: ${{ needs.fuzz-corpus.result }}
         run: |
-          echo "changes: $FILTER (engine=$ENGINE), consumer: $CONSUMER, rust-lint: $LINT, rust: $RUST, rust-coverage: $COVERAGE, wasm-binding: $BINDING, fuzz-corpus: $CORPUS"
-          if [ "$FILTER" = success ] && [ "$ENGINE" = false ] && [ "$CONSUMER" = skipped ] && [ "$LINT" = skipped ] && [ "$RUST" = skipped ] && [ "$COVERAGE" = skipped ] && [ "$BINDING" = skipped ] && [ "$CORPUS" = skipped ]; then
-            exit 0
-          fi
-          test "$CONSUMER" = success && test "$LINT" = success && test "$RUST" = success && test "$COVERAGE" = success && test "$BINDING" = success && test "$CORPUS" = success
+          echo "consumer: $CONSUMER, rust-lint: $LINT, rust: $RUST, rust-coverage: $COVERAGE"
+          test "$CONSUMER" = success && test "$LINT" = success && test "$RUST" = success && test "$COVERAGE" = success
 
       - name: Fail a cancelled run
         if: ${{ cancelled() }}
