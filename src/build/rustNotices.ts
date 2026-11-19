@@ -175,6 +175,24 @@ export function engineRecordPackages(
 /** The named entities the toolchain's copyright page uses (#955). */
 const HTML_ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
 
+/** An HTML comment, a script or style element, and any one tag. */
+const COMMENT = /<!--[\s\S]*?-->/g;
+const SCRIPT_OR_STYLE = /<(script|style)[^>]*>[\s\S]*?<\/\1>/gi;
+const TAG = /<[^>]+>/g;
+
+/**
+ * `text` with every match of `pattern` removed, repeated until nothing
+ * matches, so a removal cannot join two halves into a new match (as
+ * "<!<!-- -->-- x -->" would after one pass).
+ */
+export function removeAll(text: string, pattern: RegExp): string {
+  for (;;) {
+    const next = text.replace(pattern, "");
+    if (next === text) return text;
+    text = next;
+  }
+}
+
 /**
  * The text of an HTML page, for the Rust toolchain's copyright notice (#955).
  * Entities are decoded in one pass, so an encoded "&amp;lt;" stays the
@@ -183,12 +201,8 @@ const HTML_ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot
  * markup or control bytes into the notices.
  */
 export function htmlText(html: string): string {
-  const stripped = html
-    .replace(/\r\n?/g, "\n")
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, "")
-    .replace(/<\/(p|h[1-6]|li|div|tr|pre|ul|ol|table)>|<br\s*\/?>/gi, "\n")
-    .replace(/<[^>]+>/g, "");
+  const noScripts = removeAll(removeAll(html.replace(/\r\n?/g, "\n"), COMMENT), SCRIPT_OR_STYLE);
+  const stripped = removeAll(noScripts.replace(/<\/(p|h[1-6]|li|div|tr|pre|ul|ol|table)>|<br\s*\/?>/gi, "\n"), TAG);
   // The page escapes every <, > and & in its text, so one left over is markup
   // the strip above misread (a ">" in an attribute, an unclosed script) or an
   // entity written without its semicolon.
@@ -247,7 +261,7 @@ export function stdLicenseProblems(copyrightHtml: string, stdLicense: string): s
   let h3s = 0;
   let licenses = 0;
   // Commented-out markup is not on the page.
-  const html = copyrightHtml.replace(/<!--[\s\S]*?-->/g, "");
+  const html = removeAll(copyrightHtml, COMMENT);
   for (const m of html.matchAll(re)) {
     if (m[1] !== undefined) {
       dirs++;
@@ -257,7 +271,7 @@ export function stdLicenseProblems(copyrightHtml: string, stdLicense: string): s
     else if (m[2] !== undefined) {
       h3s++;
       group = [];
-      const heading = m[2].replace(/<[^>]*>/g, "").replace(/\u{1F4E6}/gu, "").trim();
+      const heading = removeAll(m[2], /<[^>]*>/g).replace(/\u{1F4E6}/gu, "").trim();
       // "name-1.2.3", "name-1.2.3-rc.1", "name-1.2.3+build"
       parts.push({ name: heading.replace(/-\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+.*)?$/, ""), licenses: [] });
     } else {
