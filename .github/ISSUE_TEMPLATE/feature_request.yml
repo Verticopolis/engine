@@ -1,0 +1,47 @@
+name: ✨ Feature or API request
+description: Suggest a rule, an event, a catalog value or an API call the engine does not have yet.
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A tower is founded in one of two modes: **Classic** (plays like the 1994 original) or **Modern** (adds things the original couldn't do). New rules that change how the original played belong in **Modern**, so Classic stays true to 1994. If something the engine already has works differently from the original, use the **SimTower parity report** instead. Ideas about how the game looks or its windows belong on [Verticopolis/web](https://github.com/Verticopolis/web/issues/new/choose).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What are you trying to do, as a player or as someone building on the engine, and what's missing today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: The rule or behavior you'd like, or the API call with its arguments and answer.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you thought about, and why this one is better.
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Which game mode should this target?
+      description: Classic must stay faithful to the 1994 original; new behavior usually belongs in Modern.
+      options:
+        - "Classic: restore a faithful behavior the original had that we never implemented"
+        - "Modern: a new behavior the original never had"
+        - Both / mode-agnostic
+        - "Not a game rule: an API, tool or package change"
+        - Not sure
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true

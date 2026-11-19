@@ -1,0 +1,26 @@
+name: Issue form
+
+# An issue body follows the issue form its type label calls for
+# (.github/ISSUE_TEMPLATE/). An issue that does not gets the needs-form label,
+# and loses it once the body or labels are fixed. Issues filed before
+# forms-since (when this repository's forms went up; the ones moved here from
+# Verticopolis/web keep their old dates) are left alone. The check is shared by
+# every Verticopolis repository and lives in Verticopolis/.github
+# (.github/workflows/issue-form.yml and checks/issueForms.ts).
+on:
+  issues:
+    types: [opened, edited, reopened, labeled, unlabeled]
+
+concurrency:
+  group: issue-form-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  form:
+    uses: Verticopolis/.github/.github/workflows/issue-form.yml@main
+    with:
+      forms-since: "2026-11-19T19:00:00Z"

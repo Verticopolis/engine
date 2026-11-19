@@ -1,0 +1,75 @@
+name: 🐛 Bug report
+description: The simulation gets a rule, a number, a save or an API call wrong, or the engine crashes.
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! This repository is the simulation: every rule, price, build cap, command, save format and gameplay event. If you saw it while playing, the game's version line (title screen, **Options > Settings…** or **Help > About Verticopolis…**) names the engine build. A problem with how the game looks or what its windows do belongs on [Verticopolis/web](https://github.com/Verticopolis/web/issues/new/choose).
+  - type: input
+    id: version
+    attributes:
+      label: Engine version
+      description: The crate or package version, the commit, or the whole version line from the game.
+      placeholder: "1.57.1, or v4.14.2 · Rust engine 1.57.1 (1a2b3c4d5e6f)"
+    validations:
+      required: true
+  - type: dropdown
+    id: host
+    attributes:
+      label: Where did you run it?
+      options:
+        - The game at verticopolis.com
+        - Rust crate (verticopolis-engine)
+        - JavaScript package in Node (@verticopolis/engine)
+        - JavaScript package in a browser (@verticopolis/engine)
+        - The conformance suite or another tool in this repository
+        - Other (note in description)
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Game mode
+      description: Which mode was the tower founded in?
+      options:
+        - Not sure
+        - Classic
+        - Modern
+        - Not about a tower
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, and what you expected instead.
+      placeholder: Placing an express elevator made the shaft pool count go negative...
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: >-
+        The calls, commands or game steps that show it. A saved tower helps most. GitHub does not
+        accept `.vctower` files, so put the file in a `.zip`, or rename it to end in `.txt`, before
+        attaching it. A crash-report `.zip` from the game already holds the tower.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error output or diagnostics
+      description: A panic message, an error the API returned, or the game's Copy diagnostics text from Help > About Verticopolis…. This is automatically formatted as code.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked whether this still happens on the latest engine release (older builds are still welcome).
+        - label: I searched existing issues and this is not a duplicate.
+          required: true

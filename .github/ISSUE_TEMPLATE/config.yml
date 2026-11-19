@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🎮 Report a problem in the game
+    url: https://github.com/Verticopolis/web/issues/new/choose
+    about: Something wrong while playing at verticopolis.com that is not a rule of the simulation, such as a window, a sprite, a sound or a save dialog.
+  - name: 🔎 Search existing issues
+    url: https://github.com/Verticopolis/engine/issues?q=is%3Aissue
+    about: Check whether your bug or idea has already been reported.
+  - name: 📖 Engine docs
+    url: https://docs.verticopolis.com
+    about: The guides for the Rust crate and the JavaScript package, and the host API.
+  - name: 🔐 Report a security vulnerability
+    url: https://github.com/Verticopolis/engine/security/advisories/new
+    about: Privately disclose a security issue. Please don't open a public issue for vulnerabilities.

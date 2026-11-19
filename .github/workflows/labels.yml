@@ -1,0 +1,27 @@
+name: Sync labels
+
+# Create or update this repository's labels from .github/labels.yml. It never
+# deletes a label that isn't listed. The sync is shared by every Verticopolis
+# repository and lives in Verticopolis/.github
+# (.github/workflows/sync-labels.yml and checks/labelList.ts).
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/labels.yml
+      - .github/workflows/labels.yml
+  schedule:
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: sync-labels
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync:
+    uses: Verticopolis/.github/.github/workflows/sync-labels.yml@main

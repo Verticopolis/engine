@@ -1,0 +1,35 @@
+name: 📚 Documentation issue
+description: A page on docs.verticopolis.com, a README, API.md or the changelog is wrong, unclear, or missing.
+labels: ["documentation", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For writing that is wrong, unclear or missing: a page on the [engine docs site](https://docs.verticopolis.com), the crate or npm README, `engine-rs/API.md`, or the changelog. For the game's Player's Manual, use [Verticopolis/web](https://github.com/Verticopolis/web/issues/new/choose).
+  - type: input
+    id: location
+    attributes:
+      label: Where is it?
+      description: A docs.verticopolis.com link, or a file and section.
+      placeholder: https://docs.verticopolis.com/javascript/ → Load the engine
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's wrong or missing?
+      description: Quote the current text if it's an error, or describe what's absent.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      description: What should it say instead? A PR is welcome too.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true

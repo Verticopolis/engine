@@ -1,0 +1,105 @@
+# The labels of Verticopolis/engine, applied by the Sync labels workflow
+# (.github/workflows/labels.yml, which calls the shared one in
+# Verticopolis/.github) on a push to main that changes this file, daily, and
+# by hand. It creates or updates these and never deletes a label. Keep each
+# entry's shape: `name`, then a quoted six-digit `color`, then `description`.
+# Colors are quoted so a YAML reader cannot turn a value like 5319e7 into a
+# number.
+#
+# Axes:
+#   type        - what kind of thing the issue is
+#   mode        - which game mode it touches (Classic = 1994-faithful, Modern = opt-in layer)
+#   priority    - the do-first order (P1 work next, P2 when you next touch the
+#                 area, P3 low or gated)
+#   state       - where it is in triage
+#   area        - which part of the engine it touches (an issue may carry more than one)
+#   contributor - signals aimed at people looking for something to work on
+
+labels:
+  # --- type ---
+  - name: bug
+    color: "d73a4a"
+    description: Something isn't working
+  - name: enhancement
+    color: "a2eeef"
+    description: New feature, rule or API
+  - name: parity
+    color: "231367"
+    description: Diverges from the 1994 SimTower original
+  - name: security
+    color: "b60205"
+    description: Security-relevant; triaged from a private report
+  - name: documentation
+    color: "0075ca"
+    description: Docs site, READMEs, API.md or changelog fixes
+  - name: task
+    color: "ededed"
+    description: Internal work with no player-facing report (the Task issue form)
+  - name: perf
+    color: "ededed"
+    description: A speedup or a cost to cut (filed with the Task form)
+  - name: tests
+    color: "ededed"
+    description: Test-only work (filed with the Task form)
+  - name: review-deferral
+    color: "ededed"
+    description: A finding a code review deferred (filed with the Task form)
+  # --- mode ---
+  - name: classic
+    color: "5319e7"
+    description: Affects Classic (1994-faithful) towers
+  - name: modern
+    color: "1d76db"
+    description: Affects Modern (opt-in "what the original couldn't do") towers
+  # --- priority ---
+  - name: P1
+    color: "e60000"
+    description: "Priority 1: work next"
+  - name: P2
+    color: "ff8c00"
+    description: "Priority 2: do when you next touch the area"
+  - name: P3
+    color: "b8e600"
+    description: "Priority 3: low, gated, watch-only or awaiting a spec"
+  # --- state ---
+  - name: needs-triage
+    color: "fbca04"
+    description: Not yet reviewed by a maintainer
+  - name: needs-repro
+    color: "d4c5f9"
+    description: Awaiting a reproduction
+  - name: needs-form
+    color: "e4e669"
+    description: The body does not follow its issue form (set by issue-form.yml)
+  - name: HOLD
+    color: "ededed"
+    description: Do not work on or merge until the owner lifts the hold
+  # --- area ---
+  - name: engine-rs
+    color: "c5def5"
+    description: "The Rust engine crate, its binding and the conformance lock"
+  - name: wasm
+    color: "c5def5"
+    description: "The WebAssembly package and its JavaScript binding"
+  - name: economy
+    color: "c5def5"
+    description: "Rent, fees, prices, maintenance and money"
+  - name: transport
+    color: "c5def5"
+    description: "Elevators, stairs, escalators, walkways and routing"
+  - name: save-load
+    color: "c5def5"
+    description: "Saves, migrations and .vctower files"
+  - name: tdt
+    color: "c5def5"
+    description: "1994 TDT import and export"
+  - name: tooling
+    color: "c5def5"
+    description: "CI, tests, the bench, fuzzing and the docs build"
+  # --- contributor ---
+  - name: good first issue
+    color: "7057ff"
+    description: Good entry point for newcomers
+  - name: help wanted
+    color: "008672"
+    description: Maintainer would welcome help on this
