@@ -16,6 +16,16 @@ raised the version, so they are documentation only.
 There is no entry for 0.17.0, which only
 existed as a step inside a stacked branch.
 
+## Unreleased
+
+- **minor**: the npm package `@verticopolis/engine` carries the tooling build
+  (`tooling/`, with the binding's tier 3 ops; `require("@verticopolis/engine/tooling")`)
+  and the conformance suite (`conformance/`) beside the player build. The
+  separate `verticopolis-engine-tooling` and `verticopolis-engine-conformance`
+  release tarballs are gone. A game that imports neither bundles nothing from
+  them.
+- Releases are tagged and named `v<version>` (up to 1.57.2: `engine-v<version>`).
+
 ## 1.57.2 (2026-11-19)
 
 - No change to the engine's contract or behavior. This is the first version published from this repository's release workflow, so its npm package carries a provenance statement (1.57.1 was published by hand).

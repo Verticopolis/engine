@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Finishes the engine's npm package in DIR, which already holds the built
-# node/ and web/ trees: adds the package's own README, the browser build's
+# node/, web/, tooling/node/ and tooling/web/ trees and conformance/: adds the package's own README, the browser build's
 # declarations, the license and the engine changelog, and writes package.json.
 # release-tag.yml runs it for each new crate release; the packed tarball goes
 # on the v<version> GitHub release, and engine-publish.yml publishes
@@ -19,12 +19,17 @@ if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
   echo "::error::Engine version $version is not a plain x.y.z." >&2
   exit 1
 fi
-if [ ! -d "$dir/node" ] || [ ! -d "$dir/web" ]; then
-  echo "::error::$dir needs the built node/ and web/ trees first." >&2
-  exit 1
-fi
+for tree in node web tooling/node tooling/web conformance; do
+  if [ ! -d "$dir/$tree" ]; then
+    echo "::error::$dir needs the built $tree/ tree first." >&2
+    exit 1
+  fi
+done
 
 cp packages/verticopolis-engine/web.d.ts "$dir/web/verticopolis_engine.d.ts"
+cp packages/verticopolis-engine/web.d.ts "$dir/tooling/web/verticopolis_engine.d.ts"
+# require("@verticopolis/engine/tooling") loads the tooling build for Node.
+printf '{\n  "main": "node/verticopolis_engine.js",\n  "types": "node/verticopolis_engine.d.ts"\n}\n' > "$dir/tooling/package.json"
 cp packages/verticopolis-engine/README.md "$dir/README.md"
 cp "$changelog" "$dir/CHANGELOG.md"
 cp LICENSE "$dir/LICENSE"

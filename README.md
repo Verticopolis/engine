@@ -49,8 +49,10 @@ crates.io and [`@verticopolis/engine`](https://www.npmjs.com/package/@verticopol
 on npm. The first version, 1.57.1, was published by hand; every later
 version comes from this repository's release workflow. Each [`v<version>` release](https://github.com/Verticopolis/engine/releases)
 (`engine-v<version>` up to 1.57.2)
-also carries the npm tarball, the tooling build and the conformance suite as
-tarballs, each with its SHA-256 checksum.
+also carries the npm tarball with its SHA-256 checksum. The package holds the
+tooling build (`@verticopolis/engine/tooling`) and the conformance suite
+(`@verticopolis/engine/conformance/`) beside the player build; a game that
+does not import them does not bundle them.
 
 ## Documentation
 

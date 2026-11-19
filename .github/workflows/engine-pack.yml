@@ -1,13 +1,13 @@
 name: Engine packages
 
-# Builds the engine's WASM packages and packs the three tarballs a game pins
-# (scripts/pack-engine.sh): @verticopolis/engine (the player build),
-# @verticopolis/engine-tooling (with the tier 3 ops test suites and harnesses
-# use) and @verticopolis/engine-conformance (conformance/). It also runs the
+# Builds the engine's WASM packages and packs the tarball a game pins
+# (scripts/pack-engine.sh): @verticopolis/engine, the player build with the
+# tooling build (tooling/, with the tier 3 ops test suites and harnesses use)
+# and the conformance suite (conformance/) as subpaths. It also runs the
 # packer's own TypeScript tests.
 #
-# - A pull request or a push to main uploads the tarballs as a run artifact.
-#   A PR's tarballs are versioned <crate>-pr.<number>.<run> so a game PR can
+# - A pull request or a push to main uploads the tarball as a run artifact.
+#   A PR's tarball is versioned <crate>-pr.<number>.<run> so a game PR can
 #   try them without mistaking them for a release.
 #
 # Releases come from release-tag.yml alone, which packs the same tarballs

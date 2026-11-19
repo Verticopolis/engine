@@ -54,8 +54,9 @@ The crate has no default features. The `wasm` feature is the JavaScript
 binding (`src/wasm.rs` and `src/wasm/`) and a native host leaves it off. The `tooling`
 feature turns `wasm` on and adds the binding's test and tooling calls (its
 tier 3 in `src/engineBinding/exportTiers.ts`, #1057), which only the web
-game's tests and tooling build; the shipped game and the npm package leave
-it off. The `conformance`
+game's tests and tooling build; the shipped game and the npm package's
+player build leave it off, and the package carries the tooling build
+separately as `@verticopolis/engine/tooling`. The `conformance`
 feature is the harness that replays the lock (tier 2 below); a host turns
 it on only to prove conformance, as `consumer/` does:
 

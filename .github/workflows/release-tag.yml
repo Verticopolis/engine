@@ -7,8 +7,9 @@ name: Release tags
 # and publishes the release, named after the tag and marked Latest, with that
 # version's engine-rs/CHANGELOG.md section. Versions up to 1.57.2 were tagged
 # engine-v<version>; their releases are left alone. The release carries the
-# three tarballs scripts/pack-engine.sh packs (the player build, the tooling
-# build and the conformance suite), each with its checksum. When the
+# tarball scripts/pack-engine.sh packs, @verticopolis/engine with its tooling/
+# and conformance/ subpaths, and its checksum. (Up to 1.57.2 the tooling
+# build and the conformance suite were separate tarballs.) When the
 # repository variable ENGINE_REGISTRY_PUBLISH is `on`, the run then
 # dispatches engine-publish.yml, which waits for the owner's approval and
 # publishes the crate to crates.io and the player tarball to npm as
@@ -107,13 +108,11 @@ jobs:
         if: ${{ steps.versions.outputs.changed == 'true' }}
         uses: ./.github/actions/engine-wasm
 
-      # scripts/pack-engine.sh packs the release's three tarballs, each with a
-      # checksum, the same way engine-pack.yml does on every pull request:
-      # @verticopolis/engine (the player build, which engine-publish.yml
-      # publishes to npm, so the bytes on npm are the ones here),
-      # @verticopolis/engine-tooling and @verticopolis/engine-conformance. A
-      # tag this workflow creates with its own token starts no tag-push
-      # workflow, so it packs here rather than leaving it to engine-pack.yml.
+      # scripts/pack-engine.sh packs the release's tarball, with a checksum,
+      # the same way engine-pack.yml does on every pull request:
+      # @verticopolis/engine (the player build, plus its tooling/ and
+      # conformance/ subpaths), which engine-publish.yml publishes to npm, so
+      # the bytes on npm are the ones here.
       - name: Pack the engine
         id: pack
         if: ${{ steps.versions.outputs.changed == 'true' }}
@@ -152,7 +151,7 @@ jobs:
           if ! grep -q '[^[:space:]]' notes.md; then echo "::error::engine-rs/CHANGELOG.md has no $VERSION section."; exit 1; fi
           {
             printf '\nThe crate is [`verticopolis-engine` %s](https://crates.io/crates/verticopolis-engine/%s) on crates.io, or `verticopolis-engine = { git = "https://github.com/%s", tag = "%s" }` through git.\n' "$VERSION" "$VERSION" "$GH_REPO" "$tag"
-            printf '\n`%s` holds the player build (`node/` for Node, `web/` for the browser, `events/` for the gameplay event types). The tooling build and the conformance suite are beside it, each tarball with its SHA-256 checksum. The player build is [`%s@%s`](https://www.npmjs.com/package/%s/v/%s) on npm, published from `%s`.\n' "$TGZ" "$NPM_NAME" "$VERSION" "$NPM_NAME" "$VERSION" "$TGZ"
+            printf '\n`%s`, with its SHA-256 checksum, is [`%s@%s`](https://www.npmjs.com/package/%s/v/%s) as npm serves it: the player build (`node/` for Node, `web/` for the browser), `events/` (the gameplay event types), `tooling/` (the tooling build with the tier 3 ops, for test suites and harnesses) and `conformance/` (the conformance suite).\n' "$TGZ" "$NPM_NAME" "$VERSION" "$NPM_NAME" "$VERSION"
             printf '\nThe registry copies appear once the owner approves the publish run (`engine-publish.yml`).\n'
           } >> notes.md
           # Attach while a draft, then publish, so a published release is never edited.

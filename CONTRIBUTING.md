@@ -40,7 +40,7 @@ A release is one merged pull request that raises the crate version.
    in the same PR.
 2. **Merge it.** The push to `main` that changes the crate version starts
    **Release tags** (`.github/workflows/release-tag.yml`). It builds the
-   engine, packs the three tarballs with `scripts/pack-engine.sh`, tags
+   engine, packs the npm tarball with `scripts/pack-engine.sh`, tags
    `v<version>` on the merge commit and publishes the GitHub release, named
    after the tag and marked Latest, with the changelog section. It refuses a version with no changelog
    section.
@@ -95,8 +95,8 @@ leaked token cannot publish it. The crate's `include` list in
 in `engine-rs.yml` packages the crate on every engine change and builds the
 consumer crate against the packaged copy, so a file the library needs from
 outside `engine-rs/` fails there. The conformance suite is not in the crate
-yet ([#47](https://github.com/Verticopolis/engine/issues/47)); it ships as the
-`verticopolis-engine-conformance` tarball on each release.
+yet ([#47](https://github.com/Verticopolis/engine/issues/47)); it ships in
+the npm package as `@verticopolis/engine/conformance/`.
 
 **The first version of each** went up by hand, because both registries set
 up trusted publishing only for a package that already exists. The owner
