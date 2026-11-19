@@ -96,10 +96,10 @@ regenerated conformance lock in the same PR as any change to how the game
 plays. Every change that touches the crate declares its version tier in a
 change note.
 
-Until the game switches to the published packages, engine changes are still
-made in [Verticopolis/web](https://github.com/Verticopolis/web) and copied
-here with their history, so please open engine pull requests there for now.
-Issues belong here.
+This repository is now where the engine live. Pull requests open here once the
+game builds from this repository's packages, which takes a few days. Until
+then engine changes are paused everywhere, in Verticopolis/web too.
+Issues are welcome here now.
 
 ## History
 
