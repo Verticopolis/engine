@@ -2,9 +2,10 @@
 
 Release notes for the engine crate (`engine-rs/Cargo.toml`), one `## <version>`
 section per crate version, newest first, written for people who build on the
-engine. The player-facing notes live in [`CHANGELOG.md`](../CHANGELOG.md), one
-section per app version. A crate bump adds its section here in the same PR
-(`src/tests/engineChangelog.guard.test.ts` enforces it). Describe what changed
+engine. The player-facing notes live in the game's
+[`CHANGELOG.md`](https://github.com/Verticopolis/web/blob/main/CHANGELOG.md).
+A crate bump adds its section here in the same PR, and the release workflow
+refuses a version with no section (CONTRIBUTING.md, "Releasing"). Describe what changed
 in the engine's contract and behavior: saves, frame and view layouts, the
 catalog, identity, the binding, and rules. An engine change a player can feel
 also gets a line in the app changelog.

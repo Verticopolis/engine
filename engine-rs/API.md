@@ -26,7 +26,7 @@ copy of the suite under another directory name. The job builds that crate
 against the packaged crate (`cargo package`, what crates.io receives), so
 the library needs nothing outside `engine-rs/`. What it does not prove yet:
 that the suite ships with the crate; a host reads it from a checkout of the
-repository at the release tag (#893).
+repository at the release tag (#47).
 
 ## Depending on the engine
 
@@ -71,11 +71,13 @@ raw edit, test and seed ops that skip the charge rules. The table is
 game's UI (#946).
 
 The build needs the Rust toolchain in `Cargo.toml` (`rust-version`) and
-the `engine-rs/` and `conformance/` directories (the event catalog is
-compiled in from there). It needs no Node.js, no npm and nothing else from
-the web game. Because the crate reads `../conformance/` at compile time, it
-builds from a checkout of the whole repository (which a path or git
-dependency gives you) and cannot be packaged on its own yet (#893).
+nothing else: no Node.js, no npm, nothing from the web game. The crate is
+self-contained (the event catalog is compiled in from
+`engine-rs/src/gameplay/catalog.json`), so the copy on crates.io builds on
+its own, and the `consumer` job builds against the packaged crate on every
+engine change to keep it that way. The referee binaries (`src/bin/`) read
+the conformance suite from `../conformance/` at run time, so they run from a
+checkout; the suite does not ship with the crate yet (#47).
 
 A game does no IO. The simulation reads no file, clock, environment,
 console or network, and spawns no thread or process; the host passes in
@@ -186,7 +188,7 @@ unavailable, never as a failure of the engine.
   conformance lock, the save, frame layout, view layout, catalog and
   identity record versions and the binding declaration (`src/compat-record.json`, held by
   `src/tests/engineCompat.guard.test.ts`; the Rust `pub` API is a review
-  call). The compatibility policy is #893.
+  call). The compatibility policy is #47.
 - **The lock is the contract.** Any change to simulation behavior lands
   with a regenerated `conformance/expected.json` in the same pull request,
   and that diff is what a consumer must take on a pin bump. A host that

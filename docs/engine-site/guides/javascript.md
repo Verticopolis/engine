@@ -50,18 +50,22 @@ npm install @verticopolis/engine
 ```
 
 The package is on [npm](https://www.npmjs.com/package/@verticopolis/engine)
-and needs no token or registry setting. Each version is published from the
-repository's release workflow with an
+and needs no token or registry setting. Each version from 1.57.2 on is
+published from the repository's release workflow with an
 [npm provenance statement](https://docs.npmjs.com/generating-provenance-statements),
 so `npm audit signatures` can check that the package was built from the
-tagged commit.
+tagged commit. 1.57.1, the first version on npm, was published by hand and
+has none.
 
-Each engine release also attaches the same two builds as a zip, with a
+Each engine release also attaches the same package as a tarball, with a
 SHA-256 checksum, to its GitHub release
-([`engine-v<version>`](https://github.com/Verticopolis/web/releases?q=engine-v)),
-for anyone who would rather not use a registry. Versions released before the
-package moved to npm were published only to GitHub Packages, as
-`@maniator/verticopolis-engine`, and stay there.
+([`engine-v<version>`](https://github.com/Verticopolis/engine/releases)), for
+anyone who would rather not use a registry. Two more tarballs sit beside it:
+`verticopolis-engine-tooling`, the same engine with the binding's tier 3 ops
+for test suites and harnesses, and `verticopolis-engine-conformance`, the
+conformance suite. Versions released before the package moved to npm were
+published only to GitHub Packages, as `@maniator/verticopolis-engine`, and
+stay there.
 
 ## Quick start (Node)
 
@@ -311,7 +315,7 @@ To pin exactly, depend on an exact version (`"1.57.1"`, not `"^1.57.1"`): see
 ## Stability
 
 - **No semver promise yet.** Until the engine's compatibility policy is
-  written ([#893](https://github.com/Verticopolis/web/issues/893)), a
+  written ([#47](https://github.com/Verticopolis/engine/issues/47)), a
   minor version can change a call's shape or the game's behavior. Pin an
   exact version and read the changelog before you move.
 - **The conformance lock is the contract.** Every change to the simulation

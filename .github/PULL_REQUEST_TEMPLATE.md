@@ -56,13 +56,13 @@ instead of ticking a box.
 ## Versioning
 
 <!--
-Do not edit a version. Every change to the crate declares its version tier
-(major / minor / patch / none) in a change note; the release raises the
-versions. A change to how the game plays regenerates the conformance lock in
-the same PR.
+Only a release PR edits the version (CONTRIBUTING.md, "Releasing"). Every
+other change to the crate adds its line under "## Unreleased" at the top of
+engine-rs/CHANGELOG.md, naming its tier (major / minor / patch). A change to
+how the game plays regenerates the conformance lock in the same PR.
 -->
 
-- [ ] Declared the crate tier in a change note, **or** this PR changes nothing the crate ships
+- [ ] Added a line with its tier under "## Unreleased" in `engine-rs/CHANGELOG.md`, **or** this PR changes nothing the crate ships
 - [ ] Regenerated the conformance lock, **or** this PR does not change how the game plays
 - [ ] Updated the guides on docs.verticopolis.com and the READMEs (`engine-rs/CRATE_README.md`, `packages/verticopolis-engine/README.md`) that went stale, **or** read them and none did
 
