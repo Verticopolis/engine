@@ -273,10 +273,11 @@ fn the_engine_has_no_build_script() {
 
 #[test]
 fn every_locked_crate_is_reviewed() {
-    // The engine's lock and the consumer's, which resolves newer patch
-    // versions the way a host outside this repository would.
+    // The workspace's lock (the repository root's, which the engine builds
+    // with) and the consumer's, which resolves newer patch versions the way
+    // a host outside this repository would.
     let mut unlisted = Vec::new();
-    for lock in ["Cargo.lock", "consumer/Cargo.lock"] {
+    for lock in ["../Cargo.lock", "consumer/Cargo.lock"] {
         let text = std::fs::read_to_string(crate_dir().join(lock)).expect("a lock file");
         unlisted.extend(
             text.lines()
@@ -285,7 +286,7 @@ fn every_locked_crate_is_reviewed() {
                 .filter(|n| {
                     n != "verticopolis-engine-consumer"
                         && !ALLOWED_CRATES.contains(&n.as_str())
-                        && !(lock == "Cargo.lock" && TEST_ONLY_CRATES.contains(&n.as_str()))
+                        && !(lock == "../Cargo.lock" && TEST_ONLY_CRATES.contains(&n.as_str()))
                 })
                 .map(|n| format!("{lock}: {n}")),
         );
