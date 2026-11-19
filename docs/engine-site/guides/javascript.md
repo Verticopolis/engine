@@ -63,7 +63,7 @@ SHA-256 checksum, to its GitHub release
 `engine-v<version>` up to 1.57.2), for
 anyone who would rather not use a registry. Up to 1.57.2, two more tarballs
 sat beside it, `verticopolis-engine-tooling` and
-`verticopolis-engine-conformance`; from the release after 1.57.2 the package
+`verticopolis-engine-conformance`; from 1.58.0 the package
 carries both itself (see "Test builds and the conformance suite" below).
 Versions released before the package moved to npm were published only to
 GitHub Packages, as `@maniator/verticopolis-engine`, and
@@ -329,7 +329,7 @@ catalog, the identity record, or the binding's declarations. A change that
 keeps all of these, such as a speed-up, does not raise the version on its
 own; it ships with the next release.
 
-To pin exactly, depend on an exact version (`"1.57.2"`, not `"^1.57.2"`): see
+To pin exactly, depend on an exact version (`"1.58.0"`, not `"^1.58.0"`): see
 [Stability](#stability).
 
 ## Stability

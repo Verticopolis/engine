@@ -44,7 +44,7 @@ Or pin an exact version in `Cargo.toml` (there is no semver promise yet; see
 
 ```toml
 [dependencies]
-verticopolis-engine = "=1.57.2"
+verticopolis-engine = "=1.58.0"
 ```
 
 To build against a commit that has not been released yet, depend on the
