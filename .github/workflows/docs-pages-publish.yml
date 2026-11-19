@@ -7,8 +7,8 @@ name: Docs pages publish
 # the branch tip, with every part, is what deploys.
 #
 #   engine-docs.yml   a push to main (or a dispatch) stores the live docs
-#   docs-preview.yml  a pull request's docs build stores its preview, and the
-#                     pull request closing removes it
+#   docs-preview.yml  a pull request's docs build stores its preview; a
+#                     closed pull request's preview goes with the next store
 #
 # The branch holds one commit, force-pushed each time, so old builds do not
 # pile up in its history. Storing has no lock: each run rebuilds the commit
@@ -144,12 +144,9 @@ jobs:
     name: docs-pages (deploy)
     needs: store
     # A run that stores a build deploys even when the branch already held it,
-    # so re-running a run whose deploy failed deploys again. A removal deploys
-    # only when it changed the branch.
-    #
-    # The github-pages environment deploys from main only. A run from another
-    # branch (a pull request stacked on another one closing) still stores its
-    # change, and the next deploy from main carries it.
+    # so re-running a run whose deploy failed deploys again. The
+    # github-pages environment deploys from main only, and every caller runs
+    # there.
     if: >-
       (needs.store.outputs.changed == 'true' || inputs.artifact != '') &&
       github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
