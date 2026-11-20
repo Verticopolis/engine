@@ -90,8 +90,7 @@ checklist lived until 2026-11-20, unless they name another repository.
 
 The gaps from the 2026-07-15 r/SimTower optimization-thread review have
 shipped (#393, #395 to #401); the review is
-[`gdd-simtower-optimization-gaps-2026-07-15.md`](https://github.com/Verticopolis/web/blob/main/_bmad-output/planning-artifacts/design/gdd-simtower-optimization-gaps-2026-07-15.md)
-in Verticopolis/web.
+[`gdd-simtower-optimization-gaps-2026-07-15.md`](https://github.com/Verticopolis/engine/blob/main/_bmad-output/planning-artifacts/design/gdd-simtower-optimization-gaps-2026-07-15.md).
 
 ## Verification
 `cargo test` covers placement, economy, rating gates, the events,

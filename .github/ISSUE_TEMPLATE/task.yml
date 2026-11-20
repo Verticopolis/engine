@@ -24,7 +24,7 @@ body:
     id: backlog
     attributes:
       label: Backlog row
-      description: The row's story id in the backlog (`_bmad-output/implementation-artifacts/backlog.md` in Verticopolis/web), if the work has one.
+      description: The row's story id in this repository's backlog (`_bmad-output/implementation-artifacts/backlog.md`), if the work has one.
   - type: checkboxes
     id: checks
     attributes:

@@ -148,3 +148,29 @@ the workflow; every later version does.
 
 Versions released before the registries were published only to GitHub
 Packages, as `@maniator/verticopolis-engine`, and stay there.
+
+## The BMAD setup
+
+Every Verticopolis repository carries the same BMAD install (core and bmm
+6.9.0, cis v0.2.1, gds v0.6.0, listed in `_bmad/_config/manifest.yaml`) and
+its own outputs. Only `_bmad/custom/` (this repository's overrides) and
+`_bmad-output/` (its context, backlog, records and party memory) differ from
+one repository to the next.
+
+- A change to a skill in `.agents/skills/`, to `_bmad/` outside
+  `_bmad/custom/`, or a BMAD upgrade ships to every repository on the same
+  day, as one pull request per repository, each linking the others.
+- Before such a pull request opens, compare the install with
+  Verticopolis/web's from checkouts side by side. The only differences should
+  be the ones the change explains:
+
+  ```sh
+  diff -r ../web/.agents/skills .agents/skills
+  diff -r -x custom ../web/_bmad _bmad
+  ```
+
+- A need of this repository alone goes in `_bmad/custom/<skill>.toml`, never
+  into the installer-managed files.
+- The hot-path checklist stays one page,
+  `docs/performance/hot-path-review.md` in Verticopolis/web; the review
+  overrides here read it from there.
