@@ -1,7 +1,7 @@
 //! Constants, size and offset tables, the view-word mapping and the pure
 //! binary walker for the 1994 `.TDT` save format (`tdtConstants.ts`,
 //! `tdtViewMapping.ts`, `tdtFormat.ts`). Layout facts come from
-//! `docs/canon/tdt-format.md`.
+//! `docs/tdt/tdt-format.md`.
 
 use super::byte_reader::ByteReader;
 use super::tail::walk_tolerant_tail;

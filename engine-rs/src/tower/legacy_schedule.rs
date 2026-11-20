@@ -3,7 +3,7 @@
 //! an export back to 1994 writes it again. The simulation never reads it;
 //! this game's elevators run by their own schedule (`schedule.rs`). The
 //! layout, as far as the game's saves show it, is in
-//! `docs/canon/tdt-byte-map.md` section 6.1.
+//! `docs/tdt/tdt-byte-map.md` section 6.1.
 
 use serde_json::Value;
 

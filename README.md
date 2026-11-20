@@ -76,6 +76,7 @@ built from `docs/engine-site/`:
 | `conformance/` | The scenarios, the pinned hashes and the `.TDT` cases the referee checks |
 | `engine-bench/` | The step-cost bench |
 | `docs/engine-site/` | The docs site |
+| `docs/tdt/` | The 1994 `.TDT` save format: what its values mean and a map of every byte |
 | `packages/verticopolis-engine/` | The npm package's README and browser types |
 | `Cargo.toml`, `Cargo.lock` | The workspace root (member `engine-rs`) |
 | `package.json` | The `@verticopolis/engine` package definition |
