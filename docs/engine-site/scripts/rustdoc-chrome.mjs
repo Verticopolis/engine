@@ -14,9 +14,11 @@
 //   after.html   --html-after-content: moves the site menu to the top of
 //                rustdoc's sidebar, above the crate's own items, and on a
 //                phone folds the title bar into rustdoc's own top bar, so
-//                the page has one bar and one menu button; then the menu
-//                bar's script (rustdoc/menu.mjs and the components' MenuBar,
-//                bundled into one inline script), which draws the bar
+//                the page has one bar and one menu button; then loads
+//                vc-menu.js, which draws the menu bar
+//   vc-menu.js   the menu bar's script (rustdoc/menu.mjs and the components'
+//                MenuBar, bundled into one file), which the workflow copies
+//                to /rust/ so every page shares one cached copy
 //
 // The title and the menu come from site.mjs and pages.json, the same lists
 // Starlight draws from, so the two stay one menu. The title bar's markup is
@@ -32,6 +34,9 @@ import { build } from "rolldown";
 import { MENU_HOST, schemeBootScript } from "../menu.mjs";
 import { GITHUB, RUST_REFERENCE, SHORT_TITLE, sidebar, siteTitle } from "../site.mjs";
 import { barLinks, escapeHtml as escape, siteName } from "../title-bar.mjs";
+
+/** Where the Rust API reference's pages load the menu bar's script from. */
+const MENU_SCRIPT = "/rust/vc-menu.js";
 
 const site = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -84,7 +89,7 @@ function components(sheet) {
 }
 
 /** The menu bar's script for rustdoc's pages: rustdoc/menu.mjs and what it
- *  imports, in one script that runs as the page loads. The bar's styles come
+ *  imports, in one file that runs as the page loads. The bar's styles come
  *  in the head, so the CSS the components' MenuBar imports is left out. */
 async function menuScript() {
   const result = await build({
@@ -100,9 +105,7 @@ async function menuScript() {
       },
     ],
   });
-  const code = result.output[0].code;
-  if (code.includes("</script")) throw new Error("the menu bar's script would end its own <script> tag");
-  return code;
+  return result.output[0].code;
 }
 
 export async function chrome(ref) {
@@ -133,8 +136,8 @@ export async function chrome(ref) {
     'var t=document.querySelector("rustdoc-topbar"),b=document.querySelector(".vc-header .vc-bar");' +
     'if(t&&b){for(var i=0;i<b.children.length;i++)t.appendChild(b.children[i].cloneNode(true));d.classList.add("vc-one-bar");}' +
     "})();</script>\n" +
-    `<script>${await menuScript()}</script>\n`;
-  return { head, before, after };
+    `<script src="${MENU_SCRIPT}"></script>\n`;
+  return { head, before, after, menu: await menuScript() };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -145,5 +148,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   writeFileSync(join(out, "head.html"), files.head);
   writeFileSync(join(out, "before.html"), files.before);
   writeFileSync(join(out, "after.html"), files.after);
+  writeFileSync(join(out, "vc-menu.js"), files.menu);
   console.log(`wrote the Rust API reference's header and menu to ${out}`);
 }

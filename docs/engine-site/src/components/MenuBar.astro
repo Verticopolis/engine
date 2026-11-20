@@ -26,6 +26,10 @@ import { MENU_HOST } from "../../menu.mjs";
       }
       storeTheme(theme);
     },
-    openSearch: () => document.querySelector<HTMLButtonElement>("site-search button[data-open-modal]")?.click(),
+    // Starlight's search closes on any click outside its box, and the menu
+    // item's own click is still on its way up to the window, so open it on
+    // the next tick, once that click is done.
+    openSearch: () =>
+      setTimeout(() => document.querySelector<HTMLButtonElement>("site-search button[data-open-modal]")?.click()),
   });
 </script>

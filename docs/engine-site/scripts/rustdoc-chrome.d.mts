@@ -2,4 +2,4 @@
 // (src/tests/engineDocsSite.guard.test.ts).
 import type { MenuGroup, MenuLink } from "../site.d.mts";
 export function siteMenu(entries: (MenuLink | MenuGroup)[], titles: Map<string, string>): string;
-export function chrome(ref: string): Promise<{ head: string; before: string; after: string }>;
+export function chrome(ref: string): Promise<{ head: string; before: string; after: string; menu: string }>;
