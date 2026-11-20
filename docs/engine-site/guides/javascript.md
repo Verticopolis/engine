@@ -8,8 +8,8 @@ owns everything a player sees and hears (rendering, audio, UI, input) and
 drives the engine through the calls below.
 
 The engine is written in Rust in
-[`engine-rs/`](https://github.com/Verticopolis/engine/tree/main/engine-rs)
-of the Verticopolis repository. This package is its JavaScript binding, built
+[`src/`](https://github.com/Verticopolis/engine/tree/main/src)
+of the Verticopolis engine repository. This package is its JavaScript binding, built
 by [wasm-bindgen](https://github.com/rustwasm/wasm-bindgen) once per engine
 release.
 
@@ -207,7 +207,7 @@ shapes for each one.
 | `money()`, `mode()` | The balance and the mode. |
 | `towerStats()` | The headline counters as JSON: population, money, star rating, offices, condos, hotel rooms, floors, elevators and so on. |
 | `unitAt(floor, x)`, `unitDetail(id)` | The room covering a tile, and the inspector card for one room. |
-| `drainGameplayEvents()` | The gameplay events since the last drain, oldest first, as `[{ name, payload }]` (`facility_placed`, `star_reached`, `fire_started`, `milestone_reached` and the rest). The names and payloads are listed in [`engine-rs/src/gameplay/catalog.json`](https://github.com/Verticopolis/engine/blob/main/engine-rs/src/gameplay/catalog.json). Drain after each frame; the buffer is bounded and `gameplayEventsDropped()` counts what it had to drop. |
+| `drainGameplayEvents()` | The gameplay events since the last drain, oldest first, as `[{ name, payload }]` (`facility_placed`, `star_reached`, `fire_started`, `milestone_reached` and the rest). The names and payloads are listed in [`src/gameplay/catalog.json`](https://github.com/Verticopolis/engine/blob/main/src/gameplay/catalog.json). Drain after each frame; the buffer is bounded and `gameplayEventsDropped()` counts what it had to drop. |
 | `logSince(seq)` | The tower's message log after entry `seq`, as `[{ seq, minute, text, kind }]`. A loaded tower's saved lines are numbered from 1, so `logSince(0)` lists every one of them. |
 | `viewLayout()`, `viewStructure()`, `viewFrame(full)` | The renderer's view, for a host that draws the tower every frame: the layout names every slot as JSON; the structure (floors, rooms, shafts) and the per-frame state (clock, people, changed rooms, cars) come as flat number arrays read through it. |
 | `personCard(id)` | One walking person's trip, for a host's person card: why they are out (a code in the layout's `personPurposes`), where the leg they are on began and where it ends (each a code in `tripPlaces` with the room's id and kind, or the floor), a housekeeper's step (`shiftSteps`), their wait, and `gaveUp` (1 for someone who gave up waiting to set out, whose leg then runs from where they stand back to where the trip began). The layout's `personCard` record names the slots. Empty once the person has left the tower. Read it while the card is open; the frame carries none of it. |
@@ -337,13 +337,13 @@ ES2023, so a bundler or Node 22 or later loads them as they are.
 
 ## Versioning
 
-The package version is the engine crate's version (`engine-rs/Cargo.toml`),
+The package version is the engine crate's version (`Cargo.toml`),
 which is separate from the web game's version. Each engine release:
 
 - publishes this package at that version;
 - tags the repository `v<version>` and publishes a GitHub release with
   that version's changelog section and the zipped builds;
-- adds a section to the [changelog](https://github.com/Verticopolis/engine/blob/main/engine-rs/CHANGELOG.md),
+- adds a section to the [changelog](https://github.com/Verticopolis/engine/blob/main/CHANGELOG.md),
   written for people who build on the engine.
 
 The version goes up when the engine's contract moves: the conformance lock
@@ -381,7 +381,7 @@ cargo add verticopolis-engine
 
 The [Rust crate guide](https://github.com/Verticopolis/engine/blob/main/docs/engine-site/guides/crate.md)
 has a Rust quick start, and
-[`engine-rs/API.md`](https://github.com/Verticopolis/engine/blob/main/engine-rs/API.md)
+[`API.md`](https://github.com/Verticopolis/engine/blob/main/API.md)
 is the full guide: the Rust calls, the conformance harness a host uses to
 prove it runs the real simulation, and the build metadata.
 

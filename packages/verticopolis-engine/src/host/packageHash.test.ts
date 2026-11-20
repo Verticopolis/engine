@@ -15,7 +15,7 @@ describe("engineSourceHash", () => {
    *  the engine's tests embed conformance fixtures. */
   function crate(): { crate: string; outside: string } {
     dir = mkdtempSync(join(tmpdir(), "vc-hash-"));
-    const c = join(dir, "engine-rs");
+    const c = join(dir, "crate");
     mkdirSync(join(c, "src"), { recursive: true });
     mkdirSync(join(c, "lib"));
     mkdirSync(join(dir, "conformance"));
@@ -111,6 +111,32 @@ describe("engineSourceHash", () => {
     ).toBe(false);
     expect(moves(() => writeFileSync(join(c, ".DS_Store"), "x"))).toBe(false);
     expect(moves(() => writeFileSync(join(c, "src/lib.rs~"), "x"))).toBe(false);
+  });
+
+  it("keeps the crate's top to its include list when the manifest has one", () => {
+    const { crate: c } = crate();
+    writeFileSync(join(c, "Cargo.toml"), '[package]\ninclude = ["/src/**", "Cargo.toml", "/Cargo.lock"]\n');
+    let last = engineSourceHash(c);
+    const moves = (edit: () => void) => {
+      edit();
+      const next = engineSourceHash(c);
+      const moved = next !== last;
+      last = next;
+      return moved;
+    };
+    // The crate shares its folder: what the list leaves out is not an input.
+    expect(moves(() => writeFileSync(join(c, "package.json"), "{}"))).toBe(false);
+    expect(moves(() => writeFileSync(join(c, "lib/gen.inc"), "1"))).toBe(false);
+    expect(moves(() => writeFileSync(join(c, "src/catalog.json"), "{}"))).toBe(true);
+    expect(moves(() => writeFileSync(join(c, "Cargo.lock"), "changed"))).toBe(true);
+    // An include from a source still reaches outside the list.
+    expect(moves(() => writeFileSync(join(dir, "conformance/catalog.json"), "[]"))).toBe(true);
+  });
+
+  it("refuses an include pattern it cannot follow", () => {
+    const { crate: c } = crate();
+    writeFileSync(join(c, "Cargo.toml"), '[package]\ninclude = ["*.rs"]\n');
+    expect(() => engineSourceHash(c)).toThrow(/include pattern .*cannot follow/);
   });
 
   it("hashes a Markdown file a source includes", () => {

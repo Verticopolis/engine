@@ -4,7 +4,7 @@ import { INVALID_COMMAND, MAX_BRUSH_TILES, MAX_TEXT, NOT_ENOUGH_MONEY, wellForme
 
 describe("the refusal texts the web compares against", () => {
   // The engine refuses with these exact words (`INVALID_REQUEST` and
-  // `NOT_ENOUGH_MONEY` in `engine-rs/src/charges.rs`, which its own test pins
+  // `NOT_ENOUGH_MONEY` in `src/charges.rs`, which its own test pins
   // to the same literals). Change both sides together.
   it("match the engine's", () => {
     expect(INVALID_COMMAND).toBe("That request is not valid.");

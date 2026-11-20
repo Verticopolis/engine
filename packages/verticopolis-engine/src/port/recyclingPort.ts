@@ -1,4 +1,4 @@
-// The engine port's recycling reads (`engine-rs/src/wasm_port_render.rs`): the
+// The engine port's recycling reads (`src/wasm_port_render.rs`): the
 // stats sheet's two numbers and the recycling card's one read. Part of
 // `EnginePort` (`enginePort.ts`).
 import type { PortRecord } from "./enginePort.ts";

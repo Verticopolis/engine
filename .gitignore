@@ -1,6 +1,5 @@
-/engine-rs/target/
-/engine-rs/pkg*/
-/engine-rs/consumer/target/
+/target/
+/wasm/
+/consumer/target/
 /engine-bench/target/
 node_modules/
-/target/

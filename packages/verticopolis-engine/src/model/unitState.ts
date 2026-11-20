@@ -3,7 +3,7 @@ import type { UnitState } from "./types.ts";
 /**
  * The four questions the web asks of a unit's state. The rule belongs to the
  * engine (`Unit::is_operational`, `is_present`, `is_tenanted`, `is_dormant` in
- * `engine-rs/src/tower_query_state.rs`); these are the same checks over the
+ * `src/tower_query_state.rs`); these are the same checks over the
  * state a frame carries, so drawing code does not import the TypeScript
  * engine at runtime for them (the `UnitState` type below is the only link, and
  * it is erased at build time). `unitState.test.ts` and the Rust test hold one table.

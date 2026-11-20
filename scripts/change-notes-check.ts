@@ -8,11 +8,11 @@
  *
  * - that changes what the crate or the npm package ships (`isShipped`) must
  *   add a note;
- * - that changes Rust code under `engine-rs/src/` other than its tests must
+ * - that changes Rust code under `src/` other than its tests must
  *   add a note with a tier of patch or higher, never only `crate: none`;
  * - must not edit or delete a note already on the base branch, which belongs
  *   to the pull request that merged it;
- * - must not change the version sections of `engine-rs/CHANGELOG.md` (from
+ * - must not change the version sections of `CHANGELOG.md` (from
  *   the first `## <version>` heading down) or add an `## Unreleased` one, nor
  *   change the crate version: only a release PR does that. The introduction
  *   above the sections is documentation and may change.
@@ -26,13 +26,13 @@ import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isNoteFile, isRustCode, isShipped, parseNote, type ChangeNote } from "../src/build/changeNotes.ts";
-import { crateVersion } from "../src/build/releaseCut.ts";
+import { isNoteFile, isRustCode, isShipped, parseNote, type ChangeNote } from "../tools/changeNotes.ts";
+import { crateVersion } from "../tools/releaseCut.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const NOTES = ".changes";
-const CHANGELOG = "engine-rs/CHANGELOG.md";
-const CARGO = "engine-rs/Cargo.toml";
+const CHANGELOG = "CHANGELOG.md";
+const CARGO = "Cargo.toml";
 const EXEMPT_BRANCHES = ["release/", "dependabot/"];
 
 function arg(name: string): string | undefined {
@@ -41,6 +41,24 @@ function arg(name: string): string | undefined {
 }
 
 const git = (...args: string[]) => execFileSync("git", args, { cwd: root, encoding: "utf8" });
+
+/**
+ * The crate's file `path` as the base branch has it. A base from before the
+ * crate moved to the repository root keeps it under engine-rs/ (the root
+ * Cargo.toml was then a workspace with no [package]), so `read` gets the
+ * first copy it accepts.
+ */
+function onBase<T>(base: string, path: string, read: (text: string) => T): T {
+  let first: unknown;
+  for (const at of [path, `engine-rs/${path}`]) {
+    try {
+      return read(execFileSync("git", ["show", `${base}:${at}`], { cwd: root, encoding: "utf8", stdio: "pipe" }));
+    } catch (e) {
+      first ??= e;
+    }
+  }
+  throw first;
+}
 
 const problems: string[] = [];
 const notes = new Map<string, ChangeNote>();
@@ -93,14 +111,14 @@ if (base && !EXEMPT_BRANCHES.some((p) => branch.startsWith(p))) {
   if (rows.some(([, p]) => p === CHANGELOG)) {
     const sections = (text: string) => text.slice(Math.max(0, text.search(/^## \d/m)));
     const now = readFileSync(join(root, CHANGELOG), "utf8");
-    if (/^## Unreleased\s*$/m.test(now) || sections(now) !== sections(git("show", `${base}:${CHANGELOG}`))) {
+    if (/^## Unreleased\s*$/m.test(now) || sections(now) !== onBase(base, CHANGELOG, sections)) {
       problems.push(
         `only a release PR writes the version sections of ${CHANGELOG}; put the entries in a note under ${NOTES}/`,
       );
     }
   }
   if (rows.some(([, p]) => p === CARGO)) {
-    const before = crateVersion(git("show", `${base}:${CARGO}`));
+    const before = onBase(base, CARGO, crateVersion);
     const after = crateVersion(readFileSync(join(root, CARGO), "utf8"));
     if (before !== after)
       problems.push(`only a release PR changes the crate version (${before} -> ${after} in ${CARGO})`);

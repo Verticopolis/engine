@@ -3,9 +3,9 @@ name: Release tags
 # Publishes each engine version as a GitHub release when the pull request that
 # raises it merges (CONTRIBUTING.md "Releasing"), so every crate version gets
 # a release without a maintainer pushing a tag. A push to main that changes
-# the crate version in engine-rs/Cargo.toml tags v<version> on that commit
+# the crate version in Cargo.toml tags v<version> on that commit
 # and publishes the release, named after the tag and marked Latest, with that
-# version's engine-rs/CHANGELOG.md section. Versions up to 1.57.2 were tagged
+# version's CHANGELOG.md section. Versions up to 1.57.2 were tagged
 # engine-v<version>; their releases are left alone. The release carries the
 # tarball scripts/pack-engine.sh packs, @verticopolis/engine with its tooling/
 # and conformance/ subpaths, and its checksum. (Up to 1.57.2 the tooling
@@ -19,15 +19,15 @@ name: Release tags
 # itself; engine-pack.yml packs the same tarballs only as run artifacts.
 # A tag or release that already exists is left alone, so a re-run is safe. To
 # finish a version whose run failed, run this workflow by hand from main with
-# that version: it must be the version engine-rs/Cargo.toml holds.
+# that version: it must be the version Cargo.toml holds.
 on:
   push:
     branches: [main]
-    paths: ["engine-rs/Cargo.toml"]
+    paths: ["Cargo.toml"]
   workflow_dispatch:
     inputs:
       version:
-        description: "Engine version to release (x.y.z, the one engine-rs/Cargo.toml holds on main)"
+        description: "Engine version to release (x.y.z, the one Cargo.toml holds on main)"
         required: true
         type: string
 
@@ -61,11 +61,11 @@ jobs:
           REQUESTED: ${{ inputs.version }}
         run: |
           read_crate() { awk '/^\[package\]/ { p = 1; next } /^\[/ { p = 0 } p && /^version *=/ { gsub(/.*= *"|".*/, ""); print; exit }'; }
-          crate="$(read_crate < engine-rs/Cargo.toml)"
+          crate="$(read_crate < Cargo.toml)"
           echo "crate=$crate" >> "$GITHUB_OUTPUT"
           if [ "$EVENT" = "workflow_dispatch" ]; then
             if [ "$REQUESTED" != "$crate" ]; then
-              echo "::error::engine-rs/Cargo.toml on this commit holds $crate, not $REQUESTED."
+              echo "::error::Cargo.toml on this commit holds $crate, not $REQUESTED."
               exit 1
             fi
             echo "Releasing $crate by hand."
@@ -79,7 +79,7 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          was="$(git show "$BEFORE:engine-rs/Cargo.toml" | read_crate)"
+          was="$(git show "$BEFORE:Cargo.toml" | read_crate)"
           if [ "$was" = "$crate" ]; then
             echo "The crate stays at $crate; tagging nothing."
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -147,8 +147,8 @@ jobs:
             gh release delete "$tag" --yes
           fi
           # The version's section of the engine changelog, heading excluded.
-          awk -v v="$VERSION" '/^## / { if (on) exit; if ($2 == v) { on = 1; next } } on' engine-rs/CHANGELOG.md > notes.md
-          if ! grep -q '[^[:space:]]' notes.md; then echo "::error::engine-rs/CHANGELOG.md has no $VERSION section."; exit 1; fi
+          awk -v v="$VERSION" '/^## / { if (on) exit; if ($2 == v) { on = 1; next } } on' CHANGELOG.md > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then echo "::error::CHANGELOG.md has no $VERSION section."; exit 1; fi
           {
             printf '\nThe crate is [`verticopolis-engine` %s](https://crates.io/crates/verticopolis-engine/%s) on crates.io, or `verticopolis-engine = { git = "https://github.com/%s", tag = "%s" }` through git.\n' "$VERSION" "$VERSION" "$GH_REPO" "$tag"
             printf '\n`%s`, with its SHA-256 checksum, is [`%s@%s`](https://www.npmjs.com/package/%s/v/%s) as npm serves it: the player build (`node/` for Node, `web/` for the browser), `events/` (the gameplay event types), `tooling/` (the tooling build with the tier 3 ops, for test suites and harnesses) and `conformance/` (the conformance suite).\n' "$TGZ" "$NPM_NAME" "$VERSION" "$NPM_NAME" "$VERSION"

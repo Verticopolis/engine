@@ -1,6 +1,6 @@
 /**
  * The star-up duties the engine publishes in the catalog's `rules` block
- * (`engine-rs/src/star_duties.rs`): what each rating starts asking of the
+ * (`src/star_duties.rs`): what each rating starts asking of the
  * tower, read by the star-up message box. `CatalogRules` in
  * `catalogTypes.ts` extends it.
  */

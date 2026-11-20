@@ -2,7 +2,7 @@ name: tdt-fuzz
 
 # Nightly fuzz of the .TDT codec (#885): damaged copies of the nine real saves and
 # forged towers go through import, export and import again, and each must hold
-# the properties in engine-rs/tests/tdt_fuzz.rs. Never a pull-request gate (the
+# the properties in tests/tdt_fuzz.rs. Never a pull-request gate (the
 # pull-request run takes a small budget). A failing night opens an issue that names
 # the seeds; replay one with workflow_dispatch first=<seed> seeds=1.
 
@@ -61,16 +61,16 @@ jobs:
           {
             echo "### tdt-fuzz"
             echo "- commit: \`$GITHUB_SHA\`; seeds $first to $(( first + seeds - 1 ))"
-            echo "- replay: workflow_dispatch first=$first seeds=$seeds, or locally: \`VC_TDT_FUZZ_FIRST=$first VC_TDT_FUZZ_SEEDS=$seeds cargo test --release --manifest-path engine-rs/Cargo.toml --test tdt_fuzz\`"
+            echo "- replay: workflow_dispatch first=$first seeds=$seeds, or locally: \`VC_TDT_FUZZ_FIRST=$first VC_TDT_FUZZ_SEEDS=$seeds cargo test --release --manifest-path Cargo.toml --test tdt_fuzz\`"
           } >> "$GITHUB_STEP_SUMMARY"
           VC_TDT_FUZZ_FIRST="$first" VC_TDT_FUZZ_SEEDS="$seeds" \
-            cargo test --locked --release --manifest-path engine-rs/Cargo.toml --test tdt_fuzz 2>&1 | tee fuzz.log
+            cargo test --locked --release --manifest-path Cargo.toml --test tdt_fuzz 2>&1 | tee fuzz.log
       - name: Keep the damaged files of a failing run
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: tdt-fuzz-files
-          path: engine-rs/target/tdt-fuzz
+          path: target/tdt-fuzz
           if-no-files-found: ignore
           retention-days: 30
       - name: Open an issue for a failing night
@@ -85,6 +85,6 @@ jobs:
             echo
             echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
             echo
-            echo "Seeds $FIRST to $(( FIRST + SEEDS - 1 )). The failing seeds are named in the run's log; the damaged files are in the \`tdt-fuzz-files\` artifact. Replay one seed locally with \`VC_TDT_FUZZ_FIRST=<seed> VC_TDT_FUZZ_SEEDS=1 cargo test --release --manifest-path engine-rs/Cargo.toml --test tdt_fuzz\`, then pin the file in the conformance lock in the fix."
+            echo "Seeds $FIRST to $(( FIRST + SEEDS - 1 )). The failing seeds are named in the run's log; the damaged files are in the \`tdt-fuzz-files\` artifact. Replay one seed locally with \`VC_TDT_FUZZ_FIRST=<seed> VC_TDT_FUZZ_SEEDS=1 cargo test --release --manifest-path Cargo.toml --test tdt_fuzz\`, then pin the file in the conformance lock in the fix."
           } > body.md
           gh issue create --repo "$GITHUB_REPOSITORY" --title "Nightly .TDT fuzz found a failing input" --body-file body.md --label bug --label tdt

@@ -3,7 +3,7 @@ import type { WasmModule } from "../binding/binding.ts";
 /**
  * The engine's own identity record (#963): which crate, which save, frame
  * layout and catalog contracts, and the conformance lock the engine was built
- * against. The Rust engine writes it (`engine-rs/src/identity.rs`); this file
+ * against. The Rust engine writes it (`src/identity.rs`); this file
  * only reads it back, so no identity value is spelled in the frontend.
  */
 export interface EngineIdentity {

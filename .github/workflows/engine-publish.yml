@@ -63,9 +63,9 @@ jobs:
           if [ "$draft" != "false" ]; then echo "::error::The $tag release is still a draft."; exit 1; fi
           # awk reads to the end (no early exit), so base64 never writes to a
           # closed pipe, which pipefail would turn into a failed step.
-          crate="$(gh api "repos/$GH_REPO/contents/engine-rs/Cargo.toml?ref=refs/tags/$tag" --jq .content | base64 -d \
+          crate="$(gh api "repos/$GH_REPO/contents/Cargo.toml?ref=refs/tags/$tag" --jq .content | base64 -d \
             | awk '/^\[package\]/ { p = 1; next } /^\[/ { p = 0 } p && !found && /^version *=/ { gsub(/.*= *"|".*/, ""); print; found = 1 }')"
-          if [ "$crate" != "$VERSION" ]; then echo "::error::engine-rs/Cargo.toml at $tag is version $crate, not $VERSION."; exit 1; fi
+          if [ "$crate" != "$VERSION" ]; then echo "::error::Cargo.toml at $tag is version $crate, not $VERSION."; exit 1; fi
           tgz="verticopolis-engine-$VERSION.tgz"
           gh release download "$tag" --pattern "$tgz" --pattern "$tgz.sha256" --dir release
           (cd release && sha256sum -c "$tgz.sha256")
@@ -114,7 +114,6 @@ jobs:
 
       - name: Publish the crate
         if: ${{ steps.have.outputs.published == 'false' }}
-        working-directory: engine-rs
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
         run: cargo publish --locked

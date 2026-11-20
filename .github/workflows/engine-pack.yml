@@ -93,7 +93,7 @@ jobs:
           RUN: ${{ github.run_number }}
         run: |
           set -euo pipefail
-          crate=$(awk '/^\[package\]/ { p = 1; next } /^\[/ { p = 0 } p && /^version *=/ { gsub(/.*= *"|".*/, ""); print; exit }' engine-rs/Cargo.toml)
+          crate=$(awk '/^\[package\]/ { p = 1; next } /^\[/ { p = 0 } p && /^version *=/ { gsub(/.*= *"|".*/, ""); print; exit }' Cargo.toml)
           if [ "$EVENT" = pull_request ]; then version="$crate-pr.$PR.$RUN"; else version="$crate-main.$RUN"; fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
 

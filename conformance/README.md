@@ -1,6 +1,6 @@
 # Engine conformance suite
 
-This folder is the referee for the Rust engine (`engine-rs/`), the only engine
+This folder is the referee for the Rust engine (the crate at the repository root), the only engine
 the game runs. It holds scripted scenarios and the hashes the engine produces at
 fixed points while it plays them. Another engine (for example a port to another
 language) passes when it replays every scenario and produces the same list of
@@ -14,7 +14,7 @@ Frontends may differ. Simulations may not.
   `{ "scenarios": { "<id>": [ { "label", "state", "crowd", "events" }, ... ] } }`.
 - The gameplay event catalog, the contract for the events the engine emits
   (see Checkpoints), is part of the lock but lives in the crate,
-  [`engine-rs/src/gameplay/catalog.json`](../engine-rs/src/gameplay/catalog.json),
+  [`src/gameplay/catalog.json`](../src/gameplay/catalog.json),
   so the published crate compiles it in. The lock names it `events/catalog.json`.
 - `fuzz-corpus/`: scenarios the nightly fuzzer once diverged on, and smoke
   entries, each with its golden under `fuzz-corpus/goldens/` (the native
@@ -26,7 +26,7 @@ natively through `cargo run --release --features conformance --bin conformance`;
 as WebAssembly, with the same referee built for `wasm32-wasip1` and run under
 Node's WASI (`scripts/conformance-wasi.mts`, CI job `wasm-referee`); and through its WASM
 binding from Node (`npm run wasm:build && npm run test:wasm`, see
-`engine-rs/README.md`), where `conformanceWasm.integration.test.ts` replays
+`docs/engine.md`), where `conformanceWasm.integration.test.ts` replays
 every scenario against this lock. A mismatch fails the build and names the
 first checkpoint that differs. Beyond the scripted scenarios, the frame-day
 golden (`src/tests/goldens/frame-days.json`, built by
@@ -70,17 +70,17 @@ usually moves those goldens too, so that run fails there until each is
 refreshed with its own switch (above); all of them go in the diff.
 
 A change to any of the five lock files (`catalog-digests.json`, the event
-catalog `engine-rs/src/gameplay/catalog.json`, `expected.json`,
+catalog `src/gameplay/catalog.json`, `expected.json`,
 `loader-cases.json`, `tdt-cases.json`)
 also moves the engine crate version, and the steps do not stop at the lock:
 
 1. Set `crate:` in the PR's `.changes` note (a patch level for a lock change on
    its own) and add an Engine line saying what moved.
-2. Run `npm run engine:compat` to rewrite `engine-rs/src/compat-record.json`.
+2. Run `npm run engine:compat` to rewrite `src/compat-record.json`.
 3. Commit the lock, the note and the record together.
 
 Without them `test` fails on the record and on the version check. The release
-PR raises the version in `engine-rs/Cargo.toml` and both `Cargo.lock` files.
+PR raises the version in `Cargo.toml` and both `Cargo.lock` files.
 The rule is in `CONTRIBUTING.md` under Versioning.
 
 A refactor that claims to change nothing must not touch `expected.json`.
@@ -144,7 +144,7 @@ changes how that save loads, and is reviewed against the case's input.
 
 `catalog-digests.json` pins the canonical hash of each mode's catalog: the
 prices, sizes and build rules a frontend reads from the engine
-(`engine-rs/src/catalog.rs`). The WASM suite writes it from the binding's
+(`src/catalog.rs`). The WASM suite writes it from the binding's
 `catalog(mode)` (`src/tests/integration/conformanceWasm.integration.test.ts`,
 regenerated with `VC_CONFORMANCE_UPDATE=1 npx vitest run --project integration
 conformanceWasm`, the engine package built); a Rust crate test, `cargo run --release --features conformance --bin conformance` and the WASM suite
@@ -154,7 +154,7 @@ request, saying why.
 
 ## The `.TDT` table
 
-`tdt-cases.json` is the referee for the 1994 `.TDT` codec in `engine-rs/src/tdt/`
+`tdt-cases.json` is the referee for the 1994 `.TDT` codec in `src/tdt/`
 (the format is written up in [`docs/tdt/`](../docs/tdt/)). It holds synthetic
 `.TDT` files (never bytes from a real save), each pinned by the canonical-JSON
 hash of the save `parse_tdt` produces and the sorted warnings of the binary
@@ -173,7 +173,7 @@ and its pull request says why.
 ## The `.vctower` container
 
 There is no lock table for the `.vctower` container. The engine's writer
-(`encode_vctower` in `engine-rs/src/load.rs`) matches the TypeScript writers'
+(`encode_vctower` in `src/load.rs`) matches the TypeScript writers'
 framing byte for byte, but its JSON keys are sorted and its deflate bits come
 from a different compressor, so a hash of the file would change with the
 compressor even when the save is the same. Instead, `cargo test`
@@ -286,7 +286,7 @@ ill-typed:
 - a `policy` is `auto`, `feature` or `blockbuster`; a batch `target` is a
   finite number, `default` or `noRate`; `stopFloor` is a whole number,
   `stop` a boolean, a `priceUnit` `target` a finite number.
-- `kind` is a facility key of the engine's catalog (`engine-rs/src/catalog.rs`): one
+- `kind` is a facility key of the engine's catalog (`src/catalog.rs`): one
   without the `transport` flag for `build` and `buildRow`, one with it for
   `buildTransport`.
 - `mode` is `classic` or `modern`.
@@ -323,7 +323,7 @@ WebAssembly run leaves the native one at any checkpoint
 with a 240 s budget of its own):
 
 ```sh
-(cd engine-rs && cargo build --release --features conformance --bin fuzz \
+(cargo build --release --features conformance --bin fuzz \
   && cargo build --release --features conformance --bin fuzz --target wasm32-wasip1)
 node scripts/fuzz-corpus.mts            # check
 node scripts/fuzz-corpus.mts --update   # pin the goldens on purpose
@@ -384,11 +384,11 @@ Labels are unique within a scenario. Each checkpoint records three hashes:
   array `[{ "name", "payload" }, ...]` in emission order. A new game's `start`
   carries its `tower_founded`; a load emits nothing. A `reload` drains the
   engine it replaces first, so the next checkpoint still counts those events.
-  `engine-rs/src/gameplay/catalog.json` defines every event, its payload (closed enums and
+  `src/gameplay/catalog.json` defines every event, its payload (closed enums and
   small integers only, no free text or money) and when it fires;
-  `engine-rs/src/gameplay.rs` holds the Rust type to it and
-  `src/events/gameplayEvents.d.ts` is generated from it (`npm run
-  gen:events`). The events never enter the save or the other two views, and
+  `src/gameplay.rs` holds the Rust type to it and
+  the npm package's `events/gameplayEvents.d.ts` is generated from it (`npm
+  run wasm:build`). The events never enter the save or the other two views, and
   emitting them draws no randomness, so adding an event moves only this hash.
 
 The shapes are the TypeScript types: `SerializedGame` in

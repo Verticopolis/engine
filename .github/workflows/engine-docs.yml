@@ -25,11 +25,11 @@ on:
     paths:
       - "docs/engine-site/**"
       - "packages/verticopolis-engine/README.md"
-      - "engine-rs/CRATE_README.md"
-      - "engine-rs/API.md"
-      - "engine-rs/CHANGELOG.md"
-      - "engine-rs/Cargo.toml"
-      - "engine-rs/src/**"
+      - "CRATE_README.md"
+      - "API.md"
+      - "CHANGELOG.md"
+      - "Cargo.toml"
+      - "src/**"
       - "conformance/README.md"
       - ".github/workflows/engine-docs.yml"
       - ".github/workflows/docs-pages-publish.yml"
@@ -37,11 +37,11 @@ on:
     paths:
       - "docs/engine-site/**"
       - "packages/verticopolis-engine/README.md"
-      - "engine-rs/CRATE_README.md"
-      - "engine-rs/API.md"
-      - "engine-rs/CHANGELOG.md"
-      - "engine-rs/Cargo.toml"
-      - "engine-rs/src/**"
+      - "CRATE_README.md"
+      - "API.md"
+      - "CHANGELOG.md"
+      - "Cargo.toml"
+      - "src/**"
       - "conformance/README.md"
       - ".github/workflows/engine-docs.yml"
       - ".github/workflows/docs-pages-publish.yml"
@@ -105,9 +105,9 @@ jobs:
           chrome="$RUNNER_TEMP/rustdoc-chrome"
           node docs/engine-site/scripts/rustdoc-chrome.mjs "$chrome"
           RUSTDOCFLAGS="--html-in-header $chrome/head.html --html-before-content $chrome/before.html --html-after-content $chrome/after.html" \
-            cargo doc --locked --no-deps --manifest-path engine-rs/Cargo.toml
+            cargo doc --locked --no-deps --manifest-path Cargo.toml
           mkdir -p docs/engine-site/dist/rust
-          cp -R engine-rs/target/doc/. docs/engine-site/dist/rust/
+          cp -R target/doc/. docs/engine-site/dist/rust/
           printf '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=verticopolis_engine/index.html"><title>Rust API reference</title><a href="verticopolis_engine/index.html">Rust API reference</a>\n' > docs/engine-site/dist/rust/index.html
           test -f docs/engine-site/dist/index.html
           test -f docs/engine-site/dist/crate/index.html

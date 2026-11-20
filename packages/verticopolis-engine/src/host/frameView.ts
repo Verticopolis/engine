@@ -4,7 +4,7 @@ import type { Transport, Unit, UnitState, WeatherKind } from "../model/types.ts"
 /**
  * The engine's per-frame read model, decoded from the flat number array
  * `Engine.frameView()` returns. The layout is fixed by `frame_view` in
- * `engine-rs/src/frame.rs`; the header slots and the record widths here
+ * `src/frame.rs`; the header slots and the record widths here
  * mirror it one for one.
  */
 export const FRAME_HEADER = 26;
@@ -58,7 +58,7 @@ export interface FrameHeader {
 }
 
 /** The fixed slots of a person record, before its route (`floors`, then
- *  `shafts`); mirrors `PERSON_FIXED` in `engine-rs/src/frame.rs`. */
+ *  `shafts`); mirrors `PERSON_FIXED` in `src/frame.rs`. */
 export const PERSON_FIXED = 18;
 
 /** The routines the engine tags a person with, by the code it sends (0 is

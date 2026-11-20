@@ -1,6 +1,7 @@
 # CLAUDE.md
 
-This repository is the Verticopolis engine: the Rust crate (`engine-rs/`),
+This repository is the Verticopolis engine: the Rust crate (the repository
+root: `Cargo.toml`, `src/`, `tests/`),
 its WebAssembly and npm package (`@verticopolis/engine`, with the TypeScript
 layer in `packages/verticopolis-engine/`), the conformance suite
 (`conformance/`), the docs site and the bench. Every simulation rule, price,
@@ -27,9 +28,9 @@ session, and run its review skill on every non-trivial change here:
 - **Change notes, never a version edit.** A PR that changes what the crate
   or the npm package ships adds `.changes/<branch-slug>.md` with its `crate:`
   tier (major, minor, patch or none). Any change to Rust code under
-  `engine-rs/src/` other than its test files takes patch or higher; a
+  `src/` other than its test files takes patch or higher; a
   test-only change may use `crate: none`. Only the release PR raises the
-  version and writes `engine-rs/CHANGELOG.md`.
+  version and writes `CHANGELOG.md`.
 - **Quality gates before pushing:** `cargo fmt --all -- --check`,
   `cargo clippy --locked --all-targets -- -D warnings`, `cargo test --locked`,
   the conformance referee, and for the TypeScript `npm run typecheck`,
@@ -37,7 +38,7 @@ session, and run its review skill on every non-trivial change here:
   TypeScript layout; run `npm run format` before committing.
 - **No guard tests.** Never add a test that reads source, CSS, workflow
   or configuration files. Check workflows with actionlint and real CI runs.
-- **No host access in the simulation** (`engine-rs/tests/independence.rs`).
+- **No host access in the simulation** (`tests/independence.rs`).
 - **A 500-line ceiling per source file.** Test files and generated files
   are exempt. Nothing checks it yet, and some files are already over: don't
   make one longer, and split it when you change it.

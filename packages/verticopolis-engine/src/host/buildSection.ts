@@ -2,7 +2,7 @@
  * The engine's build metadata (#963): which Rust sources a binary was built
  * from, supplied by the packaging and never by the engine. The core engine
  * reads none of it and requires none of it (a hash of the sources cannot be
- * compiled into them without a build script, which `engine-rs/tests/
+ * compiled into them without a build script, which `tests/
  * independence.rs` bans). The record is
  *
  *     { "schema": 1, "sourceHash": "<64 lowercase hex digits>" }
@@ -10,7 +10,7 @@
  * and a web build writes it, as UTF-8 JSON, into a WebAssembly custom section
  * named `verticopolis.build` (`scripts/wasm-build.ts`, after wasm-bindgen and
  * before any file digest is taken). A native Rust or Godot host supplies the
- * same object by its own means (see engine-rs/API.md, "Build metadata").
+ * same object by its own means (see API.md, "Build metadata").
  *
  * `sourceHash` is `engineSourceHash` (packageHash.ts): a hash of sources. It is
  * not the SHA-256 of the binary, which is a separate fact (the package id in

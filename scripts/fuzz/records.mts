@@ -17,7 +17,7 @@ export interface Checkpoint {
 }
 
 /** What the fuzzer records at a checkpoint beyond the hashes
- *  (`engine-rs/src/scenario_detail.rs`): the money, the log, a digest of each
+ *  (`src/scenario_detail.rs`): the money, the log, a digest of each
  *  top-level save field and the cosmetic fx slots. */
 export interface CheckpointDetail {
   label: string;

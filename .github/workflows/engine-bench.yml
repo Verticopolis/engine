@@ -22,8 +22,8 @@ on:
   pull_request:
     paths:
       - "engine-bench/**"
-      - "engine-rs/src/**"
-      - "engine-rs/Cargo.toml"
+      - "src/**"
+      - "Cargo.toml"
       - ".github/workflows/engine-bench.yml"
   workflow_dispatch:
 
@@ -52,7 +52,8 @@ jobs:
           # The engine compiles in files from conformance/ (the event
           # catalog among them), so the suite comes along.
           sparse-checkout: |
-            /engine-rs/
+            /Cargo.toml
+            /src/
             /engine-bench/
             /conformance/
 

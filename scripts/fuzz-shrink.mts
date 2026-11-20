@@ -7,7 +7,7 @@
  *   node scripts/fuzz-shrink.mts <fuzz-out>/fuzz-<seed>.json <name> [--max-tests 4000]
  * The candidates replay on the native fuzzer and on the fuzzer built for
  * WebAssembly under Node's WASI, so both builds must exist
- * (`cargo build --release --features conformance --bin fuzz`, in engine-rs/,
+ * (`cargo build --release --features conformance --bin fuzz`, at the repository root,
  * once as is and once with `--target wasm32-wasip1`).
  * A candidate counts as still failing only when the native build runs it
  * cleanly and the WebAssembly build shows the same kind of divergence as the

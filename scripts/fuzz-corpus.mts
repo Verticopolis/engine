@@ -4,7 +4,7 @@
  * native run leaves the entry's golden (conformance/fuzz-corpus/goldens/) or
  * the WebAssembly run leaves the native one. The `wasm-referee` job of
  * engine-rs.yml runs it on every pull request and on main. Usage:
- *   (cd engine-rs && cargo build --release --features conformance --bin fuzz \
+ *   (cargo build --release --features conformance --bin fuzz \
  *     && cargo build --release --features conformance --bin fuzz --target wasm32-wasip1)
  *   node scripts/fuzz-corpus.mts [--budget <seconds>] [--update]
  * --update pins each entry's native records as its golden instead of checking

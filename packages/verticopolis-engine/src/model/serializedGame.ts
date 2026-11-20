@@ -118,26 +118,26 @@ export interface SerializedGame {
   log?: LogEntry[];
   /** Everyone in the tower as they stood (walking, waiting, riding, at a
    * venue, cleaning), so a reload keeps them. The engine owns the shape
-   * (`engine-rs/src/crowd/save.rs`); absent in older saves, which load with
+   * (`src/crowd/save.rs`); absent in older saves, which load with
    * nobody in the building. */
   crowd?: unknown;
   /** The elevator cars' timers mid-stop and the waiting estimate per floor,
    * so the cars carry on after a reload. The engine owns the shape
-   * (`engine-rs/src/dispatch_save.rs`); absent in older saves. */
+   * (`src/dispatch_save.rs`); absent in older saves. */
   dispatch?: unknown;
   /** Housekeeping's rooms cleaned today and yesterday's shift (cleaned, left
    * dirty), so the checkout line and the stats sheet read the same after a
-   * reload. The engine owns the shape (`engine-rs/src/housekeeping_save.rs`);
+   * reload. The engine owns the shape (`src/housekeeping_save.rs`);
    * absent while there is nothing to tally and in older saves. */
   housekeeping?: unknown;
   /** The day's move-ins so far (offices, condos, hotel rooms and rentals let),
    * so the evening's "New tenants:" line counts the whole day after a reload.
-   * The engine owns the shape (`engine-rs/src/churn/move_ins_save.rs`); absent
+   * The engine owns the shape (`src/churn/move_ins_save.rs`); absent
    * while nobody has moved in since the last report and in older saves. */
   moveIns?: unknown;
   /** A first-day game's hour, maintenance-period and quarter marks that the
    * clock does not give, so a reload bills the first day's end as the unsaved
-   * game would. The engine owns the shape (`engine-rs/src/sim_period_marks.rs`);
+   * game would. The engine owns the shape (`src/sim_period_marks.rs`);
    * absent from the second day on and in older saves. */
   periodMarks?: unknown;
 }

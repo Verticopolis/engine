@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # Install the toolchain the engine's WASM package needs, then build it with
-# `npm run wasm:build`: the player build (engine-rs/pkg-web/ for the browser,
-# engine-rs/pkg-player/ for Node) and the tooling build with the binding's
-# tier 3 ops (engine-rs/pkg/ for Node, engine-rs/pkg-web-tooling/ for a
+# `npm run wasm:build`: the player build (wasm/pkg-web/ for the browser,
+# wasm/pkg-player/ for Node) and the tooling build with the binding's
+# tier 3 ops (wasm/pkg/ for Node, wasm/pkg-web-tooling/ for a
 # VC_TOOLING=1 browser build, #1057). Arguments pass through to
 # `npm run wasm:build`: the Vercel deploy passes --player-only, which skips the
 # tooling build no deploy ships. The package is build output and is not checked in: the Vercel
 # deploy (scripts/vercel-build.sh) and CI (.github/actions/engine-wasm) both
 # build it through this script.
 #
-# Toolchain: rustup (minimal profile, the `rust-version` engine-rs/Cargo.toml
+# Toolchain: rustup (minimal profile, the `rust-version` Cargo.toml
 # declares, so every build compiles with the same release the conformance gate
 # runs on), the wasm32-unknown-unknown target, and the wasm-bindgen CLI at
 # exactly the version Cargo.toml pins, from its prebuilt release archive
 # (scripts/wasm-build.ts refuses any other version). Needs curl, tar,
 # sha256sum and a host C linker (cargo builds the crate's build scripts for
 # the host). The prebuilt binaries it fetches are the x86_64 Linux ones;
-# elsewhere, install the toolchain by hand (engine-rs/README.md) and run
+# elsewhere, install the toolchain by hand (docs/engine.md) and run
 # npm run wasm:build.
 #
 # Every download is checked against a SHA-256 recorded below before it runs or
@@ -25,7 +25,7 @@
 # cache until either changed.
 set -euo pipefail
 
-# The wasm-bindgen CLI archive, recorded for the version engine-rs/Cargo.toml
+# The wasm-bindgen CLI archive, recorded for the version Cargo.toml
 # pins (the script stops when the two disagree). Bumping that pin means
 # updating both lines here: take the hash from the release's own
 # `<archive>.tar.gz.sha256sum` asset and confirm it with sha256sum on a fresh
@@ -41,7 +41,7 @@ RUSTUP_VERSION="1.29.1"
 RUSTUP_INIT_SHA256="dda7234360b7f578ca8b0ddcb80145646fa61a67c1720a5abc7051b35c9fcb71"
 
 if [ "$(uname -s)" != "Linux" ] || [ "$(uname -m)" != "x86_64" ]; then
-  echo "build-engine-wasm: this script fetches the x86_64 Linux wasm-bindgen and rustup-init; on $(uname -s) $(uname -m), install the toolchain by hand (engine-rs/README.md) and run npm run wasm:build" >&2
+  echo "build-engine-wasm: this script fetches the x86_64 Linux wasm-bindgen and rustup-init; on $(uname -s) $(uname -m), install the toolchain by hand (docs/engine.md) and run npm run wasm:build" >&2
   exit 1
 fi
 
@@ -58,10 +58,10 @@ verify_sha256() {
   fi
 }
 
-PIN=$(node -e 'const t=require("fs").readFileSync("engine-rs/Cargo.toml","utf8");const m=/^\s*wasm-bindgen\s*=\s*\{[^}]*version\s*=\s*"=([0-9.]+)"/m.exec(t);if(!m)throw new Error("engine-rs/Cargo.toml does not pin wasm-bindgen");process.stdout.write(m[1])')
-RUST=$(node -e 'const t=require("fs").readFileSync("engine-rs/Cargo.toml","utf8");const m=/^rust-version\s*=\s*"([0-9.]+)"/m.exec(t);if(!m)throw new Error("engine-rs/Cargo.toml does not declare rust-version");process.stdout.write(m[1])')
+PIN=$(node -e 'const t=require("fs").readFileSync("Cargo.toml","utf8");const m=/^\s*wasm-bindgen\s*=\s*\{[^}]*version\s*=\s*"=([0-9.]+)"/m.exec(t);if(!m)throw new Error("Cargo.toml does not pin wasm-bindgen");process.stdout.write(m[1])')
+RUST=$(node -e 'const t=require("fs").readFileSync("Cargo.toml","utf8");const m=/^rust-version\s*=\s*"([0-9.]+)"/m.exec(t);if(!m)throw new Error("Cargo.toml does not declare rust-version");process.stdout.write(m[1])')
 if [ "$PIN" != "$WASM_BINDGEN_VERSION" ]; then
-  echo "build-engine-wasm: engine-rs/Cargo.toml pins wasm-bindgen ${PIN}, but this script records the archive checksum for ${WASM_BINDGEN_VERSION}; update WASM_BINDGEN_VERSION and WASM_BINDGEN_SHA256 here" >&2
+  echo "build-engine-wasm: Cargo.toml pins wasm-bindgen ${PIN}, but this script records the archive checksum for ${WASM_BINDGEN_VERSION}; update WASM_BINDGEN_VERSION and WASM_BINDGEN_SHA256 here" >&2
   exit 1
 fi
 # rust-version names a minor release (1.97); the conformance gate in

@@ -2,7 +2,7 @@
   "$comment": "The pages the engine docs site builds from files the repository already keeps. scripts/sync-pages.mjs copies each source into src/content/docs/<slug>.md before a build; src/tests/engineDocsSite.guard.test.ts checks every source exists.",
   "aliases": {
     "$comment": "Files the npm package gets copied in when it is packed (scripts/engine-package-files.sh), so a link written as the packaged path goes to the file it is copied from.",
-    "packages/verticopolis-engine/CHANGELOG.md": "engine-rs/CHANGELOG.md",
+    "packages/verticopolis-engine/CHANGELOG.md": "CHANGELOG.md",
     "packages/verticopolis-engine/LICENSE": "LICENSE"
   },
   "pages": [
@@ -19,7 +19,7 @@
       "description": "Depend on the verticopolis-engine crate from a native Rust host."
     },
     {
-      "source": "engine-rs/API.md",
+      "source": "API.md",
       "slug": "api",
       "title": "Host API guide",
       "description": "Every call a Rust frontend makes, in full."
@@ -31,7 +31,7 @@
       "description": "The scripted games and pinned state hashes that prove a host runs the real engine."
     },
     {
-      "source": "engine-rs/CHANGELOG.md",
+      "source": "CHANGELOG.md",
       "slug": "changelog",
       "title": "Engine changelog",
       "description": "What changed in each engine release."

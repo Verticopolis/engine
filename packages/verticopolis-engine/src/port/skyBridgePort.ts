@@ -1,4 +1,4 @@
-// The engine port's Sky Bridge tool (Modern, `engine-rs/src/wasm_port_skybridge.rs`):
+// The engine port's Sky Bridge tool (Modern, `src/wasm_port_skybridge.rs`):
 // one click on the open air between two sky lobbies lays the whole bridge, or
 // nothing, and a click on a bridge changes its look. Part of `EnginePort`
 // (`enginePort.ts`).
