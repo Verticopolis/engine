@@ -279,3 +279,62 @@ fn a_maid_turns_a_late_room_over_like_any_other() {
         "the maid cleaned"
     );
 }
+
+/// Steps from the minute before `hour` into it, so the hourly dispatch runs
+/// that hour's work.
+fn enter_hour(sim: &mut Simulation, hour: i64) {
+    sim.clock = crate::clock::Clock::new((hour * 60 - 1) as f64, sim.clock.calendar);
+    sim.tick(1.0);
+    assert_eq!(sim.clock.minutes, (hour * 60) as f64);
+}
+
+fn hotel_states(sim: &Simulation) -> Vec<(i64, UnitState)> {
+    sim.tower
+        .units
+        .iter()
+        .filter(|u| u.kind == HOTEL)
+        .map(|u| (u.id, u.state))
+        .collect()
+}
+
+/// With no maid the afternoon-dirtied rooms stay dirty and are never re-let,
+/// like the morning's; on the same stepping, rooms made clean are re-let in
+/// the evening, so it is the dirt that keeps them empty. Moved here from the
+/// game's understaffed-housekeeping check.
+#[test]
+fn without_a_maid_the_late_rooms_stay_dirty_and_unlet() {
+    let mut sim = hotel_tower(GameMode::Modern, ROOMS, 2024);
+    enter_hour(&mut sim, 8);
+    let deferred = rooms_in(&sim, UnitState::Asleep).len();
+    assert!(deferred > 0 && deferred < ROOMS);
+    assert_eq!(rooms_in(&sim, UnitState::Dirty).len(), ROOMS - deferred);
+    enter_hour(&mut sim, 14);
+    assert_eq!(rooms_in(&sim, UnitState::Dirty).len(), ROOMS);
+    let after = hotel_states(&sim);
+    for hour in 15..=22 {
+        enter_hour(&mut sim, hour);
+        assert_eq!(hotel_states(&sim), after, "no room changed by {hour}:00");
+    }
+    let mut control = hotel_tower(GameMode::Modern, ROOMS, 2024);
+    enter_hour(&mut control, 8);
+    enter_hour(&mut control, 14);
+    assert_eq!(hotel_states(&control), after, "the control starts alike");
+    let cleaned: Vec<i64> = after.iter().take(4).map(|&(id, _)| id).collect();
+    for &id in &cleaned {
+        control.tower.get_unit_mut(id).unwrap().state = UnitState::Empty;
+    }
+    for hour in 15..=22 {
+        enter_hour(&mut control, hour);
+    }
+    let states = hotel_states(&control);
+    assert!(
+        states
+            .iter()
+            .any(|&(id, s)| cleaned.contains(&id) && s == UnitState::Asleep),
+        "a clean room was re-let"
+    );
+    assert!(states
+        .iter()
+        .filter(|(id, _)| !cleaned.contains(id))
+        .all(|&(_, s)| s == UnitState::Dirty));
+}
