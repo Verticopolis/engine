@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Catalog } from "../catalog/catalogTypes";
 import { readCatalog } from "../engineBinding/catalog";
-import type { GameMode } from "../shared/types";
+import type { GameMode } from "../model/types";
 
 /**
  * The Rust engine's catalog for each mode, as its `catalog(mode)` export

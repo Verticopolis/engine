@@ -1,4 +1,4 @@
-import type { FacilityKind } from "../shared/types";
+import type { FacilityKind } from "../model/types";
 import type { EnginePort, PortRecord } from "./enginePort";
 
 /** The code tables a caller passes names through, as `viewLayout()` names

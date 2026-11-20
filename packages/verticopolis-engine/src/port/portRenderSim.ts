@@ -1,6 +1,6 @@
-import type { ElevatorQueueView, QueueLanding } from "../shared/engineTypes";
-import type { HeatCell, HeatmapMode } from "../shared/engineTypes";
-import type { GameMode, SerializedView, WeatherKind } from "../shared/types";
+import type { ElevatorQueueView, QueueLanding } from "../model/engineTypes";
+import type { HeatCell, HeatmapMode } from "../model/engineTypes";
+import type { GameMode, SerializedView, WeatherKind } from "../model/types";
 import { lobbyHalls, type LobbyHalls } from "../render/lobbyHalls";
 import type { RenderSim, RenderTower } from "../render/renderSim";
 import { ClockReads } from "./clockView";

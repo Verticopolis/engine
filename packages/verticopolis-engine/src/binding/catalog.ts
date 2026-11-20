@@ -1,5 +1,5 @@
 import { CATALOG_VERSION, type Catalog } from "../catalog/catalogTypes";
-import type { GameMode } from "../shared/types";
+import type { GameMode } from "../model/types";
 import type { WasmModule } from "./binding";
 
 /**

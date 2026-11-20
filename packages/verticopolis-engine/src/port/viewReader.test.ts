@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { FacilityKind } from "../shared/types";
+import type { FacilityKind } from "../model/types";
 import { ViewReader } from "./viewReader";
 import { code, frame, mockPort, structure, type RoomSpec, type RunSpec, type ShaftSpec } from "../tests/portKit/mockPort";
 

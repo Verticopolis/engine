@@ -156,7 +156,7 @@ export function isVacateReason(v: unknown): v is VacateReason {
 
 // The unit-state predicates live in `shared/unitState.ts` so the web can use them
 // without importing this module at runtime; the engine keeps its old names.
-export { isOperational, isPresent, isTenanted, isDormant } from "../shared/unitState";
+export { isOperational, isPresent, isTenanted, isDormant } from "../model/unitState";
 
 export interface Facility {
   kind: FacilityKind;
@@ -376,7 +376,7 @@ export interface LogEntry {
 
 /** Camera zoom bounds. They live in `shared/viewZoom.ts`; the save schema clamps a
  *  restored zoom to them at the deserialize trust boundary. */
-export { VIEW_ZOOM_MIN, VIEW_ZOOM_MAX } from "../shared/viewZoom";
+export { VIEW_ZOOM_MIN, VIEW_ZOOM_MAX } from "../model/viewZoom";
 
 /**
  * The camera view carried inside a save: the camera CENTER in grid units

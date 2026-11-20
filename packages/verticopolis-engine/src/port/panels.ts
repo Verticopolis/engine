@@ -1,7 +1,7 @@
-import type { LedgerCat } from "../shared/engineTypes";
-import type { HeatmapMode } from "../shared/engineTypes";
-import type { StarGateId } from "../shared/engineTypes";
-import type { FacilityKind, UnitState, VacateReason } from "../shared/types";
+import type { LedgerCat } from "../model/engineTypes";
+import type { HeatmapMode } from "../model/engineTypes";
+import type { StarGateId } from "../model/engineTypes";
+import type { FacilityKind, UnitState, VacateReason } from "../model/types";
 import type { FilmPolicy, FilmTier, TicketPrice } from "./commands";
 
 /**

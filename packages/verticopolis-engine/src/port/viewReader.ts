@@ -1,5 +1,5 @@
-import type { FacilityKind, GameMode, UnitState, WeatherKind } from "../shared/types";
-import type { CalendarKind, PersonState } from "../shared/engineTypes";
+import type { FacilityKind, GameMode, UnitState, WeatherKind } from "../model/types";
+import type { CalendarKind, PersonState } from "../model/engineTypes";
 import type { EnginePort } from "./enginePort";
 import { EmergencyReads } from "./emergencyReads";
 import { skyBridgeReads } from "./skyBridgeView";

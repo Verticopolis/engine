@@ -1,6 +1,6 @@
-import type { LedgerCat } from "../shared/engineTypes";
-import type { StarGateId } from "../shared/engineTypes";
-import type { FacilityKind } from "../shared/types";
+import type { LedgerCat } from "../model/engineTypes";
+import type { StarGateId } from "../model/engineTypes";
+import type { FacilityKind } from "../model/types";
 import type { PortRecord } from "./enginePort";
 import type { ElevatorStatsRow, HousekeepingCoverageView, NextStarView, StatsReport, TowerStats } from "./panels";
 import type { PortCodes } from "./portCodes";

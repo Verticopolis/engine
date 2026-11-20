@@ -1,5 +1,5 @@
-import type { Person, PersonState } from "../shared/engineTypes";
-import type { Transport, Unit, UnitState, WeatherKind } from "../shared/types";
+import type { Person, PersonState } from "../model/engineTypes";
+import type { Transport, Unit, UnitState, WeatherKind } from "../model/types";
 
 /**
  * The engine's per-frame read model, decoded from the flat number array

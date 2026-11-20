@@ -1,6 +1,6 @@
-import type { PersonState } from "../shared/engineTypes";
-import type { CalendarKind } from "../shared/engineTypes";
-import type { FacilityKind, GameMode, UnitState, WeatherKind } from "../shared/types";
+import type { PersonState } from "../model/engineTypes";
+import type { CalendarKind } from "../model/engineTypes";
+import type { FacilityKind, GameMode, UnitState, WeatherKind } from "../model/types";
 
 /**
  * What the game reads from the simulation to draw it and to fill the HUD,

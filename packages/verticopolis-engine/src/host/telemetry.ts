@@ -1,5 +1,5 @@
-import type { HourlyByDay } from "../shared/engineTypes";
-import type { OriginRings } from "../shared/engineTypes";
+import type { HourlyByDay } from "../model/engineTypes";
+import type { OriginRings } from "../model/engineTypes";
 
 /**
  * The hourly elevator telemetry (`elevatorUtil`, `elevatorHourly`,

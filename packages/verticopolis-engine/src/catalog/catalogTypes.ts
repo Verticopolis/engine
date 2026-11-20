@@ -4,8 +4,8 @@
  * a frontend that reads the WASM binding's catalog bundles no engine tables;
  * `engine-rs/src/catalog.rs` serializes it.
  */
-import type { CalendarKind } from "../shared/engineTypes";
-import type { FacilityCategory, FacilityKind, GameMode } from "../shared/types";
+import type { CalendarKind } from "../model/engineTypes";
+import type { FacilityCategory, FacilityKind, GameMode } from "../model/types";
 import type { FilmPolicy, FilmTier, TicketPrice } from "../simport/commands";
 import type { CatalogSkyBridgeRules } from "./skyBridgeTypes";
 import type { CatalogStarDutyRules } from "./starDutyTypes";

@@ -1,4 +1,4 @@
-import type { FacilityKind, UnitState, VacateReason } from "../shared/types";
+import type { FacilityKind, UnitState, VacateReason } from "../model/types";
 import type { FilmPolicy, FilmTier, TicketPrice } from "./commands";
 import type { EnginePort, PortRecord } from "./enginePort";
 import type { HourlyView, OriginsView, ScreenDetail, StopRow, TransportDetail, UnitDetail } from "./panels";

@@ -1,5 +1,5 @@
-import type { BatchRentResult, BatchTarget } from "../shared/engineTypes";
-import type { FacilityKind, LogEntry, SerializedView } from "../shared/types";
+import type { BatchRentResult, BatchTarget } from "../model/engineTypes";
+import type { FacilityKind, LogEntry, SerializedView } from "../model/types";
 
 /**
  * The player commands the game sends through the port, one member per

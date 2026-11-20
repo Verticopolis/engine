@@ -1,4 +1,4 @@
-import type { ElevatorSchedule } from "../shared/engineTypes";
+import type { ElevatorSchedule } from "../model/engineTypes";
 
 /**
  * An elevator schedule as the `scheduleShaft` slots (contract section 4): a

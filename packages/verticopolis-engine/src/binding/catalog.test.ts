@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CATALOG_VERSION } from "../catalog/catalogTypes";
 import { catalogFor } from "../tests/catalogFixture";
-import type { GameMode } from "../shared/types";
+import type { GameMode } from "../model/types";
 import { readCatalog } from "./catalog";
 
 const reply = (text: string) => ({ catalog: () => text });
