@@ -77,9 +77,9 @@ built from `docs/engine-site/`:
 | `engine-bench/` | The step-cost bench |
 | `docs/engine-site/` | The docs site |
 | `docs/tdt/` | The 1994 `.TDT` save format: what its values mean and a map of every byte |
-| `packages/verticopolis-engine/` | The npm package's README and browser types |
+| `packages/verticopolis-engine/` | The `@verticopolis/engine` npm package: its `package.json`, README, TypeScript layer and browser types |
 | `Cargo.lock` | The lock the crate builds and packages with |
-| `package.json` | The `@verticopolis/engine` package definition |
+| `package.json` | The repository's build and check tooling (private, never published) |
 | `history/commit-map.txt` | Each commit here and the `maniator/verticopolis` commit it came from |
 
 ## Build and test

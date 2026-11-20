@@ -69,7 +69,7 @@ describe("the paths the check reads", () => {
       "packages/verticopolis-engine/events/gameplayCatalog.ts",
       "conformance/expected.json",
       "packages/verticopolis-engine/web.d.ts",
-      "package.json",
+      "packages/verticopolis-engine/package.json",
       "scripts/pack-engine.sh",
       "scripts/engine-package-files.sh",
       "scripts/build-engine-wasm.sh",
@@ -87,6 +87,7 @@ describe("the paths the check reads", () => {
       "engine-bench/src/main.rs",
       "tools/releaseCut.ts",
       "scripts/cut-release.ts",
+      "package.json",
       "package-lock.json",
       ".github/workflows/engine-rs.yml",
       "docs/engine-site/guides/crate.md",
@@ -96,12 +97,7 @@ describe("the paths the check reads", () => {
   });
 
   it("tells Rust code from the test files under src/", () => {
-    for (const path of [
-      "src/sim.rs",
-      "src/panels/mod.rs",
-      "src/contest.rs",
-      "src/latest.rs",
-    ]) {
+    for (const path of ["src/sim.rs", "src/panels/mod.rs", "src/contest.rs", "src/latest.rs"]) {
       expect(isRustCode(path), path).toBe(true);
     }
     for (const path of [

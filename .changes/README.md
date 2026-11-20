@@ -22,9 +22,9 @@ crate: minor    # major | minor | patch | none
   lines indented two spaces. The release leads each entry with the note's
   tier, so leave the tier out of the entry.
 - A pull request that changes what the crate or the npm package ships needs
-  a note: `src/`, `Cargo.toml`, `src/events/`,
-  `conformance/`, `packages/verticopolis-engine/`, the root `package.json`
-  (the package's manifest) or the packaging scripts (`scripts/wasm-build.ts`,
+  a note: `src/`, `Cargo.toml`, `conformance/`,
+  `packages/verticopolis-engine/` (its `package.json` is the package's
+  manifest) or the packaging scripts (`scripts/wasm-build.ts`,
   `scripts/build-engine-wasm.sh`, `scripts/pack-engine.sh`,
   `scripts/engine-package-files.sh`). A change to Rust code under
   `src/` other than its test files needs a tier of patch or higher;

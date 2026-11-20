@@ -37,7 +37,6 @@ const SHIPPED_PREFIXES: readonly string[] = [
   "Cargo.toml",
   "conformance/",
   "packages/verticopolis-engine/",
-  "package.json",
   "scripts/pack-engine.sh",
   "scripts/engine-package-files.sh",
   "scripts/build-engine-wasm.sh",
@@ -51,8 +50,7 @@ export const isShipped = (path: string) =>
  * a deletion included, needs a crate tier of patch or higher.
  */
 const TEST_FILE = /(^|\/)(tests?(_[a-z0-9_]+)?|[a-z0-9_]+_tests)\.rs$|\/(rule_tests|tests)\//;
-export const isRustCode = (path: string) =>
-  path.startsWith("src/") && path.endsWith(".rs") && !TEST_FILE.test(path);
+export const isRustCode = (path: string) => path.startsWith("src/") && path.endsWith(".rs") && !TEST_FILE.test(path);
 
 const NOTE_TIERS: readonly NoteTier[] = ["none", "patch", "minor", "major"];
 const TIER_PREFIX = /^- \*\*(major|minor|patch|none)\*\*/;
