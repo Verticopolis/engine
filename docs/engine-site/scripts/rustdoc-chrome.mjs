@@ -23,7 +23,6 @@ import { GITHUB, RUST_REFERENCE, SHORT_TITLE, sidebar, siteTitle } from "../site
 import { barLinks, escapeHtml as escape, siteName } from "../title-bar.mjs";
 
 const site = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const repo = resolve(site, "..", "..");
 
 /** One menu entry as a link; a slug takes its title and path from pages.json. */
 function link(entry, titles) {

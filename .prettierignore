@@ -1,0 +1,8 @@
+# Prose and data keep their own layout: Markdown is house-style prose, JSON is
+# mostly generated (lockfiles, fixtures, goldens). Prettier already skips
+# node_modules and everything .gitignore lists.
+*.md
+*.json
+*.jsonc
+# The docs site's stylesheets (docs/engine-site) keep the layout they came with.
+*.css

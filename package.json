@@ -118,11 +118,20 @@
     "layer:typecheck": "tsc -p packages/verticopolis-engine/tsconfig.json",
     "layer:test": "vitest run --dir packages/verticopolis-engine/src",
     "layer:fixtures": "node scripts/layer-fixtures.ts",
-    "layer:build": "node scripts/layer-build.ts"
+    "layer:build": "node scripts/layer-build.ts",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/node": "^26.6.6",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.5.0",
+    "prettier": "3.10.1",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.73.0",
     "vitest": "^4.1.11"
   }
 }

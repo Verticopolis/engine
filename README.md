@@ -92,6 +92,17 @@ cargo run --release --features conformance --bin conformance   # the referee
 (cd engine-rs/consumer && cargo test --locked)
 ```
 
+The TypeScript around the engine (the packer, the event rules, the
+TypeScript layer, the build scripts, the docs site's scripts) has the game's
+checks:
+
+```sh
+npm run typecheck
+npm run lint            # ESLint, the game's rules
+npm run format:check    # Prettier; `npm run format` rewrites the files
+npm test
+```
+
 CI also runs the referee compiled to WebAssembly, under Node's WASI
 (`scripts/conformance-wasi.mts` has the two commands), so the checkpoints hold
 for the engine built the way a browser runs it.
