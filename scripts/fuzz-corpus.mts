@@ -2,8 +2,8 @@
  * Replay every entry of conformance/fuzz-corpus/ on the native fuzzer and on
  * the fuzzer built for WebAssembly (under Node's WASI), and fail when the
  * native run leaves the entry's golden (conformance/fuzz-corpus/goldens/) or
- * the WebAssembly run leaves the native one. The pull-request job
- * (engine-rs.yml, `fuzz-corpus`) runs it on an engine change. Usage:
+ * the WebAssembly run leaves the native one. The `wasm-referee` job of
+ * engine-rs.yml runs it on every pull request and on main. Usage:
  *   (cd engine-rs && cargo build --release --features conformance --bin fuzz \
  *     && cargo build --release --features conformance --bin fuzz --target wasm32-wasip1)
  *   node scripts/fuzz-corpus.mts [--budget <seconds>] [--update]
@@ -112,8 +112,8 @@ try {
     }
     const wasm = wasmReplay(file, wasmDir, Math.min(120_000, Math.max(1, remaining())));
     if (wasm.code !== 0) {
-      const what = wasm.code === 6 ? "refused what the native build ran" : wasm.code === 4 ? "trapped" : wasm.code === 3 ? "timed out" : `run failed (${wasm.code})`;
-      console.log(`${name}: the WebAssembly ${what}: ${rustMessage(wasm.stderr)}`);
+      const what = wasm.code === 6 ? "refused what the native build ran" : wasm.code === 4 ? "trapped" : wasm.code === 3 ? "timed out" : `failed to run (${wasm.code})`;
+      console.log(`${name}: the WebAssembly build ${what}: ${rustMessage(wasm.stderr)}`);
       if ([3, 4, 6].includes(wasm.code)) failed.push(name);
       else harness = true;
       continue;
