@@ -2,7 +2,7 @@
 
 What we know about the file, in one place. This page is a knowledge reference:
 layout, field meanings and how sure we are. The story of how each fact was
-found lives in the issues and pull requests (#1491, #1497, #740, #318, #319),
+found lives in the issues and pull requests (Verticopolis/web#1491, Verticopolis/web#1497, Verticopolis/web#740, Verticopolis/web#318, Verticopolis/web#319),
 not here.
 
 **Sources.** Tags mark where a fact comes from:
@@ -15,7 +15,8 @@ not here.
   copy that code into this repo).
 - **[RE]**: measured by us on game-written saves: the nine 1997 saves in
   `conformance/fixtures/tdt-reddit/` (contributed by u/invokes), saves the
-  retail game wrote under the Wine harness (`tools/simtower`), and the game's own
+  retail game wrote under the Wine harness
+  ([`tools/simtower` in Verticopolis/web](https://github.com/Verticopolis/web/tree/main/tools/simtower)), and the game's own
   re-saves of our exports.
 
 Where the sources disagree this page names the better-evidenced reading.
@@ -34,10 +35,13 @@ behavior, published FAQs and reverse-engineered data formats. It must never come
 from the original games' source code (including the YootTower archive): nobody
 working on Verticopolis reads it, even if it is relicensed.
 
-**Where it is used.** `engine-rs/src/tdt/` is the one `.TDT` codec (the
-web game reaches it through the WASM package; `src/simport/tdtRecords.ts` reads its records).
-`src/tests/integration/canon.integration.test.ts` asserts our engine constants
-against this page.
+**Where it is used.** `engine-rs/src/tdt/` is the one `.TDT` codec, held to
+`conformance/tdt-cases.json` (see [the conformance README](../../conformance/README.md#the-tdt-table)).
+Frontends reach it through the package (`loadTdt`, `adoptTdt`, `tdtExport`) and
+decode none of the file themselves. In Verticopolis/web the game picks the file, names the
+download and words the import and export reports, and
+`src/tests/integration/canon.integration.test.ts` there asserts the engine's
+constants against this page.
 
 **Confidence.** *High* = seen in every real save or in repeated harness runs.
 *Medium* = seen in a few saves or one harness run. *Low* = inferred.
@@ -81,8 +85,7 @@ field, with offsets and grades, see the byte map,
 
 The floor map starts at byte 560. Our exporter writes the live camera view into
 the window position when the save has one, else 1105, 3491 (opens on the ground
-lobby); see `view_words_from_view` in `engine-rs/src/tdt/format.rs` in
-[Verticopolis/engine](https://github.com/Verticopolis/engine).
+lobby); see `view_words_from_view` in `engine-rs/src/tdt/format.rs`.
 
 ## 3. Money scale
 
@@ -140,7 +143,7 @@ tile (type 0) no id: the tile's record carries `FF` in byte 12 and has no remap
 entry, and every other record carries its id there. People records, retail rows
 and the party hall and theatre table name a unit by this id, so it must skip
 the tiles exactly as the game does. Our exporter numbers the units in record
-order the same way and writes the remap for the numbered units alone (#1932).
+order the same way and writes the remap for the numbered units alone (Verticopolis/web#1932).
 
 **Record order matters.** Unit records are written in ascending left-edge order
 with empty-floor (type 0) paving spans interleaved at their real x. The game
@@ -162,7 +165,7 @@ infested flag, bits 0 and 1 the number of guests inside right now.
 | `0x10` to `0x13` | Asleep (stay state 2); low bits = guests inside | High |
 | `0x18` (24) | Clean and vacant; no guests counted. Every room in TOWER1 and MYTOWER, and every TOWER7 room but the 29 dirty ones. Housekeeping also writes it when it cleans a dirty room | High |
 | `0x20`, `0x28`, `0x30`, `0x38` | Dirty, awaiting housekeeping (32, 40, 48 seen in saves; 56 written by the game after it cleared the `0x40` flag); no guests counted | High |
-| `0x40` | Called bug-infested in [TD]. Never found in a save of a tower played in the game. The game keeps it when it loads a file that has it, but clears it from a room that is also vacant or dirty, and no infestation was seen on screen (#1629, below) | Low |
+| `0x40` | Called bug-infested in [TD]. Never found in a save of a tower played in the game. The game keeps it when it loads a file that has it, but clears it from a room that is also vacant or dirty, and no infestation was seen on screen (Verticopolis/web#1629, below) | Low |
 
 What the original does to these bytes when it saves [RE]. A file we exported was
 loaded in the retail game and saved again:
@@ -286,11 +289,11 @@ Each unit's people sit in a row in the block, and its unit record names the
 first in bytes 8 and 9 (byte map section 3.1): an office keeps 6, a party hall
 40 per half and a theatre's screen piece (types 35 and 34) 56. A party hall
 must have its people. Without them the game crashes a few seconds after it
-loads the tower (#1932, PC runs headless on 2026-11-12), so after the census
+loads the tower (Verticopolis/web#1932, PC runs headless on 2026-11-12), so after the census
 our exporter writes each hall half's 40 people with the floor, the logical
 unit id, the person number and type 29 (the hall's upper part, which the game
 writes for both halves), the rest 0, and points the half's record at the
-first. Our exporter writes a theatre the same way the game does (#2044): each
+first. Our exporter writes a theatre the same way the game does (Verticopolis/web#2044): each
 floor is a 7-tile screen piece (35 below, 34 above) on the left and an
 auditorium piece (19 and 18) beside it. Both pieces carry the film draw and
 name the venue's table row in byte 6, but the table names the screen pieces
@@ -302,14 +305,14 @@ two: the first one's auditorium ends where the second one's screen starts, and
 a screen never joins the auditorium on its left. All 48 screen pieces in the
 nine real saves sit on the left of their auditorium.
 
-The pool must keep free records. Our exports before #2044 sized N to the
+The pool must keep free records. Our exports before Verticopolis/web#2044 sized N to the
 records in use, and the game crashed when the player built a theatre in such a
 tower after loading it (PC run headless, 2026-11-13). The game's own saves round
 N up to a multiple of 256 with hundreds spare, so our exporter now rounds the
 records in use plus 256 up to the next multiple of 256 and pads with zero
 records.
 
-The zero-filled records are inert (owner's PC run, 2026-11-04, TOWER4, #920
+The zero-filled records are inert (owner's PC run, 2026-11-04, TOWER4, Verticopolis/web#920
 claim 7). With our count (4,173) and with 15,000, the game loaded the tower, ran
 it with the same population (3,293), kept the pool size in its own save and
 filled 6 of the records as people appeared. With 0 records it never showed the
@@ -324,7 +327,7 @@ importer reads four bytes of each filled row: the floor, the logical unit id
 served yesterday, which seeds its census (section 17), and byte 11, the room's
 style.
 
-The game links a room and its row both ways (#2044): byte 6 of the room's unit
+The game links a room and its row both ways (Verticopolis/web#2044): byte 6 of the room's unit
 record is the index of its row, and the row names the room back by floor and
 logical unit id. This holds for every shop, fast food and restaurant in the
 seven observation saves (`conformance/fixtures/tdt-observed/`), and byte 13 of
@@ -340,7 +343,7 @@ that the game reads it that way: rooms 257 to 280 drew the styles of rows 256
 to 279, and the tower ran without a crash. The importer also tries the rows 256 apart, keeping the one that
 names the room back. A room past the 512th gets no row and opens in the first
 style, and the export report says so. Our exports before
-#2044 kept the style in byte 6 and wrote rows with unit 0 and no 255, so the
+Verticopolis/web#2044 kept the style in byte 6 and wrote rows with unit 0 and no 255, so the
 importer reads byte 6 as the style when the row it names lacks the 255 or names
 another room.
 
@@ -351,7 +354,7 @@ The styles, in order:
 - Shops (10): Men's Clothing, Pet Store, Flower Shop, Book Store, Drug Store,
   Boutique, Electronics, Bank, Hair Salon, Post Office, Sports Gear.
 
-A headless run on 2026-11-13 settled where the game reads the style (#2044):
+A headless run on 2026-11-13 settled where the game reads the style (Verticopolis/web#2044):
 in one of our exports, a Hamburger Stand (byte 11 = 2) and a Sushi Bar
 (byte 11 = 3) whose byte 6 held rows 5 and 6, both past their style lists,
 drew as a burger stand and a Japanese restaurant. An earlier Wine render that
@@ -376,7 +379,7 @@ how the file is read:
 - The game keeps all express shafts when the sizes are right (checked on re-saves
   of TOWER2 and TOWER5, two express each). The table needs no global order:
   swapping two standard shafts is harmless.
-- Express shafts (#740). The exporter writes express shafts after the others.
+- Express shafts (Verticopolis/web#740). The exporter writes express shafts after the others.
   In August 2026 the game lost the shafts behind an express one written early,
   and later the second of two express shafts written last. The owner's PC run of
   2026-11-04 did not reproduce either loss with today's encoder: a TOWER2 export
@@ -385,12 +388,12 @@ how the file is read:
   the August loss was never pinned down, so the express-last order stays. It
   costs nothing, because the game keeps whatever order it is given.
 - Two shaft records on the same columns load, and the game's re-save keeps both
-  (the same run, #920 claim 1). Neither the original's build tool nor ours makes
+  (the same run, Verticopolis/web#920 claim 1). Neither the original's build tool nor ours makes
   such a tower, so a file with them is malformed: the importer keeps the first and
   drops the later one with a warning, and the export warns about any it writes.
 
 The stops themselves follow the original's rule, measured on SimTower 1.0 in the
-parity run of 2026-11-15 (#1527): an express is placed on the ground floor or a
+parity run of 2026-11-15 (Verticopolis/web#1527): an express is placed on the ground floor or a
 15th floor, its ends can be dragged anywhere, and it stops at the ground floor,
 every 15th floor (lobby or not) and every basement. An end that is not on one of
 those floors is not a stop, and its serviced byte is 0. Each allowed stop can be
@@ -401,7 +404,7 @@ The importer keeps the file's serviced bytes on every express floor, its ends
 included, and marks the shaft (`preserveBasementStops`, `classicExpressStops`) so
 every load path keeps them. The exporter writes a serviced byte of 0 for an
 express end the shaft does not stop at, and 1 for the ends of any other shaft.
-Before #1527 the loader kept a lobby-only rule above ground and the importer
+Before Verticopolis/web#1527 the loader kept a lobby-only rule above ground and the importer
 forced both ends of an express to stop.
 
 Canon car capacities (not read from the file): express 42, standard 21, service 17 (the Windows Help file). The exporter still writes 10 in a service shaft's header byte, because that byte is unreliable (one PC save showed 21) and the referee pins the bytes.
@@ -420,7 +423,7 @@ and 1 only. The pool is 64 links shared by stairs and escalators.
 - Our exports before generation 3 (section 16) wrote this table 160 bytes too
   early, with a 4-byte gap before it and the flights starting at slot 16. The
   game read their slot 16 as its slot 0, so flights 49 to 64 landed in its
-  parking list and clinic list and vanished (#1501).
+  parking list and clinic list and vanished (Verticopolis/web#1501).
 - A stacked column of flights is one single-story record per floor. The exporter
   writes the same.
 - The importer takes the table at the game's place when the file is ours from
@@ -440,7 +443,7 @@ restaurant, 480 theatre, 462 condo. TOWER4 totals 4,515 with 1,620 office and
 1,131 condo.
 
 Party halls and theatres count a set audience, observed over a week of play on
-a tower built for it (#1500). A party hall counts 50 from the morning after it
+a tower built for it (Verticopolis/web#1500). A party hall counts 50 from the morning after it
 opens, every day, whether or not a party was held that day. A theatre counts 40
 for each step of its film's draw plus 40: 120 for a new film (draw 2), 80 at
 draw 1. The draw is byte 15 of each of the theatre's records (byte map
@@ -449,7 +452,7 @@ theatres fell from draw 2 to 1 on day 18 and its line went from 480 to 320 that
 morning. Every Reddit save fits this, TOWER4's mix of draws included (2 x 120 +
 2 x 80 = 400). A hall or theatre built that day counts nothing yet (TOWER3).
 
-The draw falls as the film ages (#1932). Byte 9 of the theatre's record in the
+The draw falls as the film ages (Verticopolis/web#1932). Byte 9 of the theatre's record in the
 party hall and theatre table (section 14) counts the mornings its film has
 shown; it goes up at the morning rollover. Each night the game sets the draw
 from it: 2 while the count is under 6, 1 from 6 to 8, and 0 from 9 on. So a new
@@ -462,7 +465,7 @@ from TOWER7 that set a new film in one theatre and a classic in another on
 the same morning saw the new film hold 2 for six mornings and the classic 1,
 and both fall to 0 together. Changing either film sets the count to 0.
 
-The original reads the film table we export (#1932, PC parity run of
+The original reads the film table we export (Verticopolis/web#1932, PC parity run of
 2026-11-15 on SimTower 1.0). Towers exported with a new film on its first day,
 a new film on its seventh day and a classic on its second day loaded with
 those ages: each count went up every morning, the new films drew 2 while the
@@ -482,13 +485,14 @@ counts all of them. The list names records of the stall table in the tail
 ([byte map section 8](./tdt-byte-map.md#8-tail-17242-bytes)), one per stall
 holding its floor index and logical unit id, and each stall's tenant record
 names its own record in bytes 6 and 7. The game rebuilds the list from that
-table, so before #307 our exports, which wrote the list but left the table
+table, so before Verticopolis/web#307 our exports, which wrote the list but left the table
 empty, lost every stall's connection a few days after loading. Our exporter
 now writes the table, points each stall at its record, lists the connected
 stalls by record, and puts the x of the B1 ramp in header bytes 36 and 37
 (`FFFF` with no ramp), the column the game holds every deeper ramp to. It
 numbers the clinic ids from 0 up. What makes a stall connected in our engine is
-in [classic-parking-audit.md](./classic-parking-audit.md).
+in [classic-parking-audit.md](https://github.com/Verticopolis/web/blob/main/docs/canon/classic-parking-audit.md)
+in Verticopolis/web.
 
 ## 13. Lobby and reachability table [TD]
 
@@ -569,7 +573,7 @@ serviced-only.
   a fast food's byte 8, and the finance lines that sum them, change together
   around 10:00 (between the original's ticks 202 and 247), and a
   restaurant's overnight: 23 saves of TOWER5 over four days on the PC parity
-  run of 2026-11-15 (#1500). The engine closes their days at those times
+  run of 2026-11-15 (Verticopolis/web#1500). The engine closes their days at those times
   (`MORNING_VENUE_DAY_ENDS_AT_HOUR`). A `.TDT` saved before 10:00 still has
   that morning's close to come. TOWER5's file, saved by its player, counts 80
   shop visitors where its rows sum to 40; the parity run's own saves always
@@ -601,20 +605,20 @@ point after the first import. Known canonical forms:
 - Yesterday's venue visitors are not exported: our rows carry the floor alone,
   so a shop, fast food or restaurant reimports with a census of 0 until its
   first day passes.
-- A theatre's film draw and age are exported (#1932): byte 15 holds the draw
+- A theatre's film draw and age are exported (Verticopolis/web#1932): byte 15 holds the draw
   its film had last night and the party hall and theatre table holds the age,
   so it reimports with the same age. The film itself comes back as film 7, or
   film 3 for a classic, so a classic stays a classic. A
   theatre that has not seen a morning in the engine writes no record and
   reimports with a new film, as it would have shown anyway. Exports before
-  #1932 wrote byte 15 as 0, an all-zero index map and no table.
-- Exports before #2043 numbered every record, plain floor tiles included, so
+  Verticopolis/web#1932 wrote byte 15 as 0, an all-zero index map and no table.
+- Exports before Verticopolis/web#2043 numbered every record, plain floor tiles included, so
   their venue table named the wrong units, and wrote no people for a party
   hall, which crashes the original. Re-export the tower to open it there.
 - The paving on a metro station's bottom row is written as the tunnel (type
   45, state 0, no logical id), the way the original writes it beside the
-  station (#1503). The importer reads the tunnel as paving, so the tower comes
-  back the same. Exports before #1503 wrote plain floor tiles there.
+  station (Verticopolis/web#1503). The importer reads the tunnel as paving, so the tower comes
+  back the same. Exports before Verticopolis/web#1503 wrote plain floor tiles there.
 - A room the file's flags mark occupied but whose people the finance lines do not
   count comes back vacant and never lived in.
 - An infested hotel room is written as a dirty room (`0x20`) and comes back

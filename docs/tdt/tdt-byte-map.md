@@ -87,7 +87,7 @@ zero in all of them (no field known there).
 | 30 | u16 | unknown | 2 in the 4 and 5 star towers, `0xFFFF` in the 3 star tower | Star-related; could be a rating-state flag | Unknown |
 | 32 | u16 | unknown | `0xFFFF` in all nine | | Unknown |
 | 34 | u16 | unknown | `0xFFFF` in all nine | | Unknown |
-| 36 | u16 | parkingColumnX | 145, 145, 52, 52, 150, 150, 150, `0xFFFF`, 117 (TOWER1 to MYTOWER order) | The x of the parking ramp on B1, the one column every deeper ramp must sit under; `0xFFFF` with no ramp. The game refuses a B1 ramp at another x, sets the word when the first ramp goes in and resets it to `0xFFFF` when the only B1 ramp is bulldozed (runs on SimTower 1.0, 2026-11-15, #307) | Known |
+| 36 | u16 | parkingColumnX | 145, 145, 52, 52, 150, 150, 150, `0xFFFF`, 117 (TOWER1 to MYTOWER order) | The x of the parking ramp on B1, the one column every deeper ramp must sit under; `0xFFFF` with no ramp. The game refuses a B1 ramp at another x, sets the word when the first ramp goes in and resets it to `0xFFFF` when the only B1 ramp is bulldozed (runs on SimTower 1.0, 2026-11-15, Verticopolis/web#307) | Known |
 | 38 | u16 | windowX | | Saved viewport X in world pixels | Inferred |
 | 40 | u16 | windowY | | Saved viewport Y | Inferred |
 | 42 | u16 | recyclingCount | | Recycling centers; equals the unit count in every save | Known |
@@ -131,7 +131,7 @@ the id that people records and retail rows use ("logical id") to the unit's
 position in the list; ids are unique per floor. A unit record carries its own
 id in byte 12. A party hall or theatre record in the tail names its halves by
 these ids, and the game crashed on a party hall whose record named ids that
-counted plain floor tiles (#1932), so the exporter skips them as the game does. The importer
+counted plain floor tiles (Verticopolis/web#1932), so the exporter skips them as the game does. The importer
 reads it to find the room a retail row describes (section 5).
 
 ### 3.1 Unit record (18 bytes)
@@ -142,9 +142,9 @@ reads it to find the room a retail row describes (section 5).
 | 2 | u16 | right | End tile, half open | Known |
 | 4 | u8 | type | Section 6 of `tdt-format.md`. As a signed byte, negative = under construction: 226 and 227 are a Party Hall under construction (-30, -29) in TOWER3 | Known |
 | 5 | u8 | state | Hotels: bits 3 and 4 stay state (1 checked in, 2 asleep, 3 vacant and clean; 0 is never written by the game), 0x20 dirty, 0x40 a flag the game keeps when it loads a file that has it but clears it from a vacant or dirty room (never found in a save of a tower played in the game; tdt-format.md section 5.1), low 2 bits guests inside now, which the game resets on load; the finance guest lines count rooms in stay state 1 or 2 at full complement (section 7.2). Offices and condos carry a nonzero value while occupied | Known for hotels |
-| 6 | u8 | row | Shops, restaurants and fast food: the index of the room's row in the retail table (section 5), which names the room back, in every one of the seven observation saves (#2044). Party halls and theatres: the row of the party hall and theatre table (section 8) that holds the venue, the same in all its pieces. Byte 7 is 0 in all 561 retail rooms of the game's saves we hold, none of which has more than 256; our exporter writes a retail row past 255 as a 16-bit number in bytes 6 and 7, low byte first, which a headless run of the game on a 280-room export confirmed (rooms 257 to 280 drew rows 256 to 279) | Known for retail, Inferred for venues |
-| 7 | u8 | unknown | 0 everywhere except parking stalls, where bytes 6 and 7 are one u16 (low byte first): the stall's record in the stall table (section 8), so byte 7 is 1 exactly where that index is 256 or more. All 1,471 stalls in the nine saves point at a record naming their own floor and logical id (#307) | Known for stalls |
-| 8 | u32 | first person | High 16 bits always 0. The index of the unit's first record in the people block (section 4); its people follow in a row. A party hall half keeps 40 and a theater screen piece (types 35 and 34) 56. A party hall without its people crashes the game a few seconds after loading (#1932) | Inferred |
+| 6 | u8 | row | Shops, restaurants and fast food: the index of the room's row in the retail table (section 5), which names the room back, in every one of the seven observation saves (Verticopolis/web#2044). Party halls and theatres: the row of the party hall and theatre table (section 8) that holds the venue, the same in all its pieces. Byte 7 is 0 in all 561 retail rooms of the game's saves we hold, none of which has more than 256; our exporter writes a retail row past 255 as a 16-bit number in bytes 6 and 7, low byte first, which a headless run of the game on a 280-room export confirmed (rooms 257 to 280 drew rows 256 to 279) | Known for retail, Inferred for venues |
+| 7 | u8 | unknown | 0 everywhere except parking stalls, where bytes 6 and 7 are one u16 (low byte first): the stall's record in the stall table (section 8), so byte 7 is 1 exactly where that index is 256 or more. All 1,471 stalls in the nine saves point at a record naming their own floor and logical id (Verticopolis/web#307) | Known for stalls |
+| 8 | u32 | first person | High 16 bits always 0. The index of the unit's first record in the people block (section 4); its people follow in a row. A party hall half keeps 40 and a theater screen piece (types 35 and 34) 56. A party hall without its people crashes the game a few seconds after loading (Verticopolis/web#1932) | Inferred |
 | 12 | u8 | logical id | The unit's logical id on its floor (section 3), 255 on a plain floor tile, which has none | Inferred |
 | 13 | u8 | flag | 0 or 1 | Unknown |
 | 14 | u8 | usually 1 | | Unknown |
@@ -165,7 +165,7 @@ floor -9, B10), running along both sides of the station (TOWER7: tiles 0 to 208
 and 238 to 375). A tunnel record has state 0 and no logical id (byte 12
 `FF`), with the paving piece's tail; the piece left of the station repeats the
 station's bytes 8 to 11 (TOWER2, TOWER3 and TOWER7), which the exporter writes
-as zero (#1503). The metro station is three records, types 31, 32 and 33 on
+as zero (Verticopolis/web#1503). The metro station is three records, types 31, 32 and 33 on
 floor indexes 2, 1 and 0, 30 tiles wide each (TOWER7: tiles 208 to 238). Widths
 seen in the saves: security 16, medical center 26, housekeeping 15, recycling
 center 25, parking stall 4, parkade ramp 16 (type 44).
@@ -203,7 +203,7 @@ screens (34 and 35 against the stated 18), party halls (30 against 29).
 
 Our exporter writes N as the records in use plus at least 256 spare, rounded up
 to a multiple of 256. With no spare, the game crashed when the player built a
-theatre after loading the tower (#2044).
+theatre after loading the tower (Verticopolis/web#2044).
 
 ---
 
@@ -217,17 +217,17 @@ those units in each save.
 | 0 | u8 | floor | Floor index; `0xFF` marks an empty row | Known |
 | 1 | u8 | unit | Logical unit id | Known |
 | 2 to 5 | 4 B | venue statistics | Not decoded | Unknown |
-| 6, 7 | 2 x u8 | expected visitors | Their sum is the visitors the room expects that day; it starts at 10 when a room opens and climbs by 5 to 15 a day to the cap (#1500) | Observed |
+| 6, 7 | 2 x u8 | expected visitors | Their sum is the visitors the room expects that day; it starts at 10 when a room opens and climbs by 5 to 15 a day to the cap (Verticopolis/web#1500) | Observed |
 | 8 | u8 | served yesterday | The visitors the room served the day before: its census. The finance block's shop, fast food and restaurant lines are the sums of this byte by class | Known |
 | 9, 10 | 2 B | venue statistics | Not decoded | Unknown |
-| 11 | u8 | style | The room's style: 0 to 10 for shops, 0 to 3 for fast food and restaurants in the observation saves (#2044; list in `tdt-format.md` section 8). A headless run of one of our exports drew a Hamburger Stand (style 2) and a Sushi Bar (style 3) whose byte 6 held rows 5 and 6, past their style lists | Known |
+| 11 | u8 | style | The room's style: 0 to 10 for shops, 0 to 3 for fast food and restaurants in the observation saves (Verticopolis/web#2044; list in `tdt-format.md` section 8). A headless run of one of our exports drew a Hamburger Stand (style 2) and a Sushi Bar (style 3) whose byte 6 held rows 5 and 6, past their style lists | Known |
 | 12 | u8 | venue statistics | Not decoded | Unknown |
 | 13 | u8 | constant | 255 in every row | Known |
 | 14 to 17 | 4 B | venue statistics | | Unknown |
 
 Byte 8 is pinned by the seven observation saves in
 `conformance/fixtures/tdt-observed/` (the original game playing two of the
-Reddit towers forward, #1500): on every one, the sum of byte 8 per class equals
+Reddit towers forward, Verticopolis/web#1500): on every one, the sum of byte 8 per class equals
 the finance block's line for shops, fast food and restaurants. The caps the
 original keeps are 25 a day for a shop (30 on a weekend) and 35 for fast food
 and restaurants (50 on a weekend).
@@ -376,7 +376,7 @@ ten-wide groups suggest a per-security-office or per-clinic table.
 (section 8) of the connected stalls, ascending, the rest zero. Header byte 50
 counts all stalls. Known. The game rebuilds this list from the stall table
 within a few game days, so the table, and each stall's bytes 6 and 7, decide
-which stalls count; a list without the table comes back empty (#307). All nine reddit
+which stalls count; a list without the table comes back empty (Verticopolis/web#307). All nine reddit
 saves match: the count equals the stall total except TOWER1 (55 of 63, the
 stalls a whole row of paving away from their ramp are not counted). TOWER7 also holds two short paving
 pieces in one row, yet the file still counts every stall there as connected, which
@@ -414,7 +414,7 @@ gaps (the sizes add up to 17,242).
 | 0 | 3,872 | 8 segments of 484 bytes: 4-byte header then 120 x 4 bytes. Segments 4 to 7 are empty (`00 00 FF FF`). Segments 0 to 3 hold per-floor 4-byte entries (`0x86`, `0x78` values) and a header like `00 01 0A 07` for the ground lobby | Unknown |
 | 3,872 | 120 | One flag byte per floor (values 1 to 3), clustered near lobbies and commercial floors | Unknown |
 | 3,992 | 20 | Ten security-office locators: floor index u8, logical unit id u8; `FFFF` empty | Inferred |
-| 4,012 | 3,072 | The stall table: 512 records of 6 bytes, one per stall: its floor index, its logical unit id on that floor, then a u32 (0 in our exports); empty `FF 00 00 00 00 00`. The game rebuilds the connected list (section 7.5) from this table, so a stall no record names is never connected (#307) | Known |
+| 4,012 | 3,072 | The stall table: 512 records of 6 bytes, one per stall: its floor index, its logical unit id on that floor, then a u32 (0 in our exports); empty `FF 00 00 00 00 00`. The game rebuilds the connected list (section 7.5) from this table, so a stall no record names is never connected (Verticopolis/web#307) | Known |
 | 7,084 | 96 | 16 lobby records of 6 bytes: pad, 3-byte elevator bitmask, floor, pad; empty `00 00 00 00 FF 00`; seven lobbies in the nine saves (floor indexes 10, 24, 39, 54, 69, 84, 99) | Inferred |
 | 7,180 | 40 | Ten clinic records of 4 bytes: floor, extra; empty `FF FF 00 00` | Inferred |
 | 7,220 | 192 | The party hall and theatre table: 16 records of 12 bytes, one per hall or theatre. Bytes 0 and 1 the floor indexes of its upper and lower half, 2 and 3 its logical unit id on each, 4 and 5 the audience left per half (reset each night: a theatre 20 per half for each step of its draw plus 20, a hall 0 and 50), 7 the film number (`FF` for a hall; the new films are 6 to 12 and the classics sit below 6, Big Wave being 3), 9 the mornings the film has shown (a hall: days since it opened), 10 and 11 a counter that runs during the day. Empty `FE FE` then zeros (`tdt-format.md` section 14) | Known for bytes 0 to 3, 7 and 9 |

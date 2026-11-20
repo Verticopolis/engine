@@ -154,28 +154,21 @@ request, saying why.
 
 ## The `.TDT` table
 
-`tdt-cases.json` is the referee for the 1994 `.TDT` codec in `engine-rs/src/tdt/`.
-`src/tests/integration/tdtCases.integration.test.ts` builds the cases from
-code: synthetic `.TDT` files from the test builder (never bytes from a real
-save), each pinned by the canonical-JSON hash of the save `parseTDT` produces
-and the sorted warnings of the binary walk, or by the message of the
-refusal; and serialized towers (hand-built saves embedded in the lock, the
-sample variants as a base plus a top-level patch, and every `.vctower`
-fixture loaded and re-serialized), each pinned by the SHA-256 of the bytes
-`buildTDT` writes, or by the message of the refusal. It regenerates with the
-same switch as the lock (`VC_CONFORMANCE_UPDATE=1 npx vitest run --project
-integration tdtCases`); `cargo run --release --features conformance --bin tdt` and a Rust unit test
+`tdt-cases.json` is the referee for the 1994 `.TDT` codec in `engine-rs/src/tdt/`
+(the format is written up in [`docs/tdt/`](../docs/tdt/)). It holds synthetic
+`.TDT` files (never bytes from a real save), each pinned by the canonical-JSON
+hash of the save `parse_tdt` produces and the sorted warnings of the binary
+walk, or by the message of the refusal; and serialized towers (hand-built
+saves embedded in the table, the sample variants as a base plus a top-level
+patch, and `.vctower` fixtures loaded and re-serialized), each pinned by the
+SHA-256 of the bytes `build_tdt` writes, or by the message of the refusal.
+`cargo run --release --features conformance --bin tdt` and a Rust unit test
 replay every case.
 
-The table pins chosen inputs only. `conformanceWasmTdt.integration.test.ts`,
-part of `npm run test:wasm` (side runners in
-`src/tests/conformance/tdtDifferential.ts`, input builders in
-`src/tests/fixtures/tdtDifferentialInputs.ts`), runs both codecs through the
-WASM binding on
-seeded inputs with no lock (round trips, NaN and forged fields, mutated
-files) and fails on any difference. Its switches (`VC_TDT_DIFF_N`,
-`VC_TDT_DIFF_SEED`, `VC_TDT_DIFF_OUT`, `VC_TDT_DIFF_REPORT`,
-`VC_TDT_DIFF_KNOWN`) are described in the test's header.
+The TypeScript codec that first wrote the table is gone, so nothing
+regenerates it. A change that moves a case on purpose copies the new hash
+from that case's `MISMATCH` line in the `tdt` binary's output into the table,
+and its pull request says why.
 
 ## The `.vctower` container
 

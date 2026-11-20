@@ -1,4 +1,4 @@
-//! The 1994 `.TDT` save format: a port of `src/storage/tdt*.ts`, held to
+//! The 1994 `.TDT` save format (written up in `docs/tdt/`), held to
 //! `conformance/tdt-cases.json` by the `tdt` referee binary and the test in
 //! `referee.rs`. Bytes in, the serialized game out (`import_tdt`); the
 //! serialized game in, bytes out (`export_tdt`). The engine never depends on
