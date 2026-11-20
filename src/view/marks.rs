@@ -71,7 +71,7 @@ impl FrameMarks {
             log.entries.pop_front();
             log.base += 1;
         }
-        debug_assert!(u32::try_from(i).is_ok(), "unit index {i}");
+        debug_assert!(u32::try_from(i).is_ok(), "a unit index over u32::MAX");
         log.entries.push_back(i as u32);
     }
 

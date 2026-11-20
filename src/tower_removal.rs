@@ -107,7 +107,7 @@ impl Tower {
     pub(crate) fn index_of(&self, id: i64) -> Option<usize> {
         let idx = *self.by_id.get(&id)?;
         let stands = self.units.get(idx).is_some_and(|u| u.id == id);
-        debug_assert!(stands, "by_id holds a stale index for unit {id}");
+        debug_assert!(stands, "by_id holds a stale index for a unit");
         stands.then_some(idx)
     }
 
