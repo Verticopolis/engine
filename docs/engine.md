@@ -294,10 +294,10 @@ The WASM binding returns the same JSON from `catalog(mode)`, typed by
 `src/engineBinding/catalog.ts`, which refuses a reply whose shape is not `Catalog`
 (a missing or mistyped field, a negative price, a pool or ground floor
 structure naming no listed kind). `conformance/catalog-digests.json` pins
-each mode's canonical hash: the WASM suite writes it from this catalog
-(`conformanceWasm.integration.test.ts`, regenerated with the conformance
-switch), and a crate test, the referee binary and the WASM suite check
-against it, so a changed price or size moves the digest in the PR that
+each mode's canonical hash: the referee writes it from this catalog
+(`cargo run --release --features conformance --bin conformance -- --update`,
+with `expected.json`), and a crate test, the referee and the glue lane's
+`conformanceWasm.test.ts` check against it, so a changed price or size moves the digest in the PR that
 changes it. A crate test also checks that the prices the catalog quotes are
 the ones the build and sell paths charge.
 Presentation (display copy beyond the name, icons, pixel sizes, colors)
