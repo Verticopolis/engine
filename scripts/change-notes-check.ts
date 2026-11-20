@@ -26,7 +26,7 @@ import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isNoteFile, parseNote, type ChangeNote } from "../src/build/changeNotes.ts";
+import { isNoteFile, isRustCode, isShipped, parseNote, type ChangeNote } from "../src/build/changeNotes.ts";
 import { crateVersion } from "../src/build/releaseCut.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -34,25 +34,6 @@ const NOTES = ".changes";
 const CHANGELOG = "engine-rs/CHANGELOG.md";
 const CARGO = "engine-rs/Cargo.toml";
 const EXEMPT_BRANCHES = ["release/", "dependabot/"];
-
-/** Paths whose change reaches the crate or the npm package. */
-const SHIPPED_PREFIXES = [
-  "engine-rs/src/",
-  CARGO,
-  "src/events/",
-  "conformance/",
-  "packages/verticopolis-engine/",
-  "package.json",
-  "scripts/pack-engine.sh",
-  "scripts/engine-package-files.sh",
-  "scripts/build-engine-wasm.sh",
-  "scripts/wasm-build.ts",
-];
-const isShipped = (path: string) => SHIPPED_PREFIXES.some((p) => path === p || (p.endsWith("/") && path.startsWith(p)));
-
-/** Rust code under engine-rs/src/ that is not a test file. */
-const TEST_FILE = /(^|\/)(tests?(_[a-z0-9_]+)?|[a-z0-9_]+_tests)\.rs$|\/(rule_tests|tests)\//;
-const isRustCode = (path: string) => path.startsWith("engine-rs/src/") && path.endsWith(".rs") && !TEST_FILE.test(path);
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
@@ -100,7 +81,7 @@ if (base && !EXEMPT_BRANCHES.some((p) => branch.startsWith(p))) {
   if (shipped.length > 0 && added.length === 0) {
     problems.push(`this pull request changes what the crate ships (${list(shipped)}) and adds no note under ${NOTES}/; add one with its crate tier (see ${NOTES}/README.md)`);
   }
-  const rust = rows.filter(([s, p]) => s !== "D" && isRustCode(p)).map(([, p]) => p);
+  const rust = rows.filter(([, p]) => isRustCode(p)).map(([, p]) => p);
   if (rust.length > 0 && added.length > 0 && added.every((n) => n.tier === "none")) {
     problems.push(`this pull request changes Rust code (${list(rust)}), so its note needs a crate tier of patch or higher, not none`);
   }
