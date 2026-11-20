@@ -113,6 +113,7 @@ mod save_log;
 mod save_versions;
 mod segment_routing;
 mod segment_routing_reachable;
+mod service_diagnostics;
 mod service_shortfall;
 mod simulation_bridge;
 mod simulation_economy;
