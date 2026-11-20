@@ -1,5 +1,5 @@
-import type { FacilityKind } from "../model/types";
-import type { EnginePort, PortRecord } from "./enginePort";
+import type { FacilityKind } from "../model/types.ts";
+import type { EnginePort, PortRecord } from "./enginePort.ts";
 
 /** The code tables a caller passes names through, as `viewLayout()` names
  *  them. */

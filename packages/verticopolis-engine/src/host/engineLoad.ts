@@ -1,5 +1,5 @@
-import { BUILD_SECTION, parseBuildMetadata, type BuildMetadataResult } from "./buildSection";
-import { ENGINE_WASM } from "./enginePackageNames";
+import { BUILD_SECTION, parseBuildMetadata, type BuildMetadataResult } from "./buildSection.ts";
+import { ENGINE_WASM } from "./enginePackageNames.ts";
 
 /**
  * Loading the engine package in a page or a worker, in one place (#963). The

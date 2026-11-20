@@ -5,7 +5,7 @@ import {
   encodeBuildMetadata,
   parseBuildMetadata,
   stampBuildSection,
-} from "./buildSection";
+} from "./buildSection.ts";
 
 const HASH = "ab".repeat(32);
 /** The smallest valid module: the header alone. */

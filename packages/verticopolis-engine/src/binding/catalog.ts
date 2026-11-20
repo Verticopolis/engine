@@ -1,6 +1,6 @@
-import { CATALOG_VERSION, type Catalog } from "../catalog/catalogTypes";
-import type { GameMode } from "../model/types";
-import type { WasmModule } from "./binding";
+import { CATALOG_VERSION, type Catalog } from "../catalog/catalogTypes.ts";
+import type { GameMode } from "../model/types.ts";
+import type { WasmModule } from "./binding.ts";
 
 /**
  * The catalog through the WASM binding: `catalog(mode)` on the module returns
@@ -10,7 +10,7 @@ import type { WasmModule } from "./binding";
  * from TypeScript tables. `conformance/catalog-digests.json` pins its
  * canonical text.
  */
-export { CATALOG_VERSION } from "../catalog/catalogTypes";
+export { CATALOG_VERSION } from "../catalog/catalogTypes.ts";
 export type {
   Catalog,
   CatalogCalendar,
@@ -21,8 +21,8 @@ export type {
   CatalogWorld,
   CatalogRentCadence,
   CatalogRules,
-} from "../catalog/catalogTypes";
-export type { CatalogStarDuty, StarDutyId } from "../catalog/starDutyTypes";
+} from "../catalog/catalogTypes.ts";
+export type { CatalogStarDuty, StarDutyId } from "../catalog/starDutyTypes.ts";
 
 /** The catalog for `mode`, parsed and checked. Refuses, by name, a binding
  *  without the export, a refusal or unparsable reply, a shape version other

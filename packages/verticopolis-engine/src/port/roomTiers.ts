@@ -1,4 +1,4 @@
-import type { EnginePort, PortRecord } from "./enginePort";
+import type { EnginePort, PortRecord } from "./enginePort.ts";
 
 /**
  * The rooms' evaluation and rent tiers, the read the Map's Eval and Pricing
@@ -109,10 +109,15 @@ export class RoomTiers {
   /** How many rooms the read listed. */
   readonly size: number;
 
+  private readonly rec: PortRecord;
+  private readonly shape: RowShape;
+
   constructor(
-    private readonly rec: PortRecord,
-    private readonly shape: RowShape,
+    rec: PortRecord,
+    shape: RowShape,
   ) {
+    this.rec = rec;
+    this.shape = shape;
     this.size = Math.floor(rec.length / shape.width);
   }
 
@@ -170,7 +175,10 @@ export const NO_ROOM_TIERS = new RoomTiers(new Float64Array(0), NO_SHAPE);
 export class RoomTierReader {
   private readonly shape: RowShape | null;
 
-  constructor(private readonly port: RoomTierPort) {
+  private readonly port: RoomTierPort;
+
+  constructor(port: RoomTierPort) {
+    this.port = port;
     this.shape = roomTierShape(port.viewLayout());
   }
 

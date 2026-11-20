@@ -13,10 +13,10 @@
 // slots named in `viewLayout().records`. Only the members that answer a
 // status clear and set `lastReason()`.
 //
-// `src/simport/enginePort.types.test.ts` holds the engine to this shape.
-import type { EnginePortRecycling } from "./recyclingPort";
-import type { EnginePortSkyBridge } from "./skyBridgePort";
-import type { EnginePortTraffic } from "./trafficPort";
+// `enginePort.types.test.ts` holds the engine to this shape.
+import type { EnginePortRecycling } from "./recyclingPort.ts";
+import type { EnginePortSkyBridge } from "./skyBridgePort.ts";
+import type { EnginePortTraffic } from "./trafficPort.ts";
 
 /** Low-frequency keyed inspector facts. Rust produces the status verdicts
  * and the numbers; neither the UI nor the binding recomputes game rules. */

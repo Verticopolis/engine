@@ -7,8 +7,7 @@
  * "tiles". A facility occupies a contiguous run of tiles on a single floor.
  */
 
-import type { ElevatorSchedule } from "./engineTypes";
-import { VACATE_REASON_TEXT as sharedVacateReasonText } from "./vacateReasonText";
+import type { ElevatorSchedule } from "./engineTypes.ts";
 
 /** Cosmetic sky weather, derived deterministically from the day. */
 export type WeatherKind = "clear" | "cloudy" | "rain";
@@ -141,22 +140,32 @@ export function isUnitState(v: unknown): v is UnitState {
 export type VacateReason =
   | "access" | "noTransport" | "congestion" | "rent" | "noise" | "transportFar" | "lobbyFar" | "unmetDemand" | "relocation" | "trash" | "parking" | "homeParking";
 
-/** Player-facing phrase for each departure cause (toasts + inspector). Kept
- *  transport-neutral: a floor is "served" by any route to the lobby (elevator,
- *  stairs, or escalator) and congestion capacity counts them all, so the copy
- *  must not single out elevators. */
-export const VACATE_REASON_TEXT: Record<VacateReason, string> = sharedVacateReasonText;
+/** Every departure cause, keyed so the compiler holds the list to the
+ *  {@link VacateReason} union. The player-facing phrase for each lives with
+ *  the frontend (components' `vacateReasonText`). */
+const VACATE_REASONS: Readonly<Record<VacateReason, true>> = {
+  access: true,
+  noTransport: true,
+  congestion: true,
+  rent: true,
+  noise: true,
+  transportFar: true,
+  lobbyFar: true,
+  unmetDemand: true,
+  relocation: true,
+  trash: true,
+  parking: true,
+  homeParking: true,
+};
 
-/** Guard for a persisted departure cause from an untrusted save. Derived from
- *  {@link VACATE_REASON_TEXT} so the two can never drift as causes are added. */
-const VACATE_REASONS: ReadonlySet<string> = new Set(Object.keys(VACATE_REASON_TEXT));
+/** Guard for a persisted departure cause from an untrusted save. */
 export function isVacateReason(v: unknown): v is VacateReason {
-  return typeof v === "string" && VACATE_REASONS.has(v);
+  return typeof v === "string" && Object.hasOwn(VACATE_REASONS, v);
 }
 
 // The unit-state predicates live in `model/unitState.ts` so the web can use them
 // without importing this module at runtime; the engine keeps its old names.
-export { isOperational, isPresent, isTenanted, isDormant } from "../model/unitState";
+export { isOperational, isPresent, isTenanted, isDormant } from "../model/unitState.ts";
 
 export interface Facility {
   kind: FacilityKind;
@@ -374,10 +383,6 @@ export interface LogEntry {
   kind: "info" | "good" | "bad" | "money";
 }
 
-/** Camera zoom bounds. They live in `model/viewZoom.ts`; the save schema clamps a
- *  restored zoom to them at the deserialize trust boundary. */
-export { VIEW_ZOOM_MIN, VIEW_ZOOM_MAX } from "../model/viewZoom";
-
 /**
  * The camera view carried inside a save: the camera CENTER in grid units
  * (tile across, floor up; fractional values are fine) plus the zoom. Inert
@@ -393,7 +398,7 @@ export interface SerializedView {
 
 // The save-file wire format lives in serializedGame.ts (this file hit the
 // size ceiling); the re-export keeps "./types" the single doorway for it.
-export type { SerializedGame } from "./serializedGame";
+export type { SerializedGame } from "./serializedGame.ts";
 
 /** Result of attempting to place a facility. */
 export interface PlaceResult {

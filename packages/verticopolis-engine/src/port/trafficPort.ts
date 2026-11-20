@@ -3,7 +3,7 @@
 // landing's waiting line runs. The first two build the spatial reading, a pass
 // over the rooms, and the third walks the crowd once, so none is a per-frame
 // read. Part of `EnginePort` (`enginePort.ts`).
-import type { PortRecord } from "./enginePort";
+import type { PortRecord } from "./enginePort.ts";
 
 /** One floor's congestion reading and its cause. */
 export interface EnginePortTraffic {

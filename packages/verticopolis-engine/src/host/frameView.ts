@@ -1,5 +1,5 @@
-import type { Person, PersonState } from "../model/engineTypes";
-import type { Transport, Unit, UnitState, WeatherKind } from "../model/types";
+import type { Person, PersonState } from "../model/engineTypes.ts";
+import type { Transport, Unit, UnitState, WeatherKind } from "../model/types.ts";
 
 /**
  * The engine's per-frame read model, decoded from the flat number array

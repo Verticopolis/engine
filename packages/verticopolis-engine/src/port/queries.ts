@@ -1,4 +1,4 @@
-import type { FacilityKind } from "../model/types";
+import type { FacilityKind } from "../model/types.ts";
 import type {
   CongestionHotspot,
   HeatCellView,
@@ -9,7 +9,7 @@ import type {
   TowerStats,
   TransportDetail,
   UnitDetail,
-} from "./panels";
+} from "./panels.ts";
 
 /**
  * Questions the game asks the engine whose answer the engine decides (the

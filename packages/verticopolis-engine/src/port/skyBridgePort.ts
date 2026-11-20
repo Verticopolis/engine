@@ -2,7 +2,7 @@
 // one click on the open air between two sky lobbies lays the whole bridge, or
 // nothing, and a click on a bridge changes its look. Part of `EnginePort`
 // (`enginePort.ts`).
-import type { PortRecord } from "./enginePort";
+import type { PortRecord } from "./enginePort.ts";
 
 /** The Sky Bridge tool's command and its dry run. */
 export interface EnginePortSkyBridge {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { UnitState } from "./types";
-import { isDormant, isOperational, isPresent, isTenanted } from "./unitState";
+import type { UnitState } from "./types.ts";
+import { isDormant, isOperational, isPresent, isTenanted } from "./unitState.ts";
 
 /**
  * One row per unit state and what each predicate says of it. The Rust test in

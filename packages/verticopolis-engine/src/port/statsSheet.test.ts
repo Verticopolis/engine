@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { mockPort } from "../tests/portKit/mockPort";
-import { PortCodes } from "./portCodes";
-import { statsReport } from "./statsSheet";
+import { describe, expect, it, vi } from "vitest";
+import { mockPort } from "../testing/mockPort.ts";
+import { PortCodes } from "./portCodes.ts";
+import { statsReport } from "./statsSheet.ts";
 
 /** A `statsSheet` record from the layout's own slot names: the header with
  *  the named slots set, then empty sections. */
@@ -18,7 +18,7 @@ function sheet(codes: PortCodes, slots: Record<string, number>): Float64Array {
 }
 
 describe("statsReport's parking demand", () => {
-  const codes = new PortCodes(mockPort());
+  const codes = new PortCodes(mockPort(vi));
 
   it("reads the engine's shortage flag from its own slot", () => {
     const short = statsReport(sheet(codes, { parkingTotal: 2, functionalParking: 5, parkingShort: 1, parkingCoverage: 0.5 }), codes);

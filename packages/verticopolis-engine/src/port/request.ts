@@ -1,4 +1,4 @@
-import type { Command, CommandOp } from "./commands";
+import type { Command, CommandOp } from "./commands.ts";
 
 /**
  * The port's check of a command's shape, which every adapter runs before the

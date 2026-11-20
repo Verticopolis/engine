@@ -1,9 +1,9 @@
-import type { FacilityKind, GameMode, UnitState, WeatherKind } from "../model/types";
-import type { CalendarKind, PersonState } from "../model/engineTypes";
-import type { EnginePort } from "./enginePort";
-import { EmergencyReads } from "./emergencyReads";
-import { skyBridgeReads } from "./skyBridgeView";
-import type { CameraView, CrowdView, HeaderView, PersonView, SimView, StructureRunView, TowerView, TransportView, UnitView } from "./view";
+import type { FacilityKind, GameMode, UnitState, WeatherKind } from "../model/types.ts";
+import type { CalendarKind, PersonState } from "../model/engineTypes.ts";
+import type { EnginePort } from "./enginePort.ts";
+import { EmergencyReads } from "./emergencyReads.ts";
+import { skyBridgeReads } from "./skyBridgeView.ts";
+import type { CameraView, CrowdView, HeaderView, PersonView, SimView, StructureRunView, TowerView, TransportView, UnitView } from "./view.ts";
 
 /**
  * The shared view reader (facade slice 7, PR 3; contract section 5): the
@@ -69,14 +69,25 @@ class Room implements UnitView {
   outForMeal?: number;
   label: string;
   subtype?: string;
+  readonly id: number;
+  readonly kind: FacilityKind;
+  readonly floor: number;
+  readonly x: number;
+  readonly width: number;
+
   constructor(
-    readonly id: number,
-    readonly kind: FacilityKind,
-    readonly floor: number,
-    readonly x: number,
-    readonly width: number,
+    id: number,
+    kind: FacilityKind,
+    floor: number,
+    x: number,
+    width: number,
     label: string,
   ) {
+    this.id = id;
+    this.kind = kind;
+    this.floor = floor;
+    this.x = x;
+    this.width = width;
     this.label = label;
   }
 }
@@ -86,19 +97,39 @@ class Shaft implements TransportView {
   carPositions: number[] = [];
   carLoad: number[] = [];
   carDir: number[] = [];
+  readonly id: number;
+  readonly kind: FacilityKind;
+  readonly x: number;
+  readonly width: number;
+  readonly bottom: number;
+  readonly top: number;
+  readonly skipFloors: number[] | undefined;
+
   constructor(
-    readonly id: number,
-    readonly kind: FacilityKind,
-    readonly x: number,
-    readonly width: number,
-    readonly bottom: number,
-    readonly top: number,
-    readonly skipFloors: number[] | undefined,
-  ) {}
+    id: number,
+    kind: FacilityKind,
+    x: number,
+    width: number,
+    bottom: number,
+    top: number,
+    skipFloors: number[] | undefined,
+  ) {
+    this.id = id;
+    this.kind = kind;
+    this.x = x;
+    this.width = width;
+    this.bottom = bottom;
+    this.top = top;
+    this.skipFloors = skipFloors;
+  }
 }
 
 class Person implements PersonView {
-  constructor(readonly id: number) {}
+  readonly id: number;
+
+  constructor(id: number) {
+    this.id = id;
+  }
   staff?: boolean;
   seed = 0;
   state = "idle" as PersonState;
@@ -159,15 +190,20 @@ export class ViewReader implements SimView {
   readonly crowd: CrowdView = { people: this.people };
   readonly tower: TowerView;
 
+  private readonly port: EnginePort;
+  private readonly floorsOf: (kind: FacilityKind) => number;
+
   /**
    * @param floorsOf a facility's height in floors (the catalog's `floors`).
    *   The frame carries no heights, and `tower.unitAt` answers every story a
    *   room covers, as the tower's own index does.
    */
   constructor(
-    private readonly port: EnginePort,
-    private readonly floorsOf: (kind: FacilityKind) => number,
+    port: EnginePort,
+    floorsOf: (kind: FacilityKind) => number,
   ) {
+    this.port = port;
+    this.floorsOf = floorsOf;
     this.l = JSON.parse(port.viewLayout()) as Layout;
     this.kindCodes = new Map(this.l.kinds.map((k, i) => [k, i]));
     const lookups = {

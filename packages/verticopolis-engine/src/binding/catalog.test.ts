@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { CATALOG_VERSION } from "../catalog/catalogTypes";
-import { catalogFor } from "../tests/catalogFixture";
-import type { GameMode } from "../model/types";
-import { readCatalog } from "./catalog";
+import { CATALOG_VERSION } from "../catalog/catalogTypes.ts";
+import { catalogFor } from "../testing/catalogFixture.ts";
+import type { GameMode } from "../model/types.ts";
+import { readCatalog } from "./catalog.ts";
 
 const reply = (text: string) => ({ catalog: () => text });
 

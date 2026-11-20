@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { EngineBootError } from "./engineBoot";
-import { TRAP_KINDS, isEngineTrap, runEach, trapKind } from "./hostFault";
+import { EngineBootError } from "./bootError.ts";
+import { TRAP_KINDS, isEngineTrap, runEach, trapKind } from "./hostFault.ts";
 
 describe("an engine trap (#1113)", () => {
   const named = (name: string, message: string) => Object.assign(new Error(message), { name });

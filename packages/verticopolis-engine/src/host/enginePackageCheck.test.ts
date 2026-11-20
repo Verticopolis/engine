@@ -1,8 +1,8 @@
 import { createHash, webcrypto } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { EnginePackageAborted, EnginePackageError, browserDigest, isControlled, verifyEnginePackage, RECORD_CAP_BYTES, type VerifyOptions } from "./enginePackageCheck";
-import { ENGINE_GLUE, ENGINE_WASM } from "./enginePackageNames";
-import { engineBuildRecord, expectedOf, type EnginePackageRecord } from "./enginePackageRecord";
+import { EnginePackageAborted, EnginePackageError, browserDigest, isControlled, verifyEnginePackage, RECORD_CAP_BYTES, type VerifyOptions } from "./enginePackageCheck.ts";
+import { ENGINE_GLUE, ENGINE_WASM } from "./enginePackageNames.ts";
+import { engineBuildRecord, expectedOf, type EnginePackageRecord } from "./enginePackageRecord.ts";
 
 const sha = (d: Uint8Array | string) => createHash("sha256").update(d).digest("hex");
 const enc = (s: string) => new TextEncoder().encode(s);

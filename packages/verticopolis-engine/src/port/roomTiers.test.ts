@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EVAL_TIERS, NO_ROOM_TIERS, RENT_TIERS, RoomTierReader, roomTierShape, type RoomTierPort } from "./roomTiers";
+import { EVAL_TIERS, NO_ROOM_TIERS, RENT_TIERS, RoomTierReader, roomTierShape, type RoomTierPort } from "./roomTiers.ts";
 
 /** A layout that lists the slots and both tables in an order of its own, so a
  *  reader that assumed the engine's order would misread every row. */

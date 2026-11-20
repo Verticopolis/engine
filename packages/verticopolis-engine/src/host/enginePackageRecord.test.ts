@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { ENGINE_GLUE, ENGINE_WASM } from "./enginePackageNames";
-import { canonicalFilesJson, engineBuildRecord, expectedOf, parseEngineRecord, shortId, type EnginePackageRecord } from "./enginePackageRecord";
+import { ENGINE_GLUE, ENGINE_WASM } from "./enginePackageNames.ts";
+import { canonicalFilesJson, engineBuildRecord, expectedOf, parseEngineRecord, shortId, type EnginePackageRecord } from "./enginePackageRecord.ts";
 
 const sha = (d: Uint8Array | string) => createHash("sha256").update(d).digest("hex");
 const glue = new TextEncoder().encode("export default function init() {}\n");

@@ -2,9 +2,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { compileEngineBinary, engineBinaryUrl, initEngineGlue } from "./engineLoad";
-import { EMPTY_WASM, buildSectionWith, customSection, stampedWasm, wasmFetch, wasmWith } from "./engineLoad.fixture";
-import { ENGINE_WASM } from "./enginePackageNames";
+import { compileEngineBinary, engineBinaryUrl, initEngineGlue } from "./engineLoad.ts";
+import { EMPTY_WASM, buildSectionWith, customSection, stampedWasm, wasmFetch, wasmWith } from "./engineLoad.fixture.ts";
+import { ENGINE_WASM } from "./enginePackageNames.ts";
 
 const HASH = "ab".repeat(32);
 

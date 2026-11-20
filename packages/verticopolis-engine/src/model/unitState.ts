@@ -1,4 +1,4 @@
-import type { UnitState } from "./types";
+import type { UnitState } from "./types.ts";
 
 /**
  * The four questions the web asks of a unit's state. The rule belongs to the

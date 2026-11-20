@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
-import type { Engine } from "../engineBinding/engine";
-import type { EnginePort } from "./enginePort";
+import type { Engine } from "@verticopolis/engine/tooling/node/verticopolis_engine";
+import type { EnginePort } from "./enginePort.ts";
 
 // The contract's compile-time proof (section 1): the generated binding
 // `Engine` satisfies `EnginePort`, so a member that drifts on the Rust side

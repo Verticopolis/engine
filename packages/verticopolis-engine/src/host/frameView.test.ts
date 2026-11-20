@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FRAME_HEADER, PERSON_FIXED, decodeFrame } from "./frameView";
+import { FRAME_HEADER, PERSON_FIXED, decodeFrame } from "./frameView.ts";
 
 /** A person record in the engine's layout: the fixed slots, then the route. */
 function person(fixed: number[], floors: number[] = [], shafts: number[] = []): number[] {

@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { Cards } from "./cards";
-import { scheduleSlots } from "./scheduleSlots";
-import type { ViewReader } from "./viewReader";
-import { LAYOUT, code, mockPort, record } from "../tests/portKit/mockPort";
+import { Cards } from "./cards.ts";
+import { scheduleSlots } from "./scheduleSlots.ts";
+import type { ViewReader } from "./viewReader.ts";
+import { LAYOUT, code, mockPort, record } from "../testing/mockPort.ts";
 
 /**
  * The card decoders over a mock port: the reads each card asks for, what it
@@ -58,7 +58,7 @@ const stop = (floor: number, served: number, lobby: number, endpoint: number, to
 
 describe("Cards.unit", () => {
   it("decodes the unit card, reading its label and subtype", () => {
-    const port = mockPort({ unitCard: () => OFFICE, unitLabel: () => "Corner", unitSubtype: () => undefined });
+    const port = mockPort(vi, { unitCard: () => OFFICE, unitLabel: () => "Corner", unitSubtype: () => undefined });
     const card = new Cards(port, readerAt(1, 0)).unit(10)!;
     expect(card).toEqual({
       id: 10,
@@ -95,7 +95,7 @@ describe("Cards.unit", () => {
   });
 
   it("carries a cinema's film policy, booking, film and ticket price, and an empty label when the engine has none", () => {
-    const port = mockPort({ unitCard: () => CINEMA, unitLabel: () => undefined, unitSubtype: () => "art house" });
+    const port = mockPort(vi, { unitCard: () => CINEMA, unitLabel: () => undefined, unitSubtype: () => "art house" });
     const card = new Cards(port, readerAt(1, 0)).unit(12)!;
     expect([card.filmPolicy, card.blockbuster, card.rent, card.vacateReason, card.label, card.subtype]).toEqual(["blockbuster", true, null, null, "", "art house"]);
     expect([card.filmDays, card.filmTier, card.ticketPrice]).toEqual([4, "classic", "premium"]);
@@ -104,7 +104,7 @@ describe("Cards.unit", () => {
   });
 
   it("answers undefined for an id the engine has no card for, reading no text", () => {
-    const port = mockPort({ unitCard: () => new Float64Array(0) });
+    const port = mockPort(vi, { unitCard: () => new Float64Array(0) });
     expect(new Cards(port, readerAt(1, 0)).unit(99_999)).toBeUndefined();
     expect(port.unitCard).toHaveBeenCalledOnce();
   });
@@ -124,7 +124,7 @@ describe("Cards.shaft", () => {
     ]);
     const rings = Array.from({ length: 2 * HOURS }, (_, ring) => filled.get(ring) ?? [0]).flat();
     const tail = [...weekday, ...weekend, ...stop(3, 1, 0, 1, 0), ...stop(2, 0, 0, 0, 1), ...stop(1, 1, 1, 1, 0), ...rings];
-    const port = mockPort({ generation: () => 1, shaftCard: () => record("shaftCard", { ...head, hourly: 1, stops: 3, origins: 1 }, tail) });
+    const port = mockPort(vi, { generation: () => 1, shaftCard: () => record("shaftCard", { ...head, hourly: 1, stops: 3, origins: 1 }, tail) });
     const card = new Cards(port, readerAt(1, 0)).shaft(20)!;
     expect([card.id, card.kind, card.x, card.width, card.bottom, card.top, card.cars, card.capacity, card.utilization, card.nearCapacity]).toEqual([20, "elevatorStandard", 162, 4, 1, 3, 2, 42, 0.5, true]);
     expect(card.hourly).toEqual({ weekday, weekend });
@@ -139,7 +139,7 @@ describe("Cards.shaft", () => {
   });
 
   it("answers null sections the engine does not hold, and undefined for an unknown shaft", () => {
-    const port = mockPort({
+    const port = mockPort(vi, {
       generation: () => 1,
       shaftCard: (id) => (id === 21 ? record("shaftCard", { ...head, id: 21, kindCode: code("kinds", "stairs"), utilization: NaN, nearCapacity: 0, hourly: 0, stops: 0, origins: 0 }) : new Float64Array(0)),
     });
@@ -153,7 +153,7 @@ describe("Cards.shaft", () => {
 
   it("keeps a card until a command says it changed, the tower swaps, the revision moves or the hour turns", () => {
     let gen = 1;
-    const port = mockPort({ generation: () => gen, shaftCard: () => record("shaftCard", { ...head, hourly: 0, stops: 0, origins: 0 }) });
+    const port = mockPort(vi, { generation: () => gen, shaftCard: () => record("shaftCard", { ...head, hourly: 0, stops: 0, origins: 0 }) });
     const reader = readerAt(1, 60 * 7);
     const cards = new Cards(port, reader);
     const asks = () => vi.mocked(port.shaftCard).mock.calls.length;

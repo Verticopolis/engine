@@ -1,5 +1,5 @@
-import type { GameplayEvent } from "../events/gameplayEvents";
-import type { EnginePort } from "./enginePort";
+import type { GameplayEvent } from "@verticopolis/engine/events/gameplayEvents";
+import type { EnginePort } from "./enginePort.ts";
 
 /** What the analytics bridge drains: the live `Simulation` (whose drain
  *  the WASM host overrides to answer with its engine's batch). `release` is the session's
@@ -28,7 +28,10 @@ export class PortEvents implements GameplayEventSource {
   /** Read by the bridge on every drain, so it is one object. */
   readonly gameplayEvents: { readonly discardOnHandOff: boolean };
 
-  constructor(private readonly port: Pick<EnginePort, "drainEvents" | "eventText" | "setBackdrop" | "generation">) {
+  private readonly port: Pick<EnginePort, "drainEvents" | "eventText" | "setBackdrop" | "generation">;
+
+  constructor(port: Pick<EnginePort, "drainEvents" | "eventText" | "setBackdrop" | "generation">) {
+    this.port = port;
     const isBackdrop = (): boolean => this.backdropGeneration === this.port.generation();
     this.gameplayEvents = {
       get discardOnHandOff() {

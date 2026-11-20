@@ -1,5 +1,5 @@
-import type { EnginePort } from "./enginePort";
-import type { BombSearchView, FireResponseView, PendingChoiceView } from "./view";
+import type { EnginePort } from "./enginePort.ts";
+import type { BombSearchView, FireResponseView, PendingChoiceView } from "./view.ts";
 
 /**
  * The emergency reads the view reader makes from the frame header: the

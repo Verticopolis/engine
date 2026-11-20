@@ -1,12 +1,14 @@
-import type { Engine, catalog, encodeVctower, engineIdentity } from "./engine";
-import { TOOLING_METHODS as TOOLING_METHOD_NAMES } from "./toolingMethods";
+import type { Engine, catalog, encodeVctower, engineIdentity } from "@verticopolis/engine/tooling/node/verticopolis_engine";
+import { TOOLING_METHODS as TOOLING_METHOD_NAMES } from "./toolingMethods.ts";
 
 /**
  * The WASM binding's surface, as wasm-bindgen declares it from
- * `engine-rs/src/wasm.rs` and `engine-rs/src/wasm/`. `engine.d.ts` is the declaration the build writes
- * (`npm run wasm:build` refreshes it; CI fails when the checked-in copy is
- * stale), so a method added or renamed in Rust reaches TypeScript as a type
- * change and the lists below as a typecheck failure until they follow.
+ * `engine-rs/src/wasm.rs` and `engine-rs/src/wasm/`, read from the tooling
+ * build's declaration (`tooling/node/verticopolis_engine.d.ts`), which has
+ * the tier 3 ops the player build lacks. The layer is typechecked against the
+ * fresh wasm-bindgen output, so a method added or renamed in Rust reaches
+ * TypeScript as a type change and the lists below as a typecheck failure
+ * until they follow.
  */
 export type WasmEngine = Engine;
 
@@ -46,7 +48,7 @@ export const INSTANCE_METHODS = [
   "unitMetaSince", "towerSignature", "diagnosticFacts",
   // The camera and tower name a host reads once per engine (slice 7a).
   "view", "towerName",
-  // The engine port (slice 7, `src/simport/enginePort.ts`): PR 1a's commands,
+  // The engine port (slice 7, `port/enginePort.ts`): PR 1a's commands,
   // quotes and HUD queries.
   "chooseAutoBridge", "answerChoice", "viewLayout", "lastReason", "buildAt", "paintTiles",
   "buildShaft", "demolish", "changeCars", "extendShaft", "bookExterminator", "callFireRescue", "setCamera",

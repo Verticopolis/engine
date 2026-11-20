@@ -1,6 +1,6 @@
-import { catalogFor } from "../tests/catalogFixture";
-import type { WasmEngine, WasmModule } from "../engineBinding/binding";
-import { FRAME_HEADER } from "./frameView";
+import { catalogFor } from "../testing/catalogFixture.ts";
+import type { WasmEngine, WasmModule } from "../binding/binding.ts";
+import { FRAME_HEADER } from "./frameView.ts";
 
 /**
  * An engine stand-in for the headless worker-host tests: built from a save,
@@ -28,7 +28,10 @@ export class FakeEngine {
   /** Fields the engine's own serialization differs by from the save it
    *  loaded, as when it repaired or migrated the save on load. */
   readsAs: Record<string, unknown> | null = null;
-  constructor(private readonly save: string) {
+  private readonly save: string;
+
+  constructor(save: string) {
+    this.save = save;
     const data = JSON.parse(save) as { minutes: number; money: number; star?: number };
     this.minutes = data.minutes;
     this.money = data.money;

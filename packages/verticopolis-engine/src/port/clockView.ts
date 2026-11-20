@@ -1,4 +1,4 @@
-import type { HeaderView } from "./view";
+import type { HeaderView } from "./view.ts";
 
 /**
  * The clock reads the renderer makes (hour, minute, and the morning, evening

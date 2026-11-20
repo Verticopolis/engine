@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { finishedSkyBridgeAt, skyBridgeAt, skyBridgeReads } from "./skyBridgeView";
+import { finishedSkyBridgeAt, skyBridgeAt, skyBridgeReads } from "./skyBridgeView.ts";
 
 /** The tower view's bridges over a spy standing in for the engine's
  *  `skyBridgeLooks()`: decoded once per revision and generation. */

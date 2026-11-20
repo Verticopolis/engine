@@ -1,5 +1,5 @@
-import type { EnginePort } from "./enginePort";
-import type { SkyBridgeView, TowerView } from "./view";
+import type { EnginePort } from "./enginePort.ts";
+import type { SkyBridgeView, TowerView } from "./view.ts";
 
 /**
  * The tower view's sky bridges (Modern): the engine's `skyBridgeLooks()`

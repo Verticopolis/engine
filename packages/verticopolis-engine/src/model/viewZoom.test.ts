@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { VIEW_ZOOM_MAX, VIEW_ZOOM_MIN } from "./viewZoom";
+import { VIEW_ZOOM_MAX, VIEW_ZOOM_MIN } from "./viewZoom.ts";
 
 describe("view zoom range", () => {
   // `VIEW_ZOOM_MIN` and `VIEW_ZOOM_MAX` in `engine-rs/src/load/coerce.rs` hold

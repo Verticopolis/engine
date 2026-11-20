@@ -1,5 +1,5 @@
-import type { FacilityKind } from "../model/types";
-import type { EnginePort } from "./enginePort";
+import type { FacilityKind } from "../model/types.ts";
+import type { EnginePort } from "./enginePort.ts";
 
 /**
  * The person card (#2092), decoded from the port's `personCard` record. The
@@ -76,7 +76,11 @@ export class PersonCards {
    *  that never opens one never parses it. */
   private names: { layout: Layout; at: Record<string, number> } | null = null;
 
-  constructor(private readonly port: PersonCardPort) {}
+  private readonly port: PersonCardPort;
+
+  constructor(port: PersonCardPort) {
+    this.port = port;
+  }
 
   private slots(): { layout: Layout; at: Record<string, number> } {
     if (!this.names) {

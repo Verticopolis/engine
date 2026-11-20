@@ -1,8 +1,8 @@
-import type { FacilityKind, UnitState, VacateReason } from "../model/types";
-import type { FilmPolicy, FilmTier, TicketPrice } from "./commands";
-import type { EnginePort, PortRecord } from "./enginePort";
-import type { HourlyView, OriginsView, ScreenDetail, StopRow, TransportDetail, UnitDetail } from "./panels";
-import type { ViewReader } from "./viewReader";
+import type { FacilityKind, UnitState, VacateReason } from "../model/types.ts";
+import type { FilmPolicy, FilmTier, TicketPrice } from "./commands.ts";
+import type { EnginePort, PortRecord } from "./enginePort.ts";
+import type { HourlyView, OriginsView, ScreenDetail, StopRow, TransportDetail, UnitDetail } from "./panels.ts";
+import type { ViewReader } from "./viewReader.ts";
 
 /**
  * The inspector and editor cards, decoded from the port's flat records
@@ -49,10 +49,15 @@ export class Cards {
   private key = "";
   private readonly shafts = new Map<number, TransportDetail>();
 
+  private readonly port: CardPort;
+  private readonly reader: Pick<ViewReader, "tower" | "header">;
+
   constructor(
-    private readonly port: CardPort,
-    private readonly reader: Pick<ViewReader, "tower" | "header">,
+    port: CardPort,
+    reader: Pick<ViewReader, "tower" | "header">,
   ) {
+    this.port = port;
+    this.reader = reader;
     this.layout = JSON.parse(port.viewLayout()) as Layout;
     this.unitAt = slots(this.layout.records.unitCard);
     this.shaftAt = slots(this.layout.records.shaftCard);

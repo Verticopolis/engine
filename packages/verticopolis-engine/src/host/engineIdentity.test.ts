@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { parseEngineIdentity, readEngineIdentity } from "./engineIdentity";
-import { IDENTITY_FIXTURE } from "./engineIdentity.fixture";
+import { parseEngineIdentity, readEngineIdentity } from "./engineIdentity.ts";
+import { IDENTITY_FIXTURE } from "./engineIdentity.fixture.ts";
 
 describe("readEngineIdentity", () => {
   it("returns the engine's text", () => {

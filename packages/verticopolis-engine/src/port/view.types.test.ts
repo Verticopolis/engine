@@ -1,7 +1,7 @@
 import { describe, expectTypeOf, it } from "vitest";
-import type { Command, CommandResults } from "./commands";
-import type { Query, QueryResults } from "./queries";
-import type { CrowdView, PersonView, SimView, StructureRunView, TowerView, TransportView, UnitView } from "./view";
+import type { Command, CommandResults } from "./commands.ts";
+import type { Query, QueryResults } from "./queries.ts";
+import type { CrowdView, PersonView, SimView, StructureRunView, TowerView, TransportView, UnitView } from "./view.ts";
 
 describe("the port's types", () => {
   it("the views are read-only", () => {

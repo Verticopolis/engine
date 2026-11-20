@@ -1,17 +1,16 @@
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { vi } from "vitest";
-import type { EnginePort } from "../../simport/enginePort";
+import type { EnginePort } from "../port/enginePort.ts";
 
 /**
- * A mock engine port for the port's unit tests (`src/simport/`). Each method a
- * test hands `mockPort` becomes a `vi.fn()` spy, so a test asserts the calls a
+ * A mock engine port for unit tests (`@verticopolis/engine/testing/mockPort`,
+ * Node only). Each method a test hands `mockPort` becomes a spy from the
+ * caller's own factory (Vitest's `vi`), so the package needs no test runner, so a test asserts the calls a
  * unit made and feeds it the answers it decodes. A method the test did not
  * hand over throws when called, so an unexpected port call fails the test.
  *
  * The numeric answers (frames, the structure, records) are encoded from the
- * Rust engine's own layout, `src/simport/fixtures/viewLayout.json`, which
- * `portReads.integration.test.ts` holds to the engine's fresh answer.
+ * Rust engine's own layout, `fixtures/viewLayout.json`, which engine CI
+ * regenerates from the engine and fails on a diff.
  */
 
 type Slots = Record<string, number>;
@@ -54,24 +53,32 @@ export interface Layout {
   records: Record<string, string[]>;
 }
 
-export const FIXTURES = resolve(__dirname, "../../simport/fixtures");
+/** The folder of the engine's JSON fixtures, beside this module's folder. */
+export const FIXTURES = new URL("../fixtures/", import.meta.url);
 /** The layout fixture's text, as the engine's `viewLayout()` answers it. */
-export const LAYOUT_TEXT = JSON.stringify(JSON.parse(readFileSync(resolve(FIXTURES, "viewLayout.json"), "utf8")));
+export const LAYOUT_TEXT = JSON.stringify(JSON.parse(readFileSync(new URL("viewLayout.json", FIXTURES), "utf8")));
 export const LAYOUT = JSON.parse(LAYOUT_TEXT) as Layout;
 
 type Methods = { [K in keyof EnginePort]?: EnginePort[K] };
 
-/** A port whose methods are the spies of `answers`; any other method throws
- *  when called. `viewLayout` answers the layout fixture unless overridden. */
-export function mockPort(answers: Methods = {}): EnginePort {
-  const spies = new Map<string, unknown>();
-  for (const [name, impl] of Object.entries({ viewLayout: () => LAYOUT_TEXT, ...answers })) spies.set(name, vi.fn(impl as (...a: unknown[]) => unknown));
+/** What `mockPort` makes its spies with: Vitest's `vi`, or any object whose
+ *  `fn(impl)` wraps `impl` in a spy. */
+export interface SpyFactory {
+  fn(impl: (...args: never[]) => unknown): unknown;
+}
+
+/** A port whose methods are `spies.fn` spies of `answers`; any other method
+ *  throws when called. `viewLayout` answers the layout fixture unless
+ *  overridden. */
+export function mockPort(spies: SpyFactory, answers: Methods = {}): EnginePort {
+  const made = new Map<string, unknown>();
+  for (const [name, impl] of Object.entries({ viewLayout: () => LAYOUT_TEXT, ...answers })) made.set(name, spies.fn(impl as (...a: never[]) => unknown));
   return new Proxy({} as EnginePort, {
     get(_, name) {
       // Not a thenable, so a port passed through a promise stays a port.
       if (typeof name === "symbol" || name === "then") return undefined;
       return (
-        spies.get(name) ??
+        made.get(name) ??
         (() => {
           throw new Error(`unexpected port call: ${name}`);
         })

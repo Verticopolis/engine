@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import type { PortCodes } from "./portCodes";
-import { exportFacts, importFacts } from "./tdtRecords";
+import type { PortCodes } from "./portCodes.ts";
+import { exportFacts, importFacts } from "./tdtRecords.ts";
 
 const LOAD_FIELDS = [
   "ok",

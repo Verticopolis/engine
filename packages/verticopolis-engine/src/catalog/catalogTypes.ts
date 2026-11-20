@@ -4,11 +4,11 @@
  * a frontend that reads the WASM binding's catalog bundles no engine tables;
  * `engine-rs/src/catalog.rs` serializes it.
  */
-import type { CalendarKind } from "../model/engineTypes";
-import type { FacilityCategory, FacilityKind, GameMode } from "../model/types";
-import type { FilmPolicy, FilmTier, TicketPrice } from "../simport/commands";
-import type { CatalogSkyBridgeRules } from "./skyBridgeTypes";
-import type { CatalogStarDutyRules } from "./starDutyTypes";
+import type { CalendarKind } from "../model/engineTypes.ts";
+import type { FacilityCategory, FacilityKind, GameMode } from "../model/types.ts";
+import type { FilmPolicy, FilmTier, TicketPrice } from "../port/commands.ts";
+import type { CatalogSkyBridgeRules } from "./skyBridgeTypes.ts";
+import type { CatalogStarDutyRules } from "./starDutyTypes.ts";
 
 /** A film a theater can show, as the catalog publishes it (#1950). */
 export interface CatalogFilm {

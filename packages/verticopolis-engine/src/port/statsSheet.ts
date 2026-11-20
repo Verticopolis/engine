@@ -1,9 +1,9 @@
-import type { LedgerCat } from "../model/engineTypes";
-import type { StarGateId } from "../model/engineTypes";
-import type { FacilityKind } from "../model/types";
-import type { PortRecord } from "./enginePort";
-import type { ElevatorStatsRow, HousekeepingCoverageView, NextStarView, StatsReport, TowerStats } from "./panels";
-import type { PortCodes } from "./portCodes";
+import type { LedgerCat } from "../model/engineTypes.ts";
+import type { StarGateId } from "../model/engineTypes.ts";
+import type { FacilityKind } from "../model/types.ts";
+import type { PortRecord } from "./enginePort.ts";
+import type { ElevatorStatsRow, HousekeepingCoverageView, NextStarView, StatsReport, TowerStats } from "./panels.ts";
+import type { PortCodes } from "./portCodes.ts";
 
 /**
  * The stats screen's report, read off the port's `statsSheet` record: the

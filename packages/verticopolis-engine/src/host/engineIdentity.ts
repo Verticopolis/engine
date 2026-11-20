@@ -1,4 +1,4 @@
-import type { WasmModule } from "../engineBinding/binding";
+import type { WasmModule } from "../binding/binding.ts";
 
 /**
  * The engine's own identity record (#963): which crate, which save, frame

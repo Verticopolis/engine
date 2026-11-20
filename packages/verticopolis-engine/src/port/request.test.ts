@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { Command } from "./commands";
+import type { Command } from "./commands.ts";
 import {
   INVALID_COMMAND,
   MAX_BRUSH_TILES,
   MAX_TEXT,
   NOT_ENOUGH_MONEY,
   wellFormed,
-} from "./request";
+} from "./request.ts";
 
 describe("the refusal texts the web compares against", () => {
   // The engine refuses with these exact words (`INVALID_REQUEST` and

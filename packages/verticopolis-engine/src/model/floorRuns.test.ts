@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { unfoldFloorRuns } from "./floorRuns";
+import { unfoldFloorRuns } from "./floorRuns.ts";
 
 describe("unfoldFloorRuns", () => {
   it("unfolds a run into its tiles in place and keeps the rest", () => {

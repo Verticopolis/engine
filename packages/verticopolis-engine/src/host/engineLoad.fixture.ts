@@ -1,4 +1,4 @@
-import { BUILD_SECTION, stampBuildSection } from "./buildSection";
+import { BUILD_SECTION, stampBuildSection } from "./buildSection.ts";
 
 /** Test helpers: the smallest valid WebAssembly binary, with custom sections
  *  written by hand, so the loader and the diagnostics can be tried with a

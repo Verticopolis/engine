@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { EmergencyReads } from "./emergencyReads";
+import { EmergencyReads } from "./emergencyReads.ts";
 
 const SEARCH = { deadline: 780, sweeping: [{ floor: 3, left: 10, right: 40 }], searched: [2], seq: 1 };
 

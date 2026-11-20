@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import type { FacilityKind } from "../model/types";
-import { ViewReader } from "./viewReader";
-import { code, frame, mockPort, structure, type RoomSpec, type RunSpec, type ShaftSpec } from "../tests/portKit/mockPort";
+import type { FacilityKind } from "../model/types.ts";
+import { ViewReader } from "./viewReader.ts";
+import { code, frame, mockPort, structure, type RoomSpec, type RunSpec, type ShaftSpec } from "../testing/mockPort.ts";
 
 /**
  * The shared reader over a mock port: which reads it asks for on each update
@@ -56,7 +56,7 @@ function world() {
     metaLog: Float64Array.of(2, 0),
     people: [{ id: 7, seed: 9, staff: 1, state: code("personStates", "riding"), floor: 2, x: 165, fy: 2.5, wait: 12 }],
   };
-  const port = mockPort({
+  const port = mockPort(vi, {
     generation: () => w.gen,
     view: () => w.camera,
     towerName: () => "Spire",

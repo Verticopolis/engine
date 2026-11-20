@@ -1,13 +1,11 @@
-import type * as Binding from "./engine";
-import type { WasmEngine } from "./binding";
+import type * as Binding from "@verticopolis/engine/tooling/node/verticopolis_engine";
+import type { WasmEngine } from "./binding.ts";
 
 /**
  * Every export of the WASM binding (`engine-rs/src/wasm.rs` and `engine-rs/src/wasm/`), sorted into a
  * tier (#946, cutover plan story S10, spine AD-3). One table, so a new export
  * has to pick a tier before it can ship: the typecheck fails on an export of
- * the declared package (`engine.d.ts`) missing here, and
- * `bindingExportTiers.guard.test.ts` parses `wasm.rs` and `wasm/` and fails on an export
- * missing here or listed but gone.
+ * the declared binding (`tooling/node/verticopolis_engine.d.ts`) missing here.
  *
  * - **Tier 1, player commands.** What a player can do, with the engine's own
  *   rules and charges, plus the few host writes the game makes on a player's
@@ -16,7 +14,7 @@ import type { WasmEngine } from "./binding";
  *   `src/render/`, everything outside this folder and the host) may call to
  *   change the tower. They reach it, and the port's Tier 2 reads, through
  *   `EnginePort` (below).
- * - **The port's members** (`EnginePort`, `src/simport/enginePort.ts`) follow
+ * - **The port's members** (`EnginePort`, `port/enginePort.ts`) follow
  *   one rule: a member that writes the tower is Tier 1, and one that only
  *   reads (a quote, a query, a view, a text getter, `lastReason`) is Tier 2,
  *   as are the swaps and the drains. The UI reaches either tier only through

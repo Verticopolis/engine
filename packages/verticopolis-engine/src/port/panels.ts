@@ -1,8 +1,8 @@
-import type { LedgerCat } from "../model/engineTypes";
-import type { HeatmapMode } from "../model/engineTypes";
-import type { StarGateId } from "../model/engineTypes";
-import type { FacilityKind, UnitState, VacateReason } from "../model/types";
-import type { FilmPolicy, FilmTier, TicketPrice } from "./commands";
+import type { LedgerCat } from "../model/engineTypes.ts";
+import type { HeatmapMode } from "../model/engineTypes.ts";
+import type { StarGateId } from "../model/engineTypes.ts";
+import type { FacilityKind, UnitState, VacateReason } from "../model/types.ts";
+import type { FilmPolicy, FilmTier, TicketPrice } from "./commands.ts";
 
 /**
  * What the panels ask the engine and what it answers (facade slice 4, #1211).

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkBinding, INSTANCE_METHODS, STATIC_METHODS, TOOLING_METHODS } from "./binding";
+import { checkBinding, INSTANCE_METHODS, STATIC_METHODS, TOOLING_METHODS } from "./binding.ts";
 
 /** A glue module whose Engine class defines `methods` and the statics. */
 function glue(methods: readonly string[]): { Engine: unknown } {

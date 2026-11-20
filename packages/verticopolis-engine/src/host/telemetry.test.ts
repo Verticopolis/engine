@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { telemetryDocument, type TelemetryStores } from "./telemetry";
+import { telemetryDocument, type TelemetryStores } from "./telemetry.ts";
 
 /** Two shafts, so the document's order and per-shaft split both show. */
 const FIRST_SHAFT = 7;

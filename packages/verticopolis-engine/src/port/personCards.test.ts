@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { PersonCards } from "./personCards";
-import { LAYOUT, code, mockPort, record } from "../tests/portKit/mockPort";
+import { describe, expect, it, vi } from "vitest";
+import { PersonCards } from "./personCards.ts";
+import { LAYOUT, code, mockPort, record } from "../testing/mockPort.ts";
 
 /**
  * The person card decoder over a mock port: the read it asks for and what it
@@ -38,7 +38,7 @@ const WORKER = record("personCard", {
 
 describe("PersonCards", () => {
   it("decodes why, both ends and the wait", () => {
-    const port = mockPort({ personCard: () => WORKER });
+    const port = mockPort(vi, { personCard: () => WORKER });
     const p = new PersonCards(port).person(42);
     expect(port.personCard).toHaveBeenCalledWith(42);
     expect(p).toEqual({
@@ -63,7 +63,7 @@ describe("PersonCards", () => {
   it("reads someone who gave up waiting (#2188)", () => {
     const rec = WORKER.slice();
     rec[LAYOUT.records.personCard.indexOf("gaveUp")] = 1;
-    expect(new PersonCards(mockPort({ personCard: () => rec })).person(42)?.gaveUp).toBe(true);
+    expect(new PersonCards(mockPort(vi, { personCard: () => rec })).person(42)?.gaveUp).toBe(true);
   });
 
   it("reads a housekeeper's step and an end with nothing to name", () => {
@@ -74,7 +74,7 @@ describe("PersonCards", () => {
     rec[at("shiftStep")] = layout.shiftSteps.indexOf("base");
     rec[at("toPlace")] = place("none");
     rec[at("shaftId")] = NaN;
-    const p = new PersonCards(mockPort({ personCard: () => rec })).person(42);
+    const p = new PersonCards(mockPort(vi, { personCard: () => rec })).person(42);
     expect(p?.staff).toBe(true);
     expect(p?.shift).toBe("base");
     expect(p?.to).toEqual({ place: "none" });
@@ -82,7 +82,7 @@ describe("PersonCards", () => {
   });
 
   it("reads the layout once, on the first card, never at construction", () => {
-    const port = mockPort({ personCard: () => WORKER });
+    const port = mockPort(vi, { personCard: () => WORKER });
     const cards = new PersonCards(port);
     expect(port.viewLayout).not.toHaveBeenCalled();
     cards.person(42);
@@ -91,6 +91,6 @@ describe("PersonCards", () => {
   });
 
   it("answers undefined for someone who left", () => {
-    expect(new PersonCards(mockPort({ personCard: () => new Float64Array(0) })).person(9)).toBeUndefined();
+    expect(new PersonCards(mockPort(vi, { personCard: () => new Float64Array(0) })).person(9)).toBeUndefined();
   });
 });

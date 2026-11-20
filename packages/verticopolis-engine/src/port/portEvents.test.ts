@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
-import { PortEvents } from "./portEvents";
-import { mockPort } from "../tests/portKit/mockPort";
+import { PortEvents } from "./portEvents.ts";
+import { mockPort } from "../testing/mockPort.ts";
 
 /** The events source over a mock port: what it asks the engine, and what it
  *  makes of the answers. The engine side runs in `portReads.integration.test.ts`. */
 
 function source(texts: (string | undefined)[], dropped = 0) {
   let gen = 3;
-  const port = mockPort({
+  const port = mockPort(vi, {
     drainEvents: () => Float64Array.of(dropped, texts.length),
     eventText: (i) => texts[i],
     setBackdrop: () => undefined,
