@@ -113,7 +113,7 @@
   "scripts": {
     "wasm:build": "node scripts/wasm-build.ts",
     "pack": "sh scripts/pack-engine.sh",
-    "test": "vitest run --dir src",
+    "test": "vitest run --dir src && vitest run --dir scripts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "layer:typecheck": "tsc -p packages/verticopolis-engine/tsconfig.json",
     "layer:test": "vitest run --dir packages/verticopolis-engine/src",
