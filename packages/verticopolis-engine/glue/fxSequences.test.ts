@@ -51,10 +51,29 @@ const PINNED: Record<string, Nonzero> = {
   // way moved it to floor 42. Counting the walk to the first shaft moved it
   // back into the lobby. Office workers going home from an evening dinner or
   // movie (Verticopolis/web#2481) moved it along the lobby, from tile 273 to 281.
-  "scenarios/ransom-ignored-modern.json": { explosionSeq: 1, explosionX: 281, thiefFloor: 1, bombs: 1 },
-  "scenarios/fire-rescue-ignored-modern.json": { thiefFloor: 1, vipFxSeq: 1, fires: 2, firesGutRooms: 17 },
+  // Emergencies on the real-world calendar rolling a tenth of their canon
+  // odds made the run wait about a hundred days for its threat, and the
+  // blast landed on floor 18 at tile 141.
+  "scenarios/ransom-ignored-modern.json": {
+    explosionSeq: 1,
+    explosionFloor: 18,
+    explosionX: 141,
+    thiefFloor: 1,
+    bombs: 1,
+  },
+  // The same change made the run wait about 145 days for its first fire,
+  // which crosses the holidays, and its two fires gut two rooms.
+  "scenarios/fire-rescue-ignored-modern.json": {
+    santaFxSeq: 1,
+    thiefFloor: 1,
+    vipFxSeq: 1,
+    fires: 2,
+    firesGutRooms: 2,
+  },
   "scenarios/vip-review-modern.json": { thiefFloor: 1, vipFxSeq: 1 },
-  "fuzz-corpus/fx-thief-uncaught.json": { thiefSeq: 3, thiefFloor: 1 },
+  // Seed 13 since the real-world calendar's thief rolls a tenth of its canon
+  // odds: one thief in the sixty days, where seed 17 now sees none.
+  "fuzz-corpus/fx-thief-uncaught.json": { thiefSeq: 1, thiefFloor: 1 },
   // Sixty days at three stars also cross the holidays and light a fire.
   "fuzz-corpus/fx-thief-caught.json": {
     santaFxSeq: 3,

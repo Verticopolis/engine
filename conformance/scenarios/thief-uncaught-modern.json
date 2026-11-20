@@ -3,7 +3,7 @@
   "description": "A two-star Modern tower with no Security for sixty days, so thieves get away with the money (#869; the same tower as the fuzz corpus's fx-thief-uncaught, pinned in the lock too). A Classic tower without Security sees no thief at all (#2364).",
   "start": {
     "newGame": {
-      "seed": 17,
+      "seed": 13,
       "mode": "modern",
       "star": 2
     }

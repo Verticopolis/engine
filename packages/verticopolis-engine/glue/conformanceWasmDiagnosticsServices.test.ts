@@ -256,7 +256,10 @@ const nearCapacity = (card: Card): boolean => card.slots[CARD_NEAR_CAPACITY] ===
  *  housekeeping room, a parking floor and ramp, a restaurant and a shop.
  *  Once riders boarded only a car leaving their way, it lands on floor 42
  *  and guts none of them. Once Modern riders counted the walk to their
- *  first shaft, it lands in the lobby again and guts all six. */
+ *  first shaft, it lands in the lobby again and guts all six. Once the
+ *  real-world calendar's emergencies rolled a tenth of their canon odds, the
+ *  run waits about a hundred days for its threat and the blast lands on
+ *  floor 18 and guts no cinema, restaurant or shop. */
 const CORPUS_SECTIONS: readonly string[] = [
   "commercial:lobbyFar:false",
   "commercial:lobbyFar:true",
@@ -271,7 +274,6 @@ const CORPUS_SECTIONS: readonly string[] = [
   "housekeeping:observedShortfall",
   "inert:amusements",
   "inert:boutiqueBay",
-  "inert:cinema",
   "inert:daycare",
   "inert:fastFood",
   "inert:foodHall",
@@ -279,8 +281,6 @@ const CORPUS_SECTIONS: readonly string[] = [
   "inert:nightclub",
   "inert:parking",
   "inert:parkingRamp",
-  "inert:restaurant",
-  "inert:shop",
   "inert:skyBar",
   "inert:spa",
   "parking:connected",

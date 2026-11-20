@@ -93,6 +93,8 @@ pub struct EventSystem {
 const SECURITY_RADIUS: i64 = 8;
 const MEDICAL_RADIUS: i64 = 12;
 const THIEF_DAILY_CHANCE: f64 = 0.025;
+const FIRE_DAILY_CHANCE: f64 = 0.025;
+const BOMB_THREAT_DAILY_CHANCE: f64 = 0.05;
 
 impl EventSystem {
     #[doc(hidden)]
@@ -162,7 +164,10 @@ impl Simulation {
         }
         let ransom_allowed = self.events.bomb.is_none()
             && (!self.mode.ransom_needs_security() || self.has_any(Kind::Security));
-        if self.star >= BOMB_THREATS_FROM_STAR && roll < fire_chance + 0.05 && ransom_allowed {
+        if self.star >= BOMB_THREATS_FROM_STAR
+            && roll < fire_chance + self.per_canon_day(BOMB_THREAT_DAILY_CHANCE)
+            && ransom_allowed
+        {
             let message = "💣 A caller demands a $300,000 ransom or a bomb detonates. Pay, or have Security search the tower.".to_string();
             self.events.pending = Some(PendingChoice {
                 kind: "bombThreat",
@@ -291,9 +296,16 @@ impl Simulation {
         }
     }
 
+    /// `chance`, a once-a-day roll on the 1994 calendar, spread over the
+    /// longer month of the calendar the tower runs, so a real-world month
+    /// does not bring ten times the emergencies a canon one does.
+    fn per_canon_day(&self, chance: f64) -> f64 {
+        chance / self.clock.calendar.days_per_canon_day()
+    }
+
     #[doc(hidden)]
     pub fn fire_chance(&self) -> f64 {
-        let mut chance = 0.025;
+        let mut chance = self.per_canon_day(FIRE_DAILY_CHANCE);
         if self.has_operational(Kind::Security) {
             chance *= 0.45;
         }
