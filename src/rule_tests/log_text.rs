@@ -12,7 +12,7 @@ use crate::vctower_import::import_vctower;
 const DAY: f64 = 1440.0;
 const HOUR: f64 = 60.0;
 
-const FIXTURES: [(&str, &str); 9] = [
+pub(super) const FIXTURES: [(&str, &str); 9] = [
     (
         "late-game-classic",
         include_str!("../../conformance/fixtures/late-game-classic.vctower"),
