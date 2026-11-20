@@ -43,9 +43,6 @@ updates:
     directory: /
     schedule:
       interval: monthly
-    # Paused until the game builds from this repository's packages, while
-    # changes here are on hold. Turn routine updates back on with the switch.
-    open-pull-requests-limit: 0
     rebase-strategy: auto
     groups:
       actions:
