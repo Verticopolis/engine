@@ -20,11 +20,13 @@ A change to what the crate ships adds a change note under
 [`.changes/`](.changes/README.md), named after its branch, with its crate
 tier and its changelog entries for people who build on the engine:
 **major** for a break in saves, the frame or view layout or the binding,
-**minor** for a new API, **patch** for a fix, and `none` for a change to
-`engine-rs/src/` that ships nothing new. Notes keep two open pull requests
-from editing the same changelog lines. The **Change notes** check requires
-one when a pull request changes `engine-rs/src/`, `engine-rs/Cargo.toml` or
-`packages/verticopolis-engine/`. **Cut release** picks the version from the
+**minor** for a new API, **patch** for a fix, and `none` for a change that
+ships nothing new (a Rust code change under `engine-rs/src/` takes patch or
+higher; `none` fits its test files). Notes keep two open pull requests from
+editing the same changelog lines. The **Change notes** check requires one
+when a pull request changes what the crate or the npm package ships (the
+paths are in `.changes/README.md`), and refuses a feature pull request that
+edits the crate version or the changelog's version sections. **Cut release** picks the version from the
 tiers. Only a release PR edits the version or `engine-rs/CHANGELOG.md`.
 
 ## Releasing

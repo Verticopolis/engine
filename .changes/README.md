@@ -21,10 +21,19 @@ crate: minor    # major | minor | patch | none
   and starting where the text after `- **<tier>**: ` would, with any further
   lines indented two spaces. The release leads each entry with the note's
   tier, so leave the tier out of the entry.
-- A pull request that changes `engine-rs/src/`, `engine-rs/Cargo.toml` or
-  `packages/verticopolis-engine/` needs a note, a `crate: none` one included.
-  Docs, tests, the bench and CI changes alone need none, and neither do
+- A pull request that changes what the crate or the npm package ships needs
+  a note: `engine-rs/src/`, `engine-rs/Cargo.toml`, `src/events/`,
+  `conformance/`, `packages/verticopolis-engine/`, the root `package.json`
+  (the package's manifest) or the packaging scripts (`scripts/wasm-build.ts`,
+  `scripts/build-engine-wasm.sh`, `scripts/pack-engine.sh`,
+  `scripts/engine-package-files.sh`). A change to Rust code under
+  `engine-rs/src/` other than its test files needs a tier of patch or higher;
+  `crate: none` fits only test files or a change that ships nothing new.
+  Docs, the bench and CI changes alone need no note, and neither do
   Dependabot's branches, which cannot write one.
+- Notes sit directly in `.changes/`, never in a subfolder.
+- A feature pull request leaves the crate version and the version sections
+  of `engine-rs/CHANGELOG.md` alone; the release PR writes them.
 - A note that is already on `main` belongs to the pull request that merged
   it. A follow-up pull request from the same branch name adds
   `<branch-slug>-2.md` instead of editing it; only the release PR removes a
