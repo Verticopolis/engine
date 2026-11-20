@@ -6,3 +6,9 @@
 *.jsonc
 # The docs site's stylesheets (docs/engine-site) keep the layout they came with.
 *.css
+# BMAD: the installed skills and workflow engine keep the installer's layout, and
+# its outputs are prose and records.
+_bmad/
+_bmad-output/
+.agents/
+.claude/

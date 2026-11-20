@@ -1,0 +1,17 @@
+# Team overrides for _bmad/config.toml.
+# Committed to the repo; applies to every developer on the project.
+# Tables deep-merge over base config; keyed entries merge by key.
+#
+# The installer-managed _bmad/config.toml, _bmad/core/config.yaml and
+# _bmad/bmm/config.yaml carry the install's answers and are regenerated on
+# install, so pin this repository's name here (never hand-edit the generated
+# files).
+[core]
+project_name = "Verticopolis engine"
+
+# This repository is the Rust crate verticopolis-engine, its WebAssembly build and the npm package @verticopolis/engine.
+# It is not a Unity/Unreal/Godot project, so pin the game-dev module's platform
+# so the gds agents don't assume an engine editor workflow. (The installer
+# default is '["unity", "unreal", "godot", "other"]'.)
+[modules.gds]
+primary_platform = "other"

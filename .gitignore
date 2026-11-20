@@ -3,3 +3,5 @@
 /consumer/target/
 /engine-bench/target/
 node_modules/
+# Personal BMAD overrides (each skill reads _bmad/custom/<skill>.user.toml).
+_bmad/custom/*.user.toml
