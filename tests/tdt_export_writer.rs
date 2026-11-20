@@ -655,8 +655,8 @@ fn shafts_past_the_24_slots_are_counted_as_dropped() {
         transports_mut(&mut save).push(shaft(20_000 + i, "elevatorStandard", 5 + i * 6, 0, 5, 2));
     }
     let built = build(&save);
-    assert!(built.stats.elevators_len >= 24);
-    assert!(built.stats.shafts_dropped > 0);
+    assert!(built.stats.elevators_len > 24);
+    assert_eq!(built.stats.shafts_dropped, built.stats.elevators_len - 24);
 }
 
 #[test]
