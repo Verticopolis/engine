@@ -48,8 +48,11 @@ use crate::tower::{unit_list_headroom, Unit};
 /// schedule's `heldBack` hours (#1546); `assemble` reads every shape, so all
 /// four take the same step. Version 11 folds floor tiles into runs, which
 /// `Units` unfolds (`load::floor_runs`), and takes the same step too, as
-/// does version 12, which adds a schedule's `autoTune` flag.
-const STREAMED_VERSION: f64 = 12.0;
+/// does version 12, which adds a schedule's `autoTune` flag, and version 13,
+/// which adds a shaft's `tdtSchedule` block (#305) that `assemble` reads.
+const STREAMED_VERSION: f64 = 13.0;
+/// Version 12, still read here: a shaft on Auto, and no `tdtSchedule`.
+const AUTO_TUNE_STREAMED_VERSION: f64 = 12.0;
 /// Version 11, still read here: floor runs, and no shaft on Auto.
 const FLOOR_RUN_STREAMED_VERSION: f64 = 11.0;
 /// Version 10, still read here: a schedule's held hours, and no floor run.
@@ -249,6 +252,7 @@ fn current_mode(rest: &Map<String, Value>, forced: Option<bool>) -> Option<bool>
     let version = rest.get("version").and_then(Value::as_f64);
     let taken = [
         STREAMED_VERSION,
+        AUTO_TUNE_STREAMED_VERSION,
         FLOOR_RUN_STREAMED_VERSION,
         HELD_HOURS_STREAMED_VERSION,
         TALL_LOBBY_STREAMED_VERSION,

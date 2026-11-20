@@ -132,7 +132,8 @@ fn read_elevator_table(r: &mut ByteReader, layout: PayloadLayout, resync: bool) 
         let type_id = r.u8().expect("header sized");
         let capacity = r.u8().expect("header sized");
         let cars = r.u8().expect("header sized");
-        r.skip(56).expect("header sized");
+        let mut schedule = [0u8; 56];
+        schedule.copy_from_slice(&r.bytes(56).expect("header sized"));
         r.skip(2).expect("header sized");
         let x = r.u16().expect("header sized");
         let top_floor = r.u8().expect("header sized");
@@ -202,6 +203,7 @@ fn read_elevator_table(r: &mut ByteReader, layout: PayloadLayout, resync: bool) 
             top_floor,
             bottom_floor,
             serviced,
+            schedule,
             car_homes,
             record: header_at..r.offset(),
         });

@@ -85,6 +85,8 @@ pub struct TdtElevator {
     pub bottom_floor: i64,
     /// Per-floor stop flags (120 entries; nonzero = cars stop there).
     pub serviced: Vec<u8>,
+    /// The 56-byte schedule block (byte map section 6.1), as the save has it.
+    pub schedule: [u8; 56],
     /// Home floor for each of the 8 car slots (TDT indexes).
     pub car_homes: Vec<i64>,
     /// Where the slot's header and payload sit in the file.

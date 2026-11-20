@@ -7,11 +7,12 @@ use std::collections::{BTreeMap, HashMap};
 
 use serde_json::{json, Value};
 
-use super::format::{tdt_stair_stories, TDT_FLOOR_OFFSET};
+use super::format::{tdt_elevator_schedule_default, tdt_stair_stories, TDT_FLOOR_OFFSET};
 use super::tables::elevator_kind;
 use super::types::{TdtElevator, TdtStair};
 use crate::facilities::{is_lobby_floor, Kind, LOBBY_INTERVAL, LOT_WIDTH, MAX_FLOOR, MIN_FLOOR};
 use crate::jsmath::round;
+use crate::tower::{legacy_schedule_to_save, LEGACY_SCHEDULE_LEN};
 
 /// A transport as the importer writes it into the save.
 #[derive(Clone, Debug, PartialEq)]
@@ -32,6 +33,10 @@ pub struct OutTransport {
     /// `None` leaves `skipFloors` out of the save, as the synthesized
     /// standard and service shafts do.
     pub skip_floors: Option<Vec<i64>>,
+    /// The save's 1994 schedule block for the shaft, kept as `tdtSchedule`
+    /// so an export back to 1994 writes it again (#305). `None` for a
+    /// synthesized shaft and for an all-zero block, which runs no cars.
+    pub legacy_schedule: Option<[u8; LEGACY_SCHEDULE_LEN]>,
 }
 
 impl OutTransport {
@@ -53,6 +58,9 @@ impl OutTransport {
         if let Some(s) = &self.skip_floors {
             m.insert("skipFloors".into(), json!(s));
         }
+        if let Some(b) = &self.legacy_schedule {
+            m.insert("tdtSchedule".into(), json!(legacy_schedule_to_save(b)));
+        }
         // The file's skips on an express are its own (the original keeps the
         // stops a file gives it): the markers tell every loader to keep them.
         if self.kind == Kind::ElevatorExpress {
@@ -61,6 +69,15 @@ impl OutTransport {
         }
         Value::Object(m)
     }
+}
+
+/// The block a shaft keeps for an export back to 1994: none when it is the
+/// default our exporter writes anyway, or all zero (a shaft whose cars never
+/// run, which this game's elevators do not copy).
+fn kept_schedule(block: &[u8; LEGACY_SCHEDULE_LEN]) -> Option<[u8; LEGACY_SCHEDULE_LEN]> {
+    let default = tdt_elevator_schedule_default();
+    let is_default = block.iter().zip(&default).all(|(&b, &d)| i64::from(b) == d);
+    (!is_default && block.iter().any(|&b| b != 0)).then_some(*block)
 }
 
 /// What the decode-path mapping produced, with its loss accounting.
@@ -195,6 +212,7 @@ pub fn transports_from_decoded(
             car_positions,
             home_floors,
             skip_floors: Some(skip_floors),
+            legacy_schedule: kept_schedule(&e.schedule),
         });
     }
     let mut walkways = 0;
@@ -238,6 +256,7 @@ pub fn transports_from_decoded(
                 car_positions: vec![],
                 home_floors: None,
                 skip_floors: None,
+                legacy_schedule: None,
             });
         }
     }
@@ -400,6 +419,7 @@ pub fn synthesize_transports(
             car_positions: (0..cars).map(|i| (s.bottom + i).min(s.top)).collect(),
             home_floors: None,
             skip_floors: s.skip_floors,
+            legacy_schedule: None,
         });
     }
     Synthesized {

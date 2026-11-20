@@ -11,6 +11,7 @@ use crate::facilities::*;
 use crate::lot::Lot;
 
 mod express_stops;
+mod legacy_schedule;
 mod lobby_halls;
 mod metro;
 mod placement;
@@ -24,6 +25,10 @@ mod types;
 mod undoing;
 mod unit_save;
 
+pub use legacy_schedule::{
+    legacy_schedule_from_save, legacy_schedule_to_save, LegacySchedule, LEGACY_SCHEDULE_LEN,
+    LEGACY_SCHEDULE_SAVE_VERSION,
+};
 pub use lobby_halls::HallRun;
 pub(crate) use skybridge::{OverAir, Row as BridgeRow, PEOPLE_CROSSING, SKYBRIDGE_PRICE_FACTOR};
 pub use skybridge::{SkybridgeSpan, SKYBRIDGE_MAX_SPAN, SKYBRIDGE_MIN_STAR};

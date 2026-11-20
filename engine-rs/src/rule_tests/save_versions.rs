@@ -10,12 +10,13 @@ use crate::load::NEWER_SAVE_REFUSAL;
 use crate::sim::{Simulation, PLAIN_SAVE_VERSION, SAVE_VERSION};
 use serde_json::{json, Value};
 
-/// The newest save version this build writes: 12, for a tower with an
+/// The newest save version this build writes: 13, for a tower whose shafts
+/// keep the 1994 settings of a `.TDT` (#305); 12, for a tower with an
 /// elevator on Auto; 11, for one that lists a
 /// row of plain floor tiles to fold into a run; 10 for one with an elevator
 /// hour held back (#1546) and no such row; 9 for one with a tall lobby (#308)
 /// and neither, and 7 for any other tower.
-const CURRENT_SAVE_VERSION: i64 = 12;
+const CURRENT_SAVE_VERSION: i64 = 13;
 
 fn stamped(mut save: Value, app_version: &str) -> Value {
     save["appVersion"] = json!(app_version);

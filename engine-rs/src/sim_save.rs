@@ -24,6 +24,7 @@ use crate::ledger::{totals_json, Ledger};
 use crate::save_floor_runs::{SavedUnits, FLOOR_RUN_SAVE_VERSION};
 use crate::schedule_auto::AUTO_TUNE_SAVE_VERSION;
 use crate::sim::{stamped_save_version, LogEntry, Simulation, LOG_SAVE_CAP};
+use crate::tower::LEGACY_SCHEDULE_SAVE_VERSION;
 use crate::tower::{SavedUnit, Transport, Unit};
 
 /// One top-level value of the save. The lists stay borrowed until they are
@@ -187,6 +188,8 @@ impl Simulation {
         let tall_lobbies = self.tower.tall_lobby_runs();
         let version = if fold {
             self.written_save_version()
+        } else if self.tower.keeps_a_legacy_schedule() {
+            LEGACY_SCHEDULE_SAVE_VERSION
         } else if self.tower.runs_an_auto_schedule() {
             AUTO_TUNE_SAVE_VERSION
         } else {
@@ -315,7 +318,9 @@ impl Simulation {
     /// tiles into runs is stamped with the version that reads them, so an
     /// older build refuses it rather than load a run as its first tile alone.
     pub(crate) fn written_save_version(&self) -> i64 {
-        if self.tower.runs_an_auto_schedule() {
+        if self.tower.keeps_a_legacy_schedule() {
+            LEGACY_SCHEDULE_SAVE_VERSION
+        } else if self.tower.runs_an_auto_schedule() {
             AUTO_TUNE_SAVE_VERSION
         } else if self.tower.lists_a_floor_run() {
             FLOOR_RUN_SAVE_VERSION

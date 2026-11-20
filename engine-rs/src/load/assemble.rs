@@ -3,6 +3,7 @@
 use super::*;
 use crate::crowd::commuters_save::CrowdMarks;
 use crate::rules::RentModel;
+use crate::tower::legacy_schedule_from_save;
 
 /// The rest of `deserialize` once the units are read: `data` is the migrated
 /// save, `units` its kept units in save order and `unit_ids` their saved ids
@@ -263,6 +264,10 @@ pub(crate) fn assemble(
                 // A Classic tower never keeps Auto on, whatever the file says.
                 schedule: Schedule::coerce(t.get("schedule"), cars, bottom, top)
                     .and_then(|s| s.kept_by_mode(mode.schedule_assist())),
+                legacy_schedule: kind
+                    .is_elevator()
+                    .then(|| legacy_schedule_from_save(t.get("tdtSchedule")))
+                    .flatten(),
                 rides: 0,
             };
             mapped.push((tr, sane_id(t.get("id"))));

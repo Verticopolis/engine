@@ -18,6 +18,19 @@ existed as a step inside a stacked branch.
 
 ## Unreleased
 
+- **minor**: a shaft brought in from a 1994 `.TDT` keeps the 56-byte schedule
+  block of its elevator record (`Transport::legacy_schedule`, `tdtSchedule` in
+  the save, 112 hex digits), and `export_tdt` writes it back byte for byte, so
+  a tower taken from SimTower and saved back for it keeps each elevator's
+  Elevator window settings (#75). The importer keeps a block that is not the
+  exporter's default and not all zero; the simulation never reads it. A save
+  with one is version 13 (`tower::LEGACY_SCHEDULE_SAVE_VERSION`), which the
+  streamed reader takes, and so is the importer's JSON for such a tower; an
+  older engine refuses it instead of dropping the block. New
+  `tower::legacy_schedule_from_save` and `legacy_schedule_to_save`,
+  `Tower::keeps_a_legacy_schedule`, and `TdtElevator::schedule`. The
+  conformance lock does not move.
+
 - **patch**: the conformance referee (`--features conformance --bin conformance`)
   also builds for `wasm32-wasip1` and runs there, replaying the scenarios one
   after another where the target has no threads. CI runs it under Node's WASI

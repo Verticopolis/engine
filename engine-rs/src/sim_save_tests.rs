@@ -32,7 +32,9 @@ fn reference(sim: &Simulation) -> Value {
     let tall_lobbies = sim.tower.tall_lobbies();
     m.insert(
         "version".into(),
-        json!(if sim.tower.runs_an_auto_schedule() {
+        json!(if sim.tower.keeps_a_legacy_schedule() {
+            crate::tower::LEGACY_SCHEDULE_SAVE_VERSION
+        } else if sim.tower.runs_an_auto_schedule() {
             crate::schedule_auto::AUTO_TUNE_SAVE_VERSION
         } else {
             stamped_save_version(!tall_lobbies.is_empty(), sim.tower.holds_an_hour_back())
