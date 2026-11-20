@@ -1,9 +1,10 @@
 /* The Rust API reference under /rust/ (cargo doc's own pages) in the docs
-   site's look: the game's palette and font from retro-tokens.css, the site's
-   navy title bar, and the site's side menu above the crate's own items, drawn
-   like src/styles/theme.css draws Starlight's. scripts/rustdoc-chrome.mjs
-   puts this in each page's head after retro-tokens.css, and rustdoc's own
-   variables do most of the rest. Code keeps rustdoc's monospace fonts. */
+   site's look: the game's palette and font from retro-tokens.css (in
+   @verticopolis/components), the site's navy title bar, and the site's side
+   menu above the crate's own items, drawn like the components' Starlight
+   theme (styles/starlight-theme.css) draws Starlight's.
+   scripts/rustdoc-chrome.mjs puts this in each page's head after
+   retro-tokens.css, and rustdoc's own variables do most of the rest. Code keeps rustdoc's monospace fonts. */
 
 :root {
   --font-family: var(--r-font);
@@ -197,9 +198,9 @@ rustdoc-topbar .vc-bar-links a:focus-visible {
   top: calc(var(--vc-bar-height) + 8px);
 }
 
-/* GitHub closes the menu only where the title bar hides it (title-bar.css,
-   below Starlight's 50rem), which includes widths where rustdoc still shows
-   its desktop sidebar. */
+/* GitHub closes the menu only where the title bar hides it (the components'
+   styles/title-bar.css, below Starlight's 50rem), which includes widths where
+   rustdoc still shows its desktop sidebar. */
 .vc-menu-github {
   display: none;
 }

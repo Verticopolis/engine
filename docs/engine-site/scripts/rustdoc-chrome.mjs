@@ -2,8 +2,10 @@
 // cargo doc writes its own pages under /rust/, so the workflow passes these
 // three files to rustdoc (engine-docs.yml):
 //
-//   head.html    --html-in-header: the game's palette (retro-tokens.css), the
-//                shared title bar's styles (src/styles/title-bar.css) and
+//   head.html    --html-in-header: the game's palette (retro-tokens.css from
+//                @verticopolis/components, so run `npm ci` here first), the
+//                shared title bar's styles (styles/title-bar.css, also from
+//                the components) and
 //                rustdoc/theme.css
 //   before.html  --html-before-content: the navy title bar and the site menu
 //   after.html   --html-after-content: moves the site menu to the top of
@@ -19,6 +21,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import postcss from "postcss";
 import { GITHUB, RUST_REFERENCE, SHORT_TITLE, sidebar, siteTitle } from "../site.mjs";
 import { barLinks, escapeHtml as escape, siteName } from "../title-bar.mjs";
 
@@ -48,12 +51,31 @@ export function siteMenu(entries, titles) {
   return `<nav class="vc-site-menu" aria-label="Docs"><ul>${items.join("")}</ul></nav>`;
 }
 
+/** A components stylesheet, inlined for rustdoc's pages. The components put
+ *  every rule in a cascade layer under `vc`, and a layered rule loses to any
+ *  unlayered one. rustdoc's own stylesheets are unlayered, so here the rules
+ *  come out of their layers (and the @import lines go, since the head inlines
+ *  each sheet it needs in order); they then win over rustdoc's by
+ *  specificity and order, as the docs site's own copies did. */
+function components(sheet) {
+  const path = fileURLToPath(import.meta.resolve(`@verticopolis/components/styles/${sheet}`));
+  const root = postcss.parse(readFileSync(path, "utf8"));
+  root.walkAtRules((rule) => {
+    if (rule.name === "import") rule.remove();
+    else if (rule.name === "layer") {
+      if (rule.nodes) rule.replaceWith(rule.nodes);
+      else rule.remove();
+    }
+  });
+  return root.toString();
+}
+
 export function chrome(ref) {
   const { pages } = JSON.parse(readFileSync(join(site, "pages.json"), "utf8"));
   const titles = new Map(pages.map((page) => [page.slug, page.title]));
   const style = [
-    readFileSync(join(site, "brand/retro-tokens.css"), "utf8"),
-    readFileSync(join(site, "src/styles/title-bar.css"), "utf8"),
+    components("retro-tokens.css"),
+    components("title-bar.css"),
     readFileSync(join(site, "rustdoc/theme.css"), "utf8"),
   ].join("\n");
   const head = `<style>\n${style}</style>\n`;

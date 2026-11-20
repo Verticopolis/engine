@@ -3,7 +3,8 @@
 // Rust API reference cargo doc writes under docs.verticopolis.com/rust/.
 // Both Starlight sites draw it with src/components/TitleBar.astro (each
 // site's Header override), scripts/rustdoc-chrome.mjs writes the same markup
-// into rustdoc's pages, and src/styles/title-bar.css styles it in all three.
+// into rustdoc's pages, and styles/title-bar.css from @verticopolis/components
+// styles it in all three.
 //
 // The bar holds the logo and the site's name, the site's search where it has
 // one, a button to the game, the GitHub link, and on a phone the one menu
