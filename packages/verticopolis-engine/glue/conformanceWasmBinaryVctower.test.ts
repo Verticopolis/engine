@@ -7,13 +7,13 @@
  * The binary files committed under `conformance/fixtures/binary/` open as
  * the tower of their text twins, so a file exported today keeps opening.
  *
- * Skips without the WASM package, like the rest of `npm run test:wasm`.
+ * Fails without the tooling build (`npm run wasm:build`), like every glue suite.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { Engine } from "@verticopolis/engine/tooling/node/verticopolis_engine";
-import { hasWasmPackage, wasm } from "./wasmEngine.ts";
+import { wasm } from "./wasmEngine.ts";
 import { CONFORMANCE_ROOT } from "./paths.ts";
 
 const FIXTURES = resolve(CONFORMANCE_ROOT, "fixtures");
@@ -41,7 +41,7 @@ function using<T>(engine: Engine, body: (e: Engine) => T): T {
   }
 }
 
-describe.runIf(hasWasmPackage())("the binary .vctower through the engine binding", () => {
+describe("the binary .vctower through the engine binding", () => {
   it("has a committed binary file to keep opening", () => {
     expect(binaryFixtures.length).toBeGreaterThan(0);
   });

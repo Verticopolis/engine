@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { readCatalog } from "../src/binding/catalog.ts";
 import type { GameMode } from "../src/model/types.ts";
 import { REPO_ROOT } from "./scenario.ts";
-import { hasWasmPackage, wasm } from "./wasmEngine.ts";
+import { wasm } from "./wasmEngine.ts";
 import type { WasmEngine } from "../src/binding/binding.ts";
 
 /**
@@ -112,7 +112,7 @@ function sweep(engine: WasmEngine, kinds: readonly string[]): { ok: number; diff
   return { ok, diffs };
 }
 
-describe.skipIf(!hasWasmPackage())("canBuild through the WASM binding says what build does", () => {
+describe("canBuild through the WASM binding says what build does", () => {
   for (const start of STARTS) {
     it(`${start.label}: bridging on and off where the mode allows, flush, short and exactly at a price`, () => {
       const engine = open(start);

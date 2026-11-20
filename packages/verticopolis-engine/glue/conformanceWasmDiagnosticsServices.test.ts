@@ -13,7 +13,7 @@ import {
   type Checkpoint,
   type ScenarioEngine,
 } from "./scenario.ts";
-import { hasWasmPackage, reloadWasmHandle, startWasmHandle, wasmEngine } from "./wasmEngine.ts";
+import { reloadWasmHandle, startWasmHandle, wasmEngine } from "./wasmEngine.ts";
 import type { WasmEngine } from "../src/binding/binding.ts";
 import viewLayout from "../src/fixtures/viewLayout.json" with { type: "json" };
 
@@ -339,7 +339,7 @@ function tally(read: Read): void {
   for (const kind of inertOf.get(read) ?? []) bump(`inert:${kind}`);
 }
 
-describe.skipIf(!hasWasmPackage())("service, venue and transport facts through the WASM binding", () => {
+describe("service, venue and transport facts through the WASM binding", () => {
   it("finds the shaft card's load slots in the layout", () => {
     expect(CARD_UTILIZATION, "utilization").toBeGreaterThanOrEqual(0);
     expect(CARD_NEAR_CAPACITY, "nearCapacity").toBeGreaterThanOrEqual(0);

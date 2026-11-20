@@ -9,7 +9,7 @@ import {
   type Checkpoint,
   type EngineStart,
 } from "./scenario.ts";
-import { hasWasmPackage, startWasmEngine, startWasmHandle, wasm, wasmEngine } from "./wasmEngine.ts";
+import { startWasmEngine, startWasmHandle, wasm, wasmEngine } from "./wasmEngine.ts";
 import { CATALOG_VERSION, readCatalog } from "../src/binding/catalog.ts";
 import type { PortRecord } from "../src/port/enginePort.ts";
 import { catalogLockView } from "./catalogLockView.ts";
@@ -48,7 +48,7 @@ function pinned(id: string): Checkpoint[] {
   return want;
 }
 
-describe.skipIf(!hasWasmPackage())("engine conformance through the WASM binding", () => {
+describe("engine conformance through the WASM binding", () => {
   it("has a scenario for every lock entry and a unique id per file", () => {
     const ids = files.map((f) => loadScenario(resolve(SCENARIO_DIR, f)).id);
     expect(ids).toEqual(files.map((f) => f.replace(/\.json$/, "")));

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { INVALID_COMMAND } from "../src/port/request.ts";
-import { hasWasmPackage, startWasmHandle, wasm, wasmEngine } from "./wasmEngine.ts";
+import { startWasmHandle, wasm, wasmEngine } from "./wasmEngine.ts";
 
 /**
  * The relayed edit commands' malformed-input boundary (Verticopolis/web#996), called raw:
@@ -212,7 +212,7 @@ function acceptedEdges(lift: number, office: number): Call[] {
 const events = (engine: Engine) => JSON.parse(engine.drainGameplayEvents() as string) as unknown[];
 const command0 = (name: string) => name.slice(0, name.indexOf("("));
 
-describe.skipIf(!hasWasmPackage())("relayed commands called raw through the binding (Verticopolis/web#996)", () => {
+describe("relayed commands called raw through the binding (Verticopolis/web#996)", () => {
   it("refuses every malformed argument, moving nothing", () => {
     const { engine, lift, office } = tower();
     try {

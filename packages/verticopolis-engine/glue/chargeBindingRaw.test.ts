@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { INVALID_COMMAND } from "../src/port/request.ts";
-import { hasWasmPackage, startWasmHandle, wasm, wasmEngine } from "./wasmEngine.ts";
+import { startWasmHandle, wasm, wasmEngine } from "./wasmEngine.ts";
 
 /**
  * The charge commands' malformed-input boundary (Verticopolis/web#923), called raw: straight
@@ -172,7 +172,7 @@ function acceptedEdges(lift: number): Call[] {
 
 const events = (engine: Engine) => (JSON.parse(engine.drainGameplayEvents()) as { name: string }[]).map((e) => e.name);
 
-describe.skipIf(!hasWasmPackage())("charge commands called raw through the binding (Verticopolis/web#923)", () => {
+describe("charge commands called raw through the binding (Verticopolis/web#923)", () => {
   it("refuses every malformed argument, moving nothing", () => {
     const { engine, lift, office, stairs } = tower();
     try {

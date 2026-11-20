@@ -10,7 +10,7 @@ import {
   type Checkpoint,
   type ScenarioEngine,
 } from "./scenario.ts";
-import { hasWasmPackage, reloadWasmHandle, startWasmHandle, wasmEngine } from "./wasmEngine.ts";
+import { reloadWasmHandle, startWasmHandle, wasmEngine } from "./wasmEngine.ts";
 import type { WasmEngine } from "../src/binding/binding.ts";
 
 /**
@@ -131,7 +131,7 @@ function tally(f: DiagnosticFacts): void {
   if (f.notice) bump(`notice:${f.notice.reason}`);
 }
 
-describe.skipIf(!hasWasmPackage())("diagnostics facts through the WASM binding", () => {
+describe("diagnostics facts through the WASM binding", () => {
   for (const file of files) {
     const scenario = loadScenario(resolve(SCENARIO_DIR, file));
     it(`${scenario.id}: every room answers its facts without moving a hash`, () => {

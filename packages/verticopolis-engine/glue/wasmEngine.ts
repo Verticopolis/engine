@@ -23,10 +23,14 @@ export const WASM_PKG = resolve(NODE_DIR, "verticopolis_engine.js");
 const WASM_BYTES = resolve(NODE_DIR, "verticopolis_engine_bg.wasm");
 const WASM_MARKER = resolve(NODE_DIR, "package.json");
 
-/** True when the tooling build holds the glue, the module and the CommonJS
- *  marker (without which the glue loads as ESM). `npm run wasm:build` writes
- *  it; CI builds it before this lane runs. */
-export const hasWasmPackage = (): boolean => [WASM_PKG, WASM_BYTES, WASM_MARKER].every((f) => existsSync(f));
+/** The tooling build must hold the glue, the module and the CommonJS marker
+ *  (without which the glue loads as ESM). This lane is the only place the
+ *  glue suites run, so a missing build fails them rather than skipping. */
+function requireWasmPackage(): void {
+  const missing = [WASM_PKG, WASM_BYTES, WASM_MARKER].filter((f) => !existsSync(f));
+  if (missing.length > 0)
+    throw new Error(`the tooling build is missing ${missing.join(", ")}; run npm run wasm:build first`);
+}
 
 let loaded: WasmModule | undefined;
 
@@ -36,6 +40,7 @@ let loaded: WasmModule | undefined;
  *  undefined state, so the binding returns errors rather than panicking. */
 export function wasm(): WasmModule {
   if (loaded) return loaded;
+  requireWasmPackage();
   loaded = checkBinding(createRequire(import.meta.url)(WASM_PKG), { tooling: true });
   return loaded;
 }

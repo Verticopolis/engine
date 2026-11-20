@@ -11,7 +11,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { FX_SLOTS, type CheckpointDetail, type FxSlot } from "./checkpointDetail.ts";
 import { CONFORMANCE_DIR, loadScenario, runScenario } from "./scenario.ts";
-import { hasWasmPackage, startWasmEngine } from "./wasmEngine.ts";
+import { startWasmEngine } from "./wasmEngine.ts";
 
 type Nonzero = Partial<Record<FxSlot, number>>;
 
@@ -73,9 +73,7 @@ const asRecord = (d: CheckpointDetail): Nonzero =>
 /** A month or two of game time; the longest takes several seconds on a busy runner. */
 const SLOW = 180_000;
 
-const run = hasWasmPackage();
-
-describe.runIf(run)("the fx sequences and emergency counters, pinned on the shipped build", () => {
+describe("the fx sequences and emergency counters, pinned on the shipped build", () => {
   for (const [file, expected] of Object.entries(PINNED)) {
     it(
       `${file}: the shipped build ends on the pinned values`,

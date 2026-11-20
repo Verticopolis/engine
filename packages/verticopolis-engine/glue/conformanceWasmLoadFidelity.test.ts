@@ -12,12 +12,12 @@
  *   still load.
  *
  * Until Verticopolis/web#1875 each half also compared the TypeScript engine on the same text.
- * Skips without the WASM package, like the rest of `npm run test:wasm`.
+ * Fails without the tooling build (`npm run wasm:build`), like every glue suite.
  */
 import { describe, expect, it } from "vitest";
 import type { Engine } from "@verticopolis/engine/tooling/node/verticopolis_engine";
 import { canonicalJson } from "./canonical.ts";
-import { hasWasmPackage, wasm } from "./wasmEngine.ts";
+import { wasm } from "./wasmEngine.ts";
 
 type RustEngine = { Engine: typeof Engine };
 const rust = (): RustEngine => wasm() as unknown as RustEngine;
@@ -66,9 +66,7 @@ const loaded = (text: string): string => {
   }
 };
 
-const run = hasWasmPackage();
-
-describe.runIf(run)("a save at random state 0 reloads at state 0 (Verticopolis/web#856)", () => {
+describe("a save at random state 0 reloads at state 0 (Verticopolis/web#856)", () => {
   it("the main stream", () => {
     const save = JSON.parse(tower()) as Saved;
     save.seed = 0;
@@ -102,7 +100,7 @@ describe.runIf(run)("a save at random state 0 reloads at state 0 (Verticopolis/w
   });
 });
 
-describe.runIf(run)("top-level values that are no save (Verticopolis/web#858, Verticopolis/web#1418)", () => {
+describe("top-level values that are no save (Verticopolis/web#858, Verticopolis/web#1418)", () => {
   it("refuses a null save, and every other top-level value with no clock or rooms (Verticopolis/web#1418)", () => {
     expect(() => rust().Engine.fromSave("null")).toThrow(/null/);
     for (const text of ["{}", "5", "[]", '"abc"', '""', "true"])
@@ -110,7 +108,7 @@ describe.runIf(run)("top-level values that are no save (Verticopolis/web#858, Ve
   });
 });
 
-describe.runIf(run)("EX-3: a number past the double range", () => {
+describe("EX-3: a number past the double range", () => {
   it("is refused by the engine, and the largest doubles still load", () => {
     const save = tower();
     const withMoney = (literal: string): string => save.replace(/"money":[^,]+,/, `"money":${literal},`);

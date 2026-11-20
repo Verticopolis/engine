@@ -3,7 +3,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadScenario, runScenario } from "./scenario.ts";
-import { hasWasmPackage, startWasmEngine } from "./wasmEngine.ts";
+import { startWasmEngine } from "./wasmEngine.ts";
 
 const dir = mkdtempSync(join(tmpdir(), "vc-scenario-tune-"));
 
@@ -23,7 +23,7 @@ const withOffice = [
   { op: "build", kind: "office", floor: 2, x: 170 },
 ];
 
-describe.skipIf(!hasWasmPackage())("expectFail on the tuning ops", () => {
+describe("expectFail on the tuning ops", () => {
   const withLobby = [
     { op: "setMoney", amount: 500000000 },
     { op: "buildRow", kind: "lobby", floor: 1, from: 167, to: 206 },

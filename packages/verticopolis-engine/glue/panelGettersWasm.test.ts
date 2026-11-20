@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { CONFORMANCE_DIR, loadScenario, runScenario } from "./scenario.ts";
-import { hasWasmPackage, wasm } from "./wasmEngine.ts";
+import { wasm } from "./wasmEngine.ts";
 import { HEATMAP_MODES, probedWasmStart } from "./panelProbe.ts";
 import { statsReport } from "../src/port/statsSheet.ts";
 import { PortCodes } from "../src/port/portCodes.ts";
@@ -114,7 +114,7 @@ function probe(h: WasmEngine, id: string): void {
   compared.twoCars += report.elevators.some((e) => e.cars >= 2) ? 1 : 0;
 }
 
-describe.skipIf(!hasWasmPackage())("panel getters through the WASM binding", () => {
+describe("panel getters through the WASM binding", () => {
   for (const file of files) {
     const scenario = loadScenario(resolve(SCENARIO_DIR, file));
     it(`${scenario.id}: the decoded stats screen matches the getter at every checkpoint`, () => {

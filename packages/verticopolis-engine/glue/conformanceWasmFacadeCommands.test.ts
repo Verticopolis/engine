@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { readCatalog } from "../src/binding/catalog.ts";
 import type { GameMode } from "../src/model/types.ts";
 import { REPO_ROOT } from "./scenario.ts";
-import { hasWasmPackage, wasm } from "./wasmEngine.ts";
+import { wasm } from "./wasmEngine.ts";
 import type { WasmEngine } from "../src/binding/binding.ts";
 
 /**
@@ -111,7 +111,7 @@ function variedPrices(save: Save): void {
 
 const parse = <T>(text: string | undefined): T | null => (text === undefined ? null : (JSON.parse(text) as T));
 
-describe.skipIf(!hasWasmPackage())("the facade's command answers through the WASM binding", () => {
+describe("the facade's command answers through the WASM binding", () => {
   describe("callExterminator", () => {
     const fee = (rooms: number) => 5_000 + 2_000 * rooms;
     /** A tower with `rooms` infested hotel rooms: built through the binding at

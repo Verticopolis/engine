@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { readCatalog } from "../src/binding/catalog.ts";
-import { hasWasmPackage, wasm } from "./wasmEngine.ts";
+import { wasm } from "./wasmEngine.ts";
 import { unfoldFloorRuns } from "../src/model/floorRuns.ts";
 
 /**
@@ -111,7 +111,7 @@ const layout = (): Layout => {
   }
 };
 
-describe.skipIf(!hasWasmPackage())("the engine view through the binding (Verticopolis/web#1213)", () => {
+describe("the engine view through the binding (Verticopolis/web#1213)", () => {
   it("hands over its layout by name, every slot named once", () => {
     const l = layout();
     expect(l.version).toBe(34);

@@ -3,7 +3,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadScenario, runScenario } from "./scenario.ts";
-import { hasWasmPackage, startWasmEngine, startWasmHandle } from "./wasmEngine.ts";
+import { startWasmEngine, startWasmHandle } from "./wasmEngine.ts";
 
 const dir = mkdtempSync(join(tmpdir(), "vc-scenario-star-"));
 
@@ -39,7 +39,7 @@ const refused = (kind: string, floor: number, x: number, reason: string) => [
   { op: "build", kind, floor, x, expectFail: true, reason },
 ];
 
-describe.skipIf(!hasWasmPackage())("a new game that opens at a higher star", () => {
+describe("a new game that opens at a higher star", () => {
   it("keeps the escalator locked at one star, as a game with no star does", () => {
     expect(() => run(undefined, escalator(true))).not.toThrow();
     expect(() => run(1, escalator(true))).not.toThrow();
