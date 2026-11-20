@@ -154,7 +154,7 @@ export function isVacateReason(v: unknown): v is VacateReason {
   return typeof v === "string" && VACATE_REASONS.has(v);
 }
 
-// The unit-state predicates live in `shared/unitState.ts` so the web can use them
+// The unit-state predicates live in `model/unitState.ts` so the web can use them
 // without importing this module at runtime; the engine keeps its old names.
 export { isOperational, isPresent, isTenanted, isDormant } from "../model/unitState";
 
@@ -362,7 +362,7 @@ export interface SerializedUnit extends Omit<Unit, "width" | "state" | "satisfac
   pendingIncome?: number;
   label?: string;
   /** Version 11: on a plain floor tile, how many tiles in a row this entry
-   *  stands for, with the next ids (see `shared/floorRuns`). */
+   *  stands for, with the next ids (see `model/floorRuns`). */
   run?: number;
 }
 
@@ -374,7 +374,7 @@ export interface LogEntry {
   kind: "info" | "good" | "bad" | "money";
 }
 
-/** Camera zoom bounds. They live in `shared/viewZoom.ts`; the save schema clamps a
+/** Camera zoom bounds. They live in `model/viewZoom.ts`; the save schema clamps a
  *  restored zoom to them at the deserialize trust boundary. */
 export { VIEW_ZOOM_MIN, VIEW_ZOOM_MAX } from "../model/viewZoom";
 
