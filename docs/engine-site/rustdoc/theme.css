@@ -4,7 +4,8 @@
    menu above the crate's own items, drawn like the components' Starlight
    theme (styles/starlight-theme.css) draws Starlight's.
    scripts/rustdoc-chrome.mjs puts this in each page's head after
-   retro-tokens.css, and rustdoc's own variables do most of the rest. Code keeps rustdoc's monospace fonts. */
+   retro-tokens.css, and rustdoc's own variables do most of the rest. Code
+   keeps rustdoc's monospace fonts. */
 
 :root {
   --font-family: var(--r-font);

@@ -60,13 +60,18 @@ export function siteMenu(entries, titles) {
 function components(sheet) {
   const path = fileURLToPath(import.meta.resolve(`@verticopolis/components/styles/${sheet}`));
   const root = postcss.parse(readFileSync(path, "utf8"));
-  root.walkAtRules((rule) => {
-    if (rule.name === "import") rule.remove();
-    else if (rule.name === "layer") {
+  root.walkAtRules("import", (rule) => rule.remove());
+  // One pass unwraps one level: a walk skips the rules a replaced block moves
+  // up, so a layer nested in another layer needs the next pass.
+  let layered;
+  do {
+    layered = false;
+    root.walkAtRules("layer", (rule) => {
+      layered = true;
       if (rule.nodes) rule.replaceWith(rule.nodes);
       else rule.remove();
-    }
-  });
+    });
+  } while (layered);
   return root.toString();
 }
 
