@@ -10,7 +10,7 @@ Frontends may differ. Simulations may not.
 
 - `scenarios/*.json`: one scenario per file. The file name is the scenario `id`.
 - `expected.json`: the pinned checkpoints for every scenario, written by the
-  Rust engine's run through the WASM binding, as
+  native referee's `--update` run (When a hash moves, below), as
   `{ "scenarios": { "<id>": [ { "label", "state", "crowd", "events" }, ... ] } }`.
 - The gameplay event catalog, the contract for the events the engine emits
   (see Checkpoints), is part of the lock but lives in the crate,
@@ -20,16 +20,18 @@ Frontends may differ. Simulations may not.
   entries, each with its golden under `fuzz-corpus/goldens/` (the native
   run's records, as `fuzz --replay` writes them).
 
-The runner is `src/tests/conformance/scenario.ts`. It drives any engine
-behind its `ScenarioEngine` interface. The Rust engine answers three times:
-natively through `cargo run --release --features conformance --bin conformance`;
-as WebAssembly, with the same referee built for `wasm32-wasip1` and run under
-Node's WASI (`scripts/conformance-wasi.mts`, CI job `wasm-referee`); and through its WASM
-binding from Node (`npm run wasm:build && npm run test:wasm`, see
-`docs/engine.md`), where `conformanceWasm.integration.test.ts` replays
-every scenario against this lock. A mismatch fails the build and names the
+The TypeScript runner is `packages/verticopolis-engine/glue/scenario.ts`. It
+drives any engine behind its `ScenarioEngine` interface. The Rust engine
+answers three times: natively through `cargo run --release --features
+conformance --bin conformance`; as WebAssembly, with the same referee built
+for `wasm32-wasip1` and run under Node's WASI (`scripts/conformance-wasi.mts`,
+CI job `wasm-referee`); and through its WASM binding from Node (`npm run
+wasm:build && npm run glue:test`), where
+`packages/verticopolis-engine/glue/conformanceWasm.test.ts` replays every
+scenario against this lock. A mismatch fails the build and names the
 first checkpoint that differs. Beyond the scripted scenarios, the frame-day
-golden (`src/tests/goldens/frame-days.json`, built by
+golden (in the game's repository, Verticopolis/web:
+`src/tests/goldens/frame-days.json`, built by
 `src/tests/goldens/frameDays.ts`) pins a day on every fixture at every speed,
 played through the port's `advance` as the web frame loop plays it, as
 hashes of the same two views and of the gameplay events at the start, after
@@ -58,16 +60,15 @@ A moved hash means the simulation changed. If the change is intended, regenerate
 the lock and commit it in the same pull request, saying why:
 
 ```sh
-npm run wasm:build
-VC_CONFORMANCE_UPDATE=1 npx vitest run --project integration conformanceWasm
+cargo run --release --features conformance --bin conformance -- --update
 ```
 
-An update writes the lock only when every test in the run passes and every
-scenario finishes, and it refuses to run in CI or without the engine package.
-The same command also matches `conformanceWasmFrameDays` and
-`conformanceWasmPortEdits`, which check their goldens and never write them. A simulation change that moves the lock
-usually moves those goldens too, so that run fails there until each is
-refreshed with its own switch (above); all of them go in the diff.
+The update replays every scenario file and writes `expected.json` and
+`catalog-digests.json` only when every scenario runs to its end; it refuses
+to run in CI. Run the referee and the glue lane (`npm run wasm:build && npm
+run glue:test`) after it: both must pass on the new lock. A simulation change
+that moves the lock usually moves the game's frame-day and port-edit goldens
+too; they are refreshed in Verticopolis/web when it raises its engine pin.
 
 A change to any of the five lock files (`catalog-digests.json`, the event
 catalog `src/gameplay/catalog.json`, `expected.json`,
@@ -144,11 +145,10 @@ changes how that save loads, and is reviewed against the case's input.
 
 `catalog-digests.json` pins the canonical hash of each mode's catalog: the
 prices, sizes and build rules a frontend reads from the engine
-(`src/catalog.rs`). The WASM suite writes it from the binding's
-`catalog(mode)` (`src/tests/integration/conformanceWasm.integration.test.ts`,
-regenerated with `VC_CONFORMANCE_UPDATE=1 npx vitest run --project integration
-conformanceWasm`, the engine package built); a Rust crate test, `cargo run --release --features conformance --bin conformance` and the WASM suite
-check against it. A moved digest means a price, a size or a build rule some
+(`src/catalog.rs`). The referee's `--update` run writes it with
+`expected.json` (When a hash moves, above); a Rust crate test, the referee
+and the glue lane's `conformanceWasm.test.ts`, through the binding's
+`catalog(mode)`, check against it. A moved digest means a price, a size or a build rule some
 frontend shows has changed: regenerate it on purpose only, in the same pull
 request, saying why.
 
