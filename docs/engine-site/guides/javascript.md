@@ -310,7 +310,10 @@ bigger.
   load rings and each shaft's `hourStart` (its demand at the top of the
   hour under way, which the next hourly sample weighs against its own), so
   a reload re-tunes the same way. An older engine would drop
-  the flag, so it refuses the save.
+  the flag, so it refuses the save. A save is version 13 when a shaft keeps the
+  settings block of the 1994 `.TDT` it came from (`tdtSchedule`, 112 hex
+  digits): the simulation never reads it, and `exportTdt` writes it back, so
+  a tower brought in from 1994 goes back out with its elevator settings.
 
 ## Versioning
 

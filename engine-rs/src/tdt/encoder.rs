@@ -20,6 +20,7 @@ use super::venue_people::write_people;
 use super::LegacyExportError;
 use crate::facilities::{Kind, LOT_WIDTH, MAX_FLOOR, MIN_FLOOR};
 use crate::jsmath::round;
+use crate::tower::{legacy_schedule_from_save, LegacySchedule};
 
 mod stats;
 pub use stats::{EncodeResult, EncodeStats};
@@ -37,6 +38,9 @@ struct OutElevator {
     /// The numbers in `skipFloors`: a `Set` matches a floor by
     /// SameValueZero, so a `null` or a string member can never match one.
     skip_floors: Vec<f64>,
+    /// The 1994 schedule block a `.TDT` import kept (`tdtSchedule`, #305),
+    /// written back as it came; `None` writes the default block.
+    schedule: Option<LegacySchedule>,
 }
 
 struct OutWalkway {
@@ -290,12 +294,13 @@ pub fn encode_tower(
                 .and_then(Value::as_array)
                 .map(|a| a.iter().filter_map(|v| js_finite(Some(v))).collect())
                 .unwrap_or_default(),
+            schedule: legacy_schedule_from_save(t.get("tdtSchedule")),
         });
     }
     let shafts_dropped = (elevators.len() as i64 - TDT_ELEVATOR_SLOTS as i64).max(0);
     elevators.truncate(TDT_ELEVATOR_SLOTS);
     elevators.sort_by_key(|e| e.kind == Kind::ElevatorExpress);
-    let schedule = tdt_elevator_schedule_default();
+    let default_schedule = tdt_elevator_schedule_default();
     for slot in 0..TDT_ELEVATOR_SLOTS {
         let Some(e) = elevators.get(slot) else {
             w.pad(TDT_ELEVATOR_HEADER_SIZE);
@@ -308,8 +313,9 @@ pub fn encode_tower(
         w.u8(type_id);
         w.u8(e.kind.tdt_header_capacity());
         w.u8(to_int32(cars));
-        for &v in &schedule {
-            w.u8(v);
+        match &e.schedule {
+            Some(block) => block.iter().for_each(|&b| w.u8(i64::from(b))),
+            None => default_schedule.iter().for_each(|&v| w.u8(v)),
         }
         w.u8(1);
         w.u8(0);

@@ -150,6 +150,7 @@ impl Tower {
                 && self.mode.express_stops_on_15th_floors(),
             // A Modern elevator starts with Auto on (owner, 2026-11-17).
             schedule: (kind.is_elevator() && self.mode.schedule_assist()).then(Schedule::auto_only),
+            legacy_schedule: None,
             rides: 0,
         };
         self.transport_by_id.insert(id, self.transports.len());
@@ -424,6 +425,12 @@ impl Tower {
     pub fn runs_an_auto_schedule(&self) -> bool {
         let auto = |t: &Transport| t.schedule.as_ref().is_some_and(|s| s.auto_tune);
         self.transports.iter().any(auto)
+    }
+
+    /// Whether a shaft keeps the 1994 settings of the `.TDT` it came from
+    /// (#305), which a save carries as version 13.
+    pub fn keeps_a_legacy_schedule(&self) -> bool {
+        self.transports.iter().any(|t| t.legacy_schedule.is_some())
     }
 
     /// Whether a shaft's schedule holds an hour back (#1546), which a save

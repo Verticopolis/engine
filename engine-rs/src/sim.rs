@@ -50,9 +50,10 @@ pub struct MoveIns {
 /// ([`save_version`]): 9 with a tall lobby, which an older build refuses
 /// rather than drop, else [`PLAIN_SAVE_VERSION`], which every build from 7
 /// on loads. Version 10 adds a schedule's `heldBack` hours (#1546), 11 folds
-/// floor tiles into runs (`save_floor_runs`), and 12 a schedule's `autoTune`
-/// ([`crate::schedule_auto::AUTO_TUNE_SAVE_VERSION`]).
-pub const SAVE_VERSION: i64 = 12;
+/// floor tiles into runs (`save_floor_runs`), 12 a schedule's `autoTune`
+/// ([`crate::schedule_auto::AUTO_TUNE_SAVE_VERSION`]), and 13 a shaft's
+/// `tdtSchedule` ([`crate::tower::LEGACY_SCHEDULE_SAVE_VERSION`], #305).
+pub const SAVE_VERSION: i64 = 13;
 /// The version a save with a held hour and no floor run is written at.
 pub const HELD_HOURS_SAVE_VERSION: i64 = 10;
 /// The version a save with a tall lobby and no held hour is written at.

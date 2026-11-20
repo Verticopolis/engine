@@ -2,6 +2,7 @@
 
 use serde_json::{json, Map, Value};
 
+use super::legacy_schedule::{legacy_schedule_to_save, LegacySchedule};
 use crate::economy::screens::ScreenFilm;
 use crate::facilities::*;
 use crate::schedule::Schedule;
@@ -229,6 +230,10 @@ pub struct Transport {
     /// no lobby (#1527).
     pub classic_express_stops: bool,
     pub schedule: Option<Schedule>,
+    /// `tdtSchedule`: the 1994 settings block of the `.TDT` this shaft came
+    /// from (#305), written back by an export to 1994 and read by nothing
+    /// else. `None` for a shaft built here.
+    pub legacy_schedule: Option<LegacySchedule>,
     /// How many times anyone has gotten on: a car's boarding, a rider stepping
     /// into a car, a walker starting up the stairs or an escalator. It only
     /// counts up, and only an undo reads it: a shaft ridden since a step was
@@ -268,6 +273,9 @@ impl Transport {
             if !s.is_empty() {
                 m.insert("schedule".into(), s.to_json());
             }
+        }
+        if let Some(b) = &self.legacy_schedule {
+            m.insert("tdtSchedule".into(), json!(legacy_schedule_to_save(b)));
         }
         Value::Object(m)
     }

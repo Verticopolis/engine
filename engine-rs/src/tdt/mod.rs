@@ -22,6 +22,8 @@ pub mod format;
 pub mod import;
 pub mod import_report;
 #[cfg(test)]
+mod legacy_schedule_tests;
+#[cfg(test)]
 mod metro_tunnel_tests;
 pub mod pacing;
 pub mod parse;

@@ -18,6 +18,7 @@ use super::LegacyImportError;
 use crate::economy::visitors::counts_set_audience;
 use crate::facilities::{is_lobby_floor, Kind, LOT_WIDTH, MAX_FLOOR};
 use crate::sim::save_version;
+use crate::tower::LEGACY_SCHEDULE_SAVE_VERSION;
 
 mod fallback;
 mod out_unit;
@@ -446,7 +447,13 @@ pub fn parse_tdt(bytes: &[u8], filename: &str) -> Result<ParsedLegacyTower, Lega
         -1
     };
     let mut save = Map::new();
-    save.insert("version".into(), json!(save_version(lobby_height > 1)));
+    // A shaft that keeps its 1994 settings needs the version that reads them.
+    let version = if transports.iter().any(|t| t.legacy_schedule.is_some()) {
+        LEGACY_SCHEDULE_SAVE_VERSION
+    } else {
+        save_version(lobby_height > 1)
+    };
+    save.insert("version".into(), json!(version));
     save.insert("seed".into(), json!(hash_seed(bytes)));
     save.insert("money".into(), json!(money));
     save.insert("star".into(), json!(star));

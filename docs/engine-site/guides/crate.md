@@ -201,7 +201,9 @@ The crate has no default features.
   one and `export_tdt(save_json)` writes one, for a mode whose catalog
   `rules.exports_to_1994` is true (Classic); a Modern tower is refused. Each
   elevator car's waiting floor travels both ways as the shaft's
-  `schedule.homeFloors`.
+  `schedule.homeFloors`, and a shaft keeps the 1994 settings block of the
+  file it came from (`Transport::legacy_schedule`, `tdtSchedule` in the
+  save) for the export to write back; the simulation never reads it.
 - **A save holds the moment.** The save's `crowd` carries everyone in the
   building as they stand (walking, waiting, riding, at a venue, cleaning)
   and, in a Modern tower, how long riders have lately waited at each
@@ -249,8 +251,10 @@ The crate has no default features.
   elevators' hourly load rings and each shaft's `hourStart` (its demand at
   the top of the hour under way, which the next hourly sample weighs against
   its own), so a reload re-tunes as the game that saved would; an older engine would drop the flag, so it refuses the save. A
-  save takes the oldest of these versions that reads it whole. All six load
-  here.
+  save is version 13 when a shaft keeps a `.TDT` settings block
+  (`tdtSchedule`, above), which an older engine would drop before an export
+  could write it. A save takes the oldest of these versions that reads it
+  whole. All seven load here.
 
 ## Proving conformance
 

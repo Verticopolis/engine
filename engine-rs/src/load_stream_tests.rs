@@ -172,8 +172,9 @@ fn the_version_7_step_is_the_shaft_widening() {
 /// whose mode is a game mode, both before `units`, which is an array. (The
 /// loader table's inputs are parsed values, so no key repeats.)
 /// The versions the streamed reader takes as written today.
-const CURRENT: [f64; 3] = [
+const CURRENT: [f64; 4] = [
     STREAMED_VERSION,
+    AUTO_TUNE_STREAMED_VERSION,
     FLOOR_RUN_STREAMED_VERSION,
     PLAIN_STREAMED_VERSION,
 ];
@@ -330,7 +331,10 @@ fn order_version_and_mode() {
     assert!(same(&text.replacen("\"version\":7", "\"version\":11", 1)));
     // 12 too: a schedule's `autoTune` flag, which a save without reads as off.
     assert!(same(&text.replacen("\"version\":7", "\"version\":12", 1)));
-    for version in ["6", "13", "\"7\"", "7.5", "null"] {
+    // 13 too: a shaft's `tdtSchedule` block (#305), which a save without
+    // reads as none.
+    assert!(same(&text.replacen("\"version\":7", "\"version\":13", 1)));
+    for version in ["6", "14", "\"7\"", "7.5", "null"] {
         assert!(!same(&patched(&save, |m| {
             m["version"] = serde_json::from_str(version).unwrap();
         })));
