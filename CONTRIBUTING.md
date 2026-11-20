@@ -32,8 +32,10 @@ tiers. Only a release PR edits the version or `engine-rs/CHANGELOG.md`.
 ### What CI runs on a pull request
 
 Every required job runs on every pull request, so its check always reports,
-but a job skips the work it does not need. Each job starts with a Scope step
-that reads the files the pull request changes:
+but the build, test and analysis jobs skip the work they do not need. Each of
+them starts with a Scope step that reads the files the pull request changes
+(the PR template and change-note checks have no Scope step and always run in
+full):
 
 - The Rust jobs (`engine-rs.yml`) skip their steps when no changed file is an
   engine input. `.github/actions/rust-scope` lists what is not: docs, change

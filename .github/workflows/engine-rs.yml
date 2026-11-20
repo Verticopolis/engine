@@ -4,11 +4,11 @@ name: Rust engine
 # (conformance/): the engine must reproduce every pinned checkpoint, so this
 # job runs it on every change to the crate, the scenarios or the lock, and on
 # main. Format and lint run as hard
-# gates, like the TypeScript lane.
+# gates, like the TypeScript lane. Each job is a required check.
 
 # A pull request that touches none of the engine's inputs (the list is in
 # .github/actions/rust-scope/action.yml) still runs every job below, so the
-# required engine-rs check reports, but each job's steps after the Scope step
+# required checks report, but each job's steps after the Scope step
 # skip and it finishes in seconds. Every new step in these jobs needs the
 # same `if: steps.scope.outputs.run == 'true'`, or it runs on such a pull
 # request with nothing built.
@@ -487,27 +487,6 @@ jobs:
           cargo llvm-cov --no-report --locked test --features conformance
           cargo llvm-cov --no-report --locked run --features conformance --bin conformance
           cargo llvm-cov report --fail-under-lines 87
-
-      - name: Fail a cancelled run
-        if: ${{ cancelled() }}
-        run: exit 1
-
-  engine-rs:
-    needs: [consumer, rust-lint, rust, wasm-referee, rust-coverage]
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Every engine job passed
-        env:
-          CONSUMER: ${{ needs.consumer.result }}
-          LINT: ${{ needs.rust-lint.result }}
-          RUST: ${{ needs.rust.result }}
-          WASM: ${{ needs.wasm-referee.result }}
-          COVERAGE: ${{ needs.rust-coverage.result }}
-        run: |
-          echo "consumer: $CONSUMER, rust-lint: $LINT, rust: $RUST, wasm-referee: $WASM, rust-coverage: $COVERAGE"
-          test "$CONSUMER" = success && test "$LINT" = success && test "$RUST" = success && test "$WASM" = success && test "$COVERAGE" = success
 
       - name: Fail a cancelled run
         if: ${{ cancelled() }}
