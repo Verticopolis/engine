@@ -29,6 +29,7 @@ mod condo_relocation;
 mod condos;
 mod congestion_cause;
 mod congestion_gripe_copy;
+mod congestion_hotspot;
 mod crowd;
 mod crowd_origins;
 mod demand_pools;

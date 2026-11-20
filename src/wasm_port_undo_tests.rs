@@ -260,3 +260,31 @@ fn a_settings_step_keeps_the_revision_and_the_generation() {
     }
     assert_eq!(e.sim.tower.get_unit(id).unwrap().label, "Penthouse");
 }
+
+/// The kept scene finds each step by the tower revision, so every done
+/// undo or redo raises it above every revision the tower has had, never
+/// back to one it held before the step it reverses.
+#[test]
+fn each_undo_and_redo_raises_the_revision_above_every_earlier_one() {
+    let mut e = engine();
+    let mut highest = e.sim.tower.revision;
+    for x in [100.0, 120.0] {
+        gesture(&mut e, "Build Lobby", x);
+        highest = highest.max(e.sim.tower.revision);
+    }
+    let start = units(&e);
+    for (name, undo) in [
+        ("undo", true),
+        ("undo", true),
+        ("redo", false),
+        ("undo", true),
+        ("redo", false),
+        ("redo", false),
+    ] {
+        let rec = if undo { e.port_undo() } else { e.port_redo() };
+        assert_eq!(rec[0], 1.0, "{name}");
+        assert!(e.sim.tower.revision > highest, "{name}");
+        highest = e.sim.tower.revision;
+    }
+    assert_eq!(units(&e), start, "both lobbies are back");
+}
