@@ -33,6 +33,7 @@
       "types": "./node/verticopolis_engine.d.ts",
       "default": "./node/verticopolis_engine.js"
     },
+    "./node/*": "./node/*",
     "./tooling": {
       "types": "./tooling/node/verticopolis_engine.d.ts",
       "default": "./tooling/node/verticopolis_engine.js"

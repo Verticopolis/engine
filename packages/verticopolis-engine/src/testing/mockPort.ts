@@ -4,9 +4,10 @@ import type { EnginePort } from "../port/enginePort.ts";
 /**
  * A mock engine port for unit tests (`@verticopolis/engine/testing/mockPort`,
  * Node only). Each method a test hands `mockPort` becomes a spy from the
- * caller's own factory (Vitest's `vi`), so the package needs no test runner, so a test asserts the calls a
- * unit made and feeds it the answers it decodes. A method the test did not
- * hand over throws when called, so an unexpected port call fails the test.
+ * caller's own factory (Vitest's `vi`), and the package needs no test runner.
+ * A test asserts the calls a unit made and feeds it the answers it decodes. A
+ * method the test did not hand over throws when called, so an unexpected port
+ * call fails the test.
  *
  * The numeric answers (frames, the structure, records) are encoded from the
  * Rust engine's own layout, `fixtures/viewLayout.json`, which engine CI

@@ -1,6 +1,6 @@
 /**
  * The catalog's shape: the types a frontend reads the catalog through, the shape
- * version, and the lookup by kind ({@link catalogFacility}). Type-only imports, so
+ * version, and the catalog's own price and policy rules. Type-only imports, so
  * a frontend that reads the WASM binding's catalog bundles no engine tables;
  * `engine-rs/src/catalog.rs` serializes it.
  */
@@ -392,8 +392,9 @@ export interface CatalogNoise {
 const facilityIndex = new WeakMap<Catalog, ReadonlyMap<FacilityKind, CatalogFacility>>();
 
 /** The catalog entry for `kind`, or undefined when the catalog lists no such
- *  kind (a kind from another build, or a damaged save). */
-export function findCatalogFacility(catalog: Catalog, kind: FacilityKind): CatalogFacility | undefined {
+ *  kind (a kind from another build, or a damaged save). Private: a frontend's
+ *  lookup by kind lives with the frontend (engine#89). */
+function findCatalogFacility(catalog: Catalog, kind: FacilityKind): CatalogFacility | undefined {
   let index = facilityIndex.get(catalog);
   if (!index) {
     index = new Map(catalog.facilities.map((f) => [f.key, f]));
@@ -404,7 +405,7 @@ export function findCatalogFacility(catalog: Catalog, kind: FacilityKind): Catal
 
 /** The catalog entry for `kind`. Throws when the catalog lists no such kind,
  *  which only a damaged catalog or a kind from another build can cause. */
-export function catalogFacility(catalog: Catalog, kind: FacilityKind): CatalogFacility {
+function catalogFacility(catalog: Catalog, kind: FacilityKind): CatalogFacility {
   const f = findCatalogFacility(catalog, kind);
   if (!f) throw new Error(`the ${catalog.mode} catalog lists no facility "${kind}"`);
   return f;
@@ -458,13 +459,6 @@ export function catalogTicketPrice(catalog: Catalog, price: TicketPrice | null |
   const { ticketPrices, ticketPriceDefault } = catalog.economy;
   const listed = (p: TicketPrice | null | undefined) => ticketPrices.find((t) => t.key === p);
   return listed(price) ?? listed(ticketPriceDefault) ?? null;
-}
-
-/** Whether a facility is open in `hour` (the game hour; fractions and 24 read
- *  as the engines read them, since every opening and closing is on the hour):
- *  always, for a kind that keeps no business hours. */
-export function catalogOpenAt(f: CatalogFacility, hour: number): boolean {
-  return f.openHours === null || f.openHours[((Math.floor(hour) % 24) + 24) % 24] === true;
 }
 
 /** The people a unit holds: its own household where the kind carries one and

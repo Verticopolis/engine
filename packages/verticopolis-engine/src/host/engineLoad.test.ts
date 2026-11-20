@@ -71,13 +71,14 @@ describe("compileEngineBinary", () => {
   });
 });
 
-// Like the other package tests, it runs where the engine package is built (a
-// local build, `test-engine (unit)`) and skips in the plain unit job.
-const PACKAGE_BUILD = resolve(__dirname, "../public/engine/BUILD.json");
+// The browser build `npm run wasm:build` writes: Engine packages runs this
+// after its WASM build, and a checkout without that build skips it.
+const PACKAGE_DIR = resolve(import.meta.dirname, "../../../../engine-rs/pkg-web");
+const PACKAGE_BUILD = resolve(PACKAGE_DIR, "BUILD.json");
 
 describe.skipIf(!existsSync(PACKAGE_BUILD))("the built engine binary", () => {
   it("carries the source hash BUILD.json records, as the page reads it", async () => {
-    const dir = resolve(__dirname, "../public/engine");
+    const dir = PACKAGE_DIR;
     const bytes = readFileSync(resolve(dir, ENGINE_WASM));
     const record = JSON.parse(readFileSync(resolve(dir, "BUILD.json"), "utf8")) as { sources: string };
     vi.stubGlobal("fetch", wasmFetch(bytes));
