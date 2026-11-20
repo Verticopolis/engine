@@ -69,6 +69,10 @@ built from `docs/engine-site/`:
   makes. [`API.md`](API.md) is the same list in the repo.
 - [Rust API reference](https://docs.verticopolis.com/rust/verticopolis_engine/).
 - [Conformance suite](https://docs.verticopolis.com/conformance/).
+- [Architecture](https://docs.verticopolis.com/architecture/) and the
+  [module map](https://docs.verticopolis.com/engine/), with the diagrams drawn.
+- [Classic parity checklist](https://docs.verticopolis.com/parity/) and the
+  [Classic canon records](https://docs.verticopolis.com/canon/).
 - [Changelog](CHANGELOG.md).
 
 ## Layout

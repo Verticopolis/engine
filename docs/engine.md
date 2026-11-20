@@ -79,9 +79,11 @@ Every rule in [CONTRIBUTING.md](../CONTRIBUTING.md) applies here, plus:
 The crate guide (`docs/engine-site/guides/crate.md`, the docs site's "Rust
 crate" page) is for people who build on the engine, and its quick start is
 `consumer/examples/quick_start.rs`, which the `consumer` job compiles.
-The crate guide, the JavaScript guide (`docs/engine-site/guides/`) and
-`API.md` are published at docs.verticopolis.com (`docs/engine-site/`,
-rebuilt whenever they change on `main`). [`CRATE_README.md`](../CRATE_README.md)
+The crate guide, the JavaScript guide (`docs/engine-site/guides/`),
+`API.md`, `ARCHITECTURE.md`, this page, the parity checklist, the canon
+records and the `.TDT` pages are published at docs.verticopolis.com
+(`docs/engine-site/`, whose `pages.json` lists them, rebuilt whenever they
+change on `main`). [`CRATE_README.md`](../CRATE_README.md)
 is the short README crates.io shows, pointing at the site.
 [`API.md`](../API.md) is the page for a host that is not the web game: how to
 depend on the crate, the calls a frontend makes, and what is stable.

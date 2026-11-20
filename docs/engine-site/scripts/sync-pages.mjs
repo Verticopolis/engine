@@ -4,7 +4,9 @@
 // src/content/docs/<slug>.md with front matter, its own top heading dropped
 // (Starlight prints the title), and its links rewritten: a link to another
 // page of the site stays on the site, and any other repository link points at
-// GitHub at DOCS_REF (the release tag on a release build, main otherwise).
+// GitHub at DOCS_REF (the release tag on a release build, main otherwise). A
+// mermaid block becomes a <pre class="mermaid"> that the page draws as a
+// diagram in the browser (src/components/Mermaid.astro), as GitHub draws it.
 // The game's logo, favicon and title-screen skyline are copied in the same way;
 // its palette comes from @verticopolis/components (astro.config.mjs).
 import { copyFileSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -57,19 +59,48 @@ export function rewriteTarget(target, source) {
   return siteLink(repoPath, anchor) ?? githubLink(repoPath, anchor);
 }
 
-/** The page body: links rewritten outside code fences, top heading dropped. */
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/** The page body: links rewritten and mermaid blocks marked outside code
+ *  fences, and the page's own top heading dropped. */
 export function convert(markdown, source) {
-  let fenced = false;
-  const lines = markdown.split("\n").map((line) => {
-    if (/^\s*(```|~~~)/.test(line)) fenced = !fenced;
-    if (fenced) return line;
-    return line
-      .replace(/\]\(([^)\s]+)\)/g, (_, target) => `](${rewriteTarget(target, source)})`)
-      .replace(/^(\s*\[[^\]]+\]:\s*)(\S+)/, (_, label, target) => label + rewriteTarget(target, source));
-  });
-  const top = lines.findIndex((line) => line.trim() !== "");
-  if (top !== -1 && lines[top].startsWith("# ")) lines.splice(0, top + 1);
-  return lines.join("\n").replace(/^\n+/, "");
+  const out = [];
+  let fence = null; // the fence that opened the current code block
+  let mermaid = null; // the lines of the mermaid block being read
+  for (const line of markdown.split("\n")) {
+    const marker = line.match(/^\s*(```+|~~~+)\s*(\S*)/);
+    if (mermaid) {
+      if (marker && marker[1] === fence) {
+        out.push(`<pre class="mermaid">${escapeHtml(mermaid.join("\n"))}</pre>`);
+        mermaid = null;
+        fence = null;
+      } else mermaid.push(line);
+      continue;
+    }
+    if (fence) {
+      if (marker && marker[1] === fence) fence = null;
+      out.push(line);
+      continue;
+    }
+    if (marker) {
+      fence = marker[1];
+      if (marker[2] === "mermaid") mermaid = [];
+      else out.push(line);
+      continue;
+    }
+    out.push(
+      line
+        .replace(/\]\(([^)\s]+)\)/g, (_, target) => `](${rewriteTarget(target, source)})`)
+        .replace(/^(\s*\[[^\]]+\]:\s*)(\S+)/, (_, label, target) => label + rewriteTarget(target, source)),
+    );
+  }
+  // The top heading, even under a note quoted above it (a copied record
+  // opens with one), since Starlight prints the title.
+  const top = out.findIndex((line) => line.trim() !== "" && !line.startsWith(">"));
+  if (top !== -1 && out[top].startsWith("# ")) out.splice(top, 1);
+  return out.join("\n").replace(/^\n+/, "");
 }
 
 function frontMatter(page) {
