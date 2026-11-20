@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "layer:typecheck": "tsc -p packages/verticopolis-engine/tsconfig.json",
     "layer:test": "vitest run --dir packages/verticopolis-engine/src",
+    "glue:test": "vitest run --dir packages/verticopolis-engine/glue --testTimeout 120000 --hookTimeout 120000",
     "layer:fixtures": "node scripts/layer-fixtures.ts",
     "layer:build": "node scripts/layer-build.ts",
     "lint": "eslint .",
