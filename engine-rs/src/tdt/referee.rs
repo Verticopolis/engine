@@ -1,5 +1,4 @@
-//! Replays `conformance/tdt-cases.json`, the lock
-//! `src/tests/integration/tdtCases.integration.test.ts` writes: every
+//! Replays `conformance/tdt-cases.json`, the `.TDT` lock: every
 //! import case through `parse_tdt` against its pinned save hash and
 //! warnings, every export case through `build_tdt` against its pinned
 //! SHA-256. Shared by the `tdt` binary and the `cargo test` run.
