@@ -31,6 +31,28 @@ export interface ChangeNote {
   entries: string[];
 }
 
+/** Paths whose change reaches the crate or the npm package. */
+const SHIPPED_PREFIXES: readonly string[] = [
+  "engine-rs/src/",
+  "engine-rs/Cargo.toml",
+  "src/events/",
+  "conformance/",
+  "packages/verticopolis-engine/",
+  "package.json",
+  "scripts/pack-engine.sh",
+  "scripts/engine-package-files.sh",
+  "scripts/build-engine-wasm.sh",
+  "scripts/wasm-build.ts",
+];
+export const isShipped = (path: string) => SHIPPED_PREFIXES.some((p) => path === p || (p.endsWith("/") && path.startsWith(p)));
+
+/**
+ * Rust code under engine-rs/src/ that is not a test file. A change to it,
+ * a deletion included, needs a crate tier of patch or higher.
+ */
+const TEST_FILE = /(^|\/)(tests?(_[a-z0-9_]+)?|[a-z0-9_]+_tests)\.rs$|\/(rule_tests|tests)\//;
+export const isRustCode = (path: string) => path.startsWith("engine-rs/src/") && path.endsWith(".rs") && !TEST_FILE.test(path);
+
 const NOTE_TIERS: readonly NoteTier[] = ["none", "patch", "minor", "major"];
 const TIER_PREFIX = /^- \*\*(major|minor|patch|none)\*\*/;
 

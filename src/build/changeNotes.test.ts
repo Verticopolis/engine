@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { highestTier, isNoteFile, parseNote, sectionBody } from "./changeNotes";
+import { highestTier, isNoteFile, isRustCode, isShipped, parseNote, sectionBody } from "./changeNotes";
 
 const note = (front: string, body: string) => `---\n${front}\n---\n${body}`;
 
@@ -49,5 +49,57 @@ describe("the release", () => {
     expect(isNoteFile("claude-project-thread-abc.md")).toBe(true);
     expect(isNoteFile("README.md")).toBe(false);
     expect(isNoteFile(".gitkeep")).toBe(false);
+  });
+});
+
+describe("the paths the check reads", () => {
+  it("counts every path that reaches the crate or the npm package as shipped", () => {
+    for (const path of [
+      "engine-rs/src/sim.rs",
+      "engine-rs/Cargo.toml",
+      "src/events/gameplayCatalog.ts",
+      "conformance/expected.json",
+      "packages/verticopolis-engine/web.d.ts",
+      "package.json",
+      "scripts/pack-engine.sh",
+      "scripts/engine-package-files.sh",
+      "scripts/build-engine-wasm.sh",
+      "scripts/wasm-build.ts",
+    ]) {
+      expect(isShipped(path), path).toBe(true);
+    }
+  });
+
+  it("leaves docs, tests of the tooling, the bench and CI out", () => {
+    for (const path of [
+      "README.md",
+      "engine-rs/CHANGELOG.md",
+      "engine-rs/tests/independence.rs",
+      "engine-bench/src/main.rs",
+      "src/build/releaseCut.ts",
+      "scripts/cut-release.ts",
+      "package-lock.json",
+      ".github/workflows/engine-rs.yml",
+      "docs/engine-site/guides/crate.md",
+    ]) {
+      expect(isShipped(path), path).toBe(false);
+    }
+  });
+
+  it("tells Rust code from the test files under engine-rs/src/", () => {
+    for (const path of ["engine-rs/src/sim.rs", "engine-rs/src/panels/mod.rs", "engine-rs/src/contest.rs", "engine-rs/src/latest.rs"]) {
+      expect(isRustCode(path), path).toBe(true);
+    }
+    for (const path of [
+      "engine-rs/src/catalog/tests.rs",
+      "engine-rs/src/panels/tests_gates.rs",
+      "engine-rs/src/crowd/spawn_tests.rs",
+      "engine-rs/src/rule_tests/attendance.rs",
+      "engine-rs/src/tdt/tests/roundtrip.rs",
+      "engine-rs/tests/independence.rs",
+      "engine-rs/src/catalog/mod.ts",
+    ]) {
+      expect(isRustCode(path), path).toBe(false);
+    }
   });
 });
