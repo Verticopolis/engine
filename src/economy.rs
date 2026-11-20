@@ -231,7 +231,7 @@ pub(crate) fn lease_message(period: LeasePeriod, kind: Kind, amt: f64, n: i64) -
     };
     match kind {
         Kind::Office => format!(
-            "{cadence} office rent collected: ${} ({n} offices).",
+            "{cadence} office rent collected: ${} ({n} office{plural}).",
             with_thousands(amt)
         ),
         Kind::FitnessClub => format!(
@@ -260,17 +260,17 @@ mod message_tests {
     use super::*;
 
     #[test]
-    fn rent_lines_word_their_counts_as_typescript_does() {
-        // The retired TypeScript templates (`LEASE_MESSAGE` in
-        // `src/engine/EconomySystem.ts`, `src/engine/economy/rentalIncome.ts`).
+    fn rent_lines_agree_with_their_counts() {
+        // The lease and rental lines, which started as the retired TypeScript
+        // templates (`LEASE_MESSAGE`, `rentalIncome.ts`).
         assert_eq!(
             lease_message(LeasePeriod::Quarter, Kind::Office, 1520000.0, 152),
             "Quarterly office rent collected: $1,520,000 (152 offices)."
         );
-        // The TypeScript office line never drops its plural.
+        // One office reads in the singular, like the other lease lines.
         assert_eq!(
             lease_message(LeasePeriod::Quarter, Kind::Office, 10000.0, 1),
-            "Quarterly office rent collected: $10,000 (1 offices)."
+            "Quarterly office rent collected: $10,000 (1 office)."
         );
         // Modern's real-world calendar collects office rent monthly (#2255).
         assert_eq!(
