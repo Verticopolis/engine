@@ -16,12 +16,16 @@ conformance lock in the same PR as any change to how the game plays. Merge
 commits only, never squash. Fill in every heading of the pull request
 template.
 
-A change to what the crate ships adds a line under `## Unreleased` at the
-top of `engine-rs/CHANGELOG.md`, for people who build on the engine, led by
-its tier (`- **minor**: ...`): **major** for a break in saves, the frame or
-view layout or the binding, **minor** for a new API, **patch** for a fix.
-**Cut release** picks the version from those tiers. Only a release PR edits
-the version.
+A change to what the crate ships adds a change note under
+[`.changes/`](.changes/README.md), named after its branch, with its crate
+tier and its changelog entries for people who build on the engine:
+**major** for a break in saves, the frame or view layout or the binding,
+**minor** for a new API, **patch** for a fix, and `none` for a change to
+`engine-rs/src/` that ships nothing new. Notes keep two open pull requests
+from editing the same changelog lines. The **Change notes** check requires
+one when a pull request changes `engine-rs/src/`, `engine-rs/Cargo.toml` or
+`packages/verticopolis-engine/`. **Cut release** picks the version from the
+tiers. Only a release PR edits the version or `engine-rs/CHANGELOG.md`.
 
 ## Releasing
 
@@ -30,15 +34,16 @@ A release is one merged pull request that raises the crate version.
 1. **Cut the release PR.** Run **Cut release**
    (`.github/workflows/cut-release.yml`) from the Actions tab on `main`, as
    the game's repository does. It runs `scripts/cut-release.ts`, which takes
-   the highest tier among the `## Unreleased` entries of
-   `engine-rs/CHANGELOG.md` (every entry must lead with one), raises
+   the highest tier among the change notes in `.changes/`, raises
    `version` in `engine-rs/Cargo.toml`, the three lockfiles that name the
    crate (at the root, in `engine-rs/consumer/` and in `engine-bench/`) and
-   `crateVersion` in `engine-rs/src/compat-record.json`, renames
-   `## Unreleased` to `## <version> (<date>)` and moves the quoted version
-   pins in `docs/engine-site/guides/`. It commits that to `release/<version>`
+   `crateVersion` in `engine-rs/src/compat-record.json`, writes the notes'
+   entries into a new `## <version> (<date>)` section of
+   `engine-rs/CHANGELOG.md` (each led by its tier, the highest first),
+   deletes the notes and moves the quoted version pins in
+   `docs/engine-site/guides/`. It commits that to `release/<version>`
    and opens the "Release engine <version>" PR. Leave the version empty for
-   the tier the entries ask for, or name a later one. It refuses while
+   the tier the notes ask for, or name a later one. It refuses while
    another release PR is open. The PR comes from the workflow token, which
    starts no checks, so start them with the run button on the PR, or close
    and reopen it. The workflow needs "Allow GitHub Actions to create and

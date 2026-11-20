@@ -4,11 +4,11 @@ name: Cut release
 # raising the version by hand, the way the game's Cut release does in
 # Verticopolis/web. Run it from the Actions tab (Run workflow) on main: it
 # runs scripts/cut-release.ts, which picks the version from the tiers of the
-# `## Unreleased` entries in engine-rs/CHANGELOG.md (the highest of major,
-# minor and patch), raises the crate version, the lockfiles and the
-# compatibility record, dates the changelog section and moves the guides'
+# change notes in .changes/ (the highest of major, minor and patch), raises
+# the crate version, the lockfiles and the compatibility record, writes the
+# notes into a dated changelog section, deletes them and moves the guides'
 # pins. It commits the result to release/<version> and opens the "Release
-# engine <version>" PR. Leave "version" empty for the tier the entries ask
+# engine <version>" PR. Leave "version" empty for the tier the notes ask
 # for, or name a later one, such as 2.0.0.
 #
 # Merging the PR is still a person's call, and release-tag.yml tags and
@@ -28,7 +28,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Name the version (for example 2.0.0); leave empty for the tier the Unreleased entries ask for"
+        description: "Name the version (for example 2.0.0); leave empty for the tier the change notes ask for"
         required: false
         default: ""
 
@@ -95,7 +95,7 @@ jobs:
           git commit -m "$title"
           git push origin "$branch"
           {
-            echo "Cut by the **Cut release** workflow from the \`## Unreleased\` entries of \`engine-rs/CHANGELOG.md\` on main $base."
+            echo "Cut by the **Cut release** workflow from the change notes in \`.changes/\` on main $base."
             echo
             echo "- Crate: $version"
             echo

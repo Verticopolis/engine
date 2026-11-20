@@ -1,35 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
+  addSection,
   bumpVersion,
   crateVersion,
   movePins,
   nextVersion,
-  renameUnreleased,
   setCrateVersion,
   setLockedVersion,
   setRecordVersion,
-  unreleasedTier,
 } from "./releaseCut";
-
-const changelog = (body: string) => `# Engine changelog\n\nIntro.\n\n## Unreleased\n\n${body}\n## 1.58.0 (2026-11-19)\n\n- **major**: an old entry.\n`;
-
-describe("unreleasedTier", () => {
-  it("takes the highest tier among the Unreleased entries", () => {
-    expect(unreleasedTier(changelog("- **patch**: a fix.\n  More text.\n\n- **minor**: a new API.\n"))).toBe("minor");
-    expect(unreleasedTier(changelog("- **patch**: a fix.\n"))).toBe("patch");
-    expect(unreleasedTier(changelog("- **minor**: a.\n- **major**: b.\n- **patch**: c.\n"))).toBe("major");
-  });
-
-  it("reads only the Unreleased section", () => {
-    expect(unreleasedTier(changelog("- **patch**: a fix.\n"))).not.toBe("major");
-  });
-
-  it("refuses an entry with no tier, an empty section and a missing one", () => {
-    expect(() => unreleasedTier(changelog("- **patch**: a fix.\n- a line with no tier.\n"))).toThrow(/names no tier/);
-    expect(() => unreleasedTier(changelog(""))).toThrow(/no entries/);
-    expect(() => unreleasedTier("# Engine changelog\n\n## 1.0.0 (2026-01-01)\n\n- **patch**: x.\n")).toThrow(/no "## Unreleased"/);
-  });
-});
 
 describe("nextVersion", () => {
   it("bumps by tier", () => {
@@ -48,16 +27,21 @@ describe("nextVersion", () => {
   });
 });
 
-describe("renameUnreleased", () => {
-  it("renames the heading and keeps the rest", () => {
-    const out = renameUnreleased(changelog("- **minor**: a.\n"), "1.59.0", "2026-11-20");
-    expect(out).toContain("## 1.59.0 (2026-11-20)\n\n- **minor**: a.\n");
-    expect(out).not.toContain("## Unreleased");
-    expect(out).toContain("## 1.58.0 (2026-11-19)");
+describe("addSection", () => {
+  const changelog = "# Engine changelog\n\nIntro.\n\n## 1.58.0 (2026-11-19)\n\n- **major**: an old entry.\n";
+
+  it("puts the new section above the newest one and keeps the rest", () => {
+    const out = addSection(changelog, "1.59.0", "2026-11-20", "- **minor**: a.\n- **patch**: b.");
+    expect(out).toBe("# Engine changelog\n\nIntro.\n\n## 1.59.0 (2026-11-20)\n\n- **minor**: a.\n- **patch**: b.\n\n## 1.58.0 (2026-11-19)\n\n- **major**: an old entry.\n");
   });
 
-  it("refuses a version the changelog already has", () => {
-    expect(() => renameUnreleased(changelog("- **patch**: a.\n"), "1.58.0", "2026-11-20")).toThrow(/already has a 1\.58\.0/);
+  it("appends to a changelog with no version yet", () => {
+    expect(addSection("# Changelog\n\nIntro.\n", "0.1.0", "2026-11-20", "- **patch**: a.")).toBe("# Changelog\n\nIntro.\n\n## 0.1.0 (2026-11-20)\n\n- **patch**: a.\n");
+  });
+
+  it("refuses a version the changelog already has, and a leftover Unreleased section", () => {
+    expect(() => addSection(changelog, "1.58.0", "2026-11-20", "- **patch**: a.")).toThrow(/already has a 1\.58\.0/);
+    expect(() => addSection("# C\n\n## Unreleased\n\n- x.\n", "1.0.0", "2026-11-20", "- **patch**: a.")).toThrow(/Unreleased/);
   });
 });
 
