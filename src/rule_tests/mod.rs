@@ -113,6 +113,7 @@ mod review_fixes;
 mod room_counts;
 mod save_hardening;
 mod save_log;
+mod save_scalars;
 mod save_versions;
 mod segment_routing;
 mod segment_routing_reachable;
