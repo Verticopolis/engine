@@ -21,7 +21,8 @@ const RAW_OPEN = /[bc]?r(#*)"/y;
  *  where a key starts (a line, or after `{` or `,` in an inline table),
  *  dotted keys (`helper.path = …`, `"my crate".path = …`) included, so a
  *  `readme-path` key is not one. */
-const MANIFEST_PATH_KEY = /(?:^|[{,])[ \t]*(?:(?:[A-Za-z0-9_-]+|"[^"\n]*"|'[^'\n]*')[ \t]*\.[ \t]*)*(?:path|"path"|'path')[ \t]*=[ \t]*/gm;
+const MANIFEST_PATH_KEY =
+  /(?:^|[{,])[ \t]*(?:(?:[A-Za-z0-9_-]+|"[^"\n]*"|'[^'\n]*')[ \t]*\.[ \t]*)*(?:path|"path"|'path')[ \t]*=[ \t]*/gm;
 
 /**
  * A text file hashes the same whatever line endings its checkout has (a Windows
@@ -83,7 +84,11 @@ function rustCode(text: string): { code: string; strings: RustString[] } {
       } while (depth > 0 && j < text.length);
       blank(i, j);
       i = j;
-    } else if ((c === "r" || c === "b" || c === "c") && !ident(text[i - 1]) && ((RAW_OPEN.lastIndex = i), RAW_OPEN.test(text))) {
+    } else if (
+      (c === "r" || c === "b" || c === "c") &&
+      !ident(text[i - 1]) &&
+      ((RAW_OPEN.lastIndex = i), RAW_OPEN.test(text))
+    ) {
       const open = RAW_OPEN.exec(((RAW_OPEN.lastIndex = i), text)) as RegExpExecArray;
       const close = `"${open[1]}`;
       const end = text.indexOf(close, i + open[0].length);
@@ -141,7 +146,9 @@ function attributePaths(text: string, file: string): string[] {
     for (const p of attribute.matchAll(/\bpath\s*=\s*/g)) {
       const value = stringAt.get(open + p.index + p[0].length);
       if (value === undefined || value === null) {
-        throw new Error(`${file} has a path attribute the engine source hash cannot follow (only a plain "..." path is read); extend engineSourceHash in packages/verticopolis-engine/src/host/packageHash.ts`);
+        throw new Error(
+          `${file} has a path attribute the engine source hash cannot follow (only a plain "..." path is read); extend engineSourceHash in packages/verticopolis-engine/src/host/packageHash.ts`,
+        );
       }
       found.push(value);
     }
@@ -262,7 +269,9 @@ function manifestPaths(text: string, file: string): string[] {
     if (METADATA_TABLE.test(key)) continue;
     const value = stringAt.get(m.index + m[0].length);
     if (value === undefined || value === null) {
-      throw new Error(`${file} has a path key the engine source hash cannot follow (only a plain "..." or '...' path is read); extend engineSourceHash in packages/verticopolis-engine/src/host/packageHash.ts`);
+      throw new Error(
+        `${file} has a path key the engine source hash cannot follow (only a plain "..." or '...' path is read); extend engineSourceHash in packages/verticopolis-engine/src/host/packageHash.ts`,
+      );
     }
     found.push(value);
   }
@@ -362,7 +371,9 @@ export function engineSourceHash(crate: string, view?: SourceView): string {
     // place (comparing counts alone would let one miss cancel another).
     const literalAt = new Set(literal.map((m) => m.index));
     if ([...text.matchAll(ANY_INCLUDE)].some((m) => !literalAt.has(m.index))) {
-      throw new Error(`${p} has an include the engine source hash cannot follow (only include_str!/include_bytes! with a plain "..." path are read); extend engineSourceHash in packages/verticopolis-engine/src/host/packageHash.ts`);
+      throw new Error(
+        `${p} has an include the engine source hash cannot follow (only include_str!/include_bytes! with a plain "..." path are read); extend engineSourceHash in packages/verticopolis-engine/src/host/packageHash.ts`,
+      );
     }
     for (const m of literal) follow(p, m[1], "includes");
     for (const named of attributePaths(text, p)) {

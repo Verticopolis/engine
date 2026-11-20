@@ -31,21 +31,40 @@ describe("ClockReads", () => {
   it("pins the window edges", () => {
     const reads = new ClockReads();
     const at = (h: number, m: number) => readsOf(reads.set({ minutes: 1440 + h * 60 + m }));
-    expect([at(6, 59).morning, at(7, 0).morning, at(9, 59).morning, at(10, 0).morning]).toEqual([false, true, true, false]);
-    expect([at(16, 59).evening, at(17, 0).evening, at(20, 59).evening, at(21, 0).evening]).toEqual([false, true, true, false]);
+    expect([at(6, 59).morning, at(7, 0).morning, at(9, 59).morning, at(10, 0).morning]).toEqual([
+      false,
+      true,
+      true,
+      false,
+    ]);
+    expect([at(16, 59).evening, at(17, 0).evening, at(20, 59).evening, at(21, 0).evening]).toEqual([
+      false,
+      true,
+      true,
+      false,
+    ]);
     expect([at(20, 59).night, at(21, 0).night, at(5, 59).night, at(6, 0).night]).toEqual([false, true, true, false]);
-    expect(readsOf(reads.set({ minutes: -1 }))).toEqual({ minuteOfDay: 1439, hour: 23, minute: 59, morning: false, evening: false, night: true });
+    expect(readsOf(reads.set({ minutes: -1 }))).toEqual({
+      minuteOfDay: 1439,
+      hour: 23,
+      minute: 59,
+      morning: false,
+      evening: false,
+      night: true,
+    });
   });
 
   it("answers the engine's windows for every minute of several days", () => {
     const reads = new ClockReads();
-    for (let m = -2 * 1440; m < 4 * 1440; m++) expect(readsOf(reads.set({ minutes: m })), `minute ${m}`).toEqual(expected(m));
+    for (let m = -2 * 1440; m < 4 * 1440; m++)
+      expect(readsOf(reads.set({ minutes: m })), `minute ${m}`).toEqual(expected(m));
   });
 
   it("answers the same windows for fractional minutes", () => {
     const reads = new ClockReads();
     for (let m = -1440; m < 2 * 1440; m += 7) {
-      for (const frac of [0.5, 59.999 / 60]) expect(readsOf(reads.set({ minutes: m + frac })), `minute ${m + frac}`).toEqual(expected(m + frac));
+      for (const frac of [0.5, 59.999 / 60])
+        expect(readsOf(reads.set({ minutes: m + frac })), `minute ${m + frac}`).toEqual(expected(m + frac));
     }
     expect(readsOf(reads.set({ minutes: 600.5 }))).toMatchObject({ minuteOfDay: 600.5, hour: 10, minute: 0 });
   });

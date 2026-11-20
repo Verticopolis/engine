@@ -24,7 +24,6 @@ permissions:
 
 jobs:
   consumer:
-
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -158,7 +157,6 @@ jobs:
   # them: together they took a minute or more at the head of the rust job,
   # which is the longest engine job now that coverage is faster.
   rust-lint:
-
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -211,7 +209,6 @@ jobs:
         run: exit 1
 
   rust:
-
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -284,7 +281,6 @@ jobs:
   # with the native run at every checkpoint (scripts/fuzz-corpus.mts, with a
   # 240 s budget of its own).
   wasm-referee:
-
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -338,7 +334,6 @@ jobs:
   # job so the two run side by side: coverage alone takes about 8 minutes,
   # and after the unit tests it made the rust job the longest PR check.
   rust-coverage:
-
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # The instrumented tests and the referee build at opt-level 1, as the

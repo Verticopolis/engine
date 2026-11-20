@@ -51,10 +51,29 @@ const OFFICE = record("unitCard", {
   workersComing: 2,
 });
 
-const CINEMA = record("unitCard", { id: 12, kindCode: code("kinds", "cinema"), rent: NaN, vacateReason: NaN, filmPolicy: code("filmPolicies", "blockbuster"), blockbuster: 1, filmDays: 4, filmTier: code("filmTiers", "classic"), ticketPrice: code("ticketPrices", "premium"), screen2Policy: NaN, screen2Days: 0, screen2Tier: code("filmTiers", "blockbuster") });
+const CINEMA = record("unitCard", {
+  id: 12,
+  kindCode: code("kinds", "cinema"),
+  rent: NaN,
+  vacateReason: NaN,
+  filmPolicy: code("filmPolicies", "blockbuster"),
+  blockbuster: 1,
+  filmDays: 4,
+  filmTier: code("filmTiers", "classic"),
+  ticketPrice: code("ticketPrices", "premium"),
+  screen2Policy: NaN,
+  screen2Days: 0,
+  screen2Tier: code("filmTiers", "blockbuster"),
+});
 
 /** A stop row: floor, then the served, lobby, endpoint and toggles flags. */
-const stop = (floor: number, served: number, lobby: number, endpoint: number, toggles: number) => [floor, served, lobby, endpoint, toggles];
+const stop = (floor: number, served: number, lobby: number, endpoint: number, toggles: number) => [
+  floor,
+  served,
+  lobby,
+  endpoint,
+  toggles,
+];
 
 describe("Cards.unit", () => {
   it("decodes the unit card, reading its label and subtype", () => {
@@ -97,7 +116,14 @@ describe("Cards.unit", () => {
   it("carries a cinema's film policy, booking, film and ticket price, and an empty label when the engine has none", () => {
     const port = mockPort(vi, { unitCard: () => CINEMA, unitLabel: () => undefined, unitSubtype: () => "art house" });
     const card = new Cards(port, readerAt(1, 0)).unit(12)!;
-    expect([card.filmPolicy, card.blockbuster, card.rent, card.vacateReason, card.label, card.subtype]).toEqual(["blockbuster", true, null, null, "", "art house"]);
+    expect([card.filmPolicy, card.blockbuster, card.rent, card.vacateReason, card.label, card.subtype]).toEqual([
+      "blockbuster",
+      true,
+      null,
+      null,
+      "",
+      "art house",
+    ]);
     expect([card.filmDays, card.filmTier, card.ticketPrice]).toEqual([4, "classic", "premium"]);
     // A second screen that has shown its film no night yet, with no choice of its own (#1950).
     expect(card.screen2).toEqual({ filmPolicy: null, filmDays: 0, filmTier: "blockbuster" });
@@ -111,7 +137,18 @@ describe("Cards.unit", () => {
 });
 
 describe("Cards.shaft", () => {
-  const head = { id: 20, kindCode: code("kinds", "elevatorStandard"), x: 162, width: 4, bottom: 1, top: 3, cars: 2, capacity: 42, utilization: 0.5, nearCapacity: 1 };
+  const head = {
+    id: 20,
+    kindCode: code("kinds", "elevatorStandard"),
+    x: 162,
+    width: 4,
+    bottom: 1,
+    top: 3,
+    cars: 2,
+    capacity: 42,
+    utilization: 0.5,
+    nearCapacity: 1,
+  };
   const weekday = Array.from({ length: HOURS }, (_, h) => h / HOURS);
   const weekend = weekday.map((v) => 1 - v);
 
@@ -123,17 +160,45 @@ describe("Cards.shaft", () => {
       [HOURS + 20, [1, 3, 7]],
     ]);
     const rings = Array.from({ length: 2 * HOURS }, (_, ring) => filled.get(ring) ?? [0]).flat();
-    const tail = [...weekday, ...weekend, ...stop(3, 1, 0, 1, 0), ...stop(2, 0, 0, 0, 1), ...stop(1, 1, 1, 1, 0), ...rings];
-    const port = mockPort(vi, { generation: () => 1, shaftCard: () => record("shaftCard", { ...head, hourly: 1, stops: 3, origins: 1 }, tail) });
+    const tail = [
+      ...weekday,
+      ...weekend,
+      ...stop(3, 1, 0, 1, 0),
+      ...stop(2, 0, 0, 0, 1),
+      ...stop(1, 1, 1, 1, 0),
+      ...rings,
+    ];
+    const port = mockPort(vi, {
+      generation: () => 1,
+      shaftCard: () => record("shaftCard", { ...head, hourly: 1, stops: 3, origins: 1 }, tail),
+    });
     const card = new Cards(port, readerAt(1, 0)).shaft(20)!;
-    expect([card.id, card.kind, card.x, card.width, card.bottom, card.top, card.cars, card.capacity, card.utilization, card.nearCapacity]).toEqual([20, "elevatorStandard", 162, 4, 1, 3, 2, 42, 0.5, true]);
+    expect([
+      card.id,
+      card.kind,
+      card.x,
+      card.width,
+      card.bottom,
+      card.top,
+      card.cars,
+      card.capacity,
+      card.utilization,
+      card.nearCapacity,
+    ]).toEqual([20, "elevatorStandard", 162, 4, 1, 3, 2, 42, 0.5, true]);
     expect(card.hourly).toEqual({ weekday, weekend });
     expect(card.stops).toEqual([
       { floor: 3, served: true, lobby: false, endpoint: true, toggles: false },
       { floor: 2, served: false, lobby: false, endpoint: false, toggles: true },
       { floor: 1, served: true, lobby: true, endpoint: true, toggles: false },
     ]);
-    expect([card.origins!.weekday[8], card.origins!.weekend[20], card.origins!.weekday[0]]).toEqual([[[1, 5], [2, 3]], [[3, 7]], []]);
+    expect([card.origins!.weekday[8], card.origins!.weekend[20], card.origins!.weekday[0]]).toEqual([
+      [
+        [1, 5],
+        [2, 3],
+      ],
+      [[3, 7]],
+      [],
+    ]);
     expect([card.origins!.weekday.length, card.origins!.weekend.length]).toEqual([HOURS, HOURS]);
     expect(vi.mocked(port.shaftCard).mock.calls).toEqual([[20]]);
   });
@@ -141,11 +206,25 @@ describe("Cards.shaft", () => {
   it("answers null sections the engine does not hold, and undefined for an unknown shaft", () => {
     const port = mockPort(vi, {
       generation: () => 1,
-      shaftCard: (id) => (id === 21 ? record("shaftCard", { ...head, id: 21, kindCode: code("kinds", "stairs"), utilization: NaN, nearCapacity: 0, hourly: 0, stops: 0, origins: 0 }) : new Float64Array(0)),
+      shaftCard: (id) =>
+        id === 21
+          ? record("shaftCard", {
+              ...head,
+              id: 21,
+              kindCode: code("kinds", "stairs"),
+              utilization: NaN,
+              nearCapacity: 0,
+              hourly: 0,
+              stops: 0,
+              origins: 0,
+            })
+          : new Float64Array(0),
     });
     const cards = new Cards(port, readerAt(1, 0));
     const stairs = cards.shaft(21)!;
-    expect([stairs.kind, stairs.utilization, stairs.nearCapacity, stairs.hourly, stairs.origins, stairs.stops]).toEqual(["stairs", null, false, null, null, []]);
+    expect([stairs.kind, stairs.utilization, stairs.nearCapacity, stairs.hourly, stairs.origins, stairs.stops]).toEqual(
+      ["stairs", null, false, null, null, []],
+    );
     // An unknown shaft is not kept: each ask goes to the engine.
     expect([cards.shaft(99_999), cards.shaft(99_999)]).toEqual([undefined, undefined]);
     expect(vi.mocked(port.shaftCard).mock.calls).toEqual([[21], [99_999], [99_999]]);
@@ -153,7 +232,10 @@ describe("Cards.shaft", () => {
 
   it("keeps a card until a command says it changed, the tower swaps, the revision moves or the hour turns", () => {
     let gen = 1;
-    const port = mockPort(vi, { generation: () => gen, shaftCard: () => record("shaftCard", { ...head, hourly: 0, stops: 0, origins: 0 }) });
+    const port = mockPort(vi, {
+      generation: () => gen,
+      shaftCard: () => record("shaftCard", { ...head, hourly: 0, stops: 0, origins: 0 }),
+    });
     const reader = readerAt(1, 60 * 7);
     const cards = new Cards(port, reader);
     const asks = () => vi.mocked(port.shaftCard).mock.calls.length;
@@ -177,7 +259,12 @@ describe("Cards.shaft", () => {
 
 describe("scheduleSlots", () => {
   it("fills the layout's slot count", () => {
-    const slots = scheduleSlots({ activeCars: { weekday: Array(24).fill(2), weekend: Array(24).fill(1) }, waitingCarResponse: 6, standardFloorDeparture: 40, homeFloors: [1, 2] });
+    const slots = scheduleSlots({
+      activeCars: { weekday: Array(24).fill(2), weekend: Array(24).fill(1) },
+      waitingCarResponse: 6,
+      standardFloorDeparture: 40,
+      homeFloors: [1, 2],
+    });
     expect(slots).toHaveLength(LAYOUT.scheduleSlots);
   });
 

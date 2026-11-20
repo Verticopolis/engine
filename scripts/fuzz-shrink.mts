@@ -61,7 +61,9 @@ function main(): number {
   const [file, name, ...rest] = process.argv.slice(2);
   const options = parseOptions(rest);
   if (!file || !name || !CORPUS_NAME.test(name) || !options) {
-    console.error("usage: fuzz-shrink <scenario.json> <name: lowercase words and digits joined by dashes> [--max-tests <n>]");
+    console.error(
+      "usage: fuzz-shrink <scenario.json> <name: lowercase words and digits joined by dashes> [--max-tests <n>]",
+    );
     return 2;
   }
   const { maxTests } = options;
@@ -81,7 +83,13 @@ function main(): number {
   let original: { id: string; description: string; start: unknown; commands: unknown[] };
   try {
     original = JSON.parse(readFileSync(file, "utf8"));
-    if (!original || typeof original.id !== "string" || typeof original.description !== "string" || !Array.isArray(original.commands)) throw new Error("not a scenario (needs id, description and commands)");
+    if (
+      !original ||
+      typeof original.id !== "string" ||
+      typeof original.description !== "string" ||
+      !Array.isArray(original.commands)
+    )
+      throw new Error("not a scenario (needs id, description and commands)");
   } catch (e) {
     console.error(`${file}: cannot read the scenario: ${(e as Error).message}`);
     return 2;
@@ -98,12 +106,18 @@ function main(): number {
       rmSync(wasmDir, { recursive: true, force: true });
       writeFileSync(path, JSON.stringify({ ...original, id, commands }));
       const rust = nativeReplay(path, nativeDir);
-      if (rust.code === 1) return { kind: "refused", message: `the native build refuses it: ${rustMessage(rust.stderr)}` };
-      if (rust.code !== 0) return { kind: "harness", message: `the native replay failed (${rust.code}): ${rustMessage(rust.stderr)}` };
+      if (rust.code === 1)
+        return { kind: "refused", message: `the native build refuses it: ${rustMessage(rust.stderr)}` };
+      if (rust.code !== 0)
+        return { kind: "harness", message: `the native replay failed (${rust.code}): ${rustMessage(rust.stderr)}` };
       const wasm = wasmReplay(path, wasmDir);
       if (wasm.code === 6) return { kind: "diverged", signature: "refused" };
       if (wasm.code === 4) return { kind: "diverged", signature: "trap" };
-      if (wasm.code !== 0) return { kind: "harness", message: `the WebAssembly replay failed (${wasm.code}): ${rustMessage(wasm.stderr)}` };
+      if (wasm.code !== 0)
+        return {
+          kind: "harness",
+          message: `the WebAssembly replay failed (${wasm.code}): ${rustMessage(wasm.stderr)}`,
+        };
       const a = readRecord(nativeDir, id);
       const b = readRecord(wasmDir, id);
       if (!a || !b) return { kind: "harness", message: `missing records for ${id}` };
@@ -121,16 +135,22 @@ function main(): number {
       return 3;
     }
     if (first.kind !== "diverged") {
-      console.log(`${file}: ${first.kind === "refused" ? first.message : "does not diverge with the fuzzer's current build"}, nothing to shrink`);
+      console.log(
+        `${file}: ${first.kind === "refused" ? first.message : "does not diverge with the fuzzer's current build"}, nothing to shrink`,
+      );
       return 1;
     }
     const target = first.signature;
     // A harness failure on a candidate is not "still failing": the shrink
     // goes on without it, and the final result is still a verified divergence.
-    const r = ddmin(original.commands, (c) => {
-      const shown = show(c);
-      return shown.kind === "diverged" && shown.signature === target;
-    }, maxTests);
+    const r = ddmin(
+      original.commands,
+      (c) => {
+        const shown = show(c);
+        return shown.kind === "diverged" && shown.signature === target;
+      },
+      maxTests,
+    );
     const note = r.exhausted ? " The search stopped at its test limit, so the list may not be 1-minimal." : "";
     const shrunk = {
       id: name,
@@ -140,7 +160,9 @@ function main(): number {
     };
     mkdirSync(corpusDir(), { recursive: true });
     writeFileSync(out, `${JSON.stringify(shrunk, null, 2)}\n`);
-    console.log(`${original.commands.length} commands to ${r.kept.length} in ${r.tests} tests${r.exhausted ? " (stopped at the test limit, may not be 1-minimal)" : ""}; signature ${target}; wrote ${out}`);
+    console.log(
+      `${original.commands.length} commands to ${r.kept.length} in ${r.tests} tests${r.exhausted ? " (stopped at the test limit, may not be 1-minimal)" : ""}; signature ${target}; wrote ${out}`,
+    );
     return 0;
   } finally {
     rmSync(work, { recursive: true, force: true });

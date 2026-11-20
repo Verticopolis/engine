@@ -40,10 +40,17 @@ export const ENGINE_BUILD_FILES = [
  * the build files, then `extraFiles` (the caller's own cache logic, which
  * decides what a hit means), then the `wasm:build` npm script line.
  */
-export function engineCacheKey(root: string, sources: string, prefix: string, extraFiles: readonly string[] = []): string {
+export function engineCacheKey(
+  root: string,
+  sources: string,
+  prefix: string,
+  extraFiles: readonly string[] = [],
+): string {
   const hash = createHash("sha256");
   for (const file of [...ENGINE_BUILD_FILES, ...extraFiles]) hash.update(readFileSync(resolve(root, file)));
-  const scripts = (JSON.parse(readFileSync(resolve(root, "package.json"), "utf8")) as { scripts?: Record<string, string> }).scripts ?? {};
+  const scripts =
+    (JSON.parse(readFileSync(resolve(root, "package.json"), "utf8")) as { scripts?: Record<string, string> }).scripts ??
+    {};
   hash.update(`${scripts["wasm:build"] ?? ""}\n`);
   return `${prefix}-${sources}-${hash.digest("hex").slice(0, 16)}`;
 }

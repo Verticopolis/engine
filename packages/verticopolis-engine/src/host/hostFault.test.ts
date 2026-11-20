@@ -8,13 +8,21 @@ describe("an engine trap (#1113)", () => {
   it("is a RuntimeError, from this realm or another, the borrow error after one, or a stack overflow", () => {
     expect(isEngineTrap(new WebAssembly.RuntimeError("unreachable"))).toBe(true);
     expect(isEngineTrap(named("RuntimeError", "unreachable executed"))).toBe(true);
-    expect(isEngineTrap(new Error("recursive use of an object detected which would lead to unsafe aliasing in rust"))).toBe(true);
+    expect(
+      isEngineTrap(new Error("recursive use of an object detected which would lead to unsafe aliasing in rust")),
+    ).toBe(true);
     expect(isEngineTrap(new RangeError("Maximum call stack size exceeded"))).toBe(true);
     expect(isEngineTrap(named("InternalError", "too much recursion"))).toBe(true);
     // Another realm's error is no `Error` here, and a wrapper keeps the trap
     // as its cause (the catalog read).
     expect(isEngineTrap({ name: "RuntimeError", message: "unreachable" })).toBe(true);
-    expect(isEngineTrap(Object.assign(new Error("the engine returned no classic catalog: unreachable"), { cause: new WebAssembly.RuntimeError("unreachable") }))).toBe(true);
+    expect(
+      isEngineTrap(
+        Object.assign(new Error("the engine returned no classic catalog: unreachable"), {
+          cause: new WebAssembly.RuntimeError("unreachable"),
+        }),
+      ),
+    ).toBe(true);
   });
 
   it("is not the engine's clean refusal, the host's own check, or a value that is no error", () => {
@@ -25,7 +33,13 @@ describe("an engine trap (#1113)", () => {
     expect(isEngineTrap(new EngineBootError("package-mismatch", "no catalog"))).toBe(false);
     expect(isEngineTrap("unreachable")).toBe(false);
     expect(isEngineTrap(null)).toBe(false);
-    expect(isEngineTrap(Object.assign(new Error("the engine returned no classic catalog: mode must be"), { cause: new Error("mode must be") }))).toBe(false);
+    expect(
+      isEngineTrap(
+        Object.assign(new Error("the engine returned no classic catalog: mode must be"), {
+          cause: new Error("mode must be"),
+        }),
+      ),
+    ).toBe(false);
   });
 });
 
@@ -46,15 +60,28 @@ describe("a teardown's steps (#1113)", () => {
   it("runs every step and throws a lone error as it is", () => {
     const ran: number[] = [];
     const clean = new Error("the events do not go back");
-    expect(thrownBy(() => void ran.push(1), throwing(clean), () => void ran.push(3))).toBe(clean);
+    expect(
+      thrownBy(
+        () => void ran.push(1),
+        throwing(clean),
+        () => void ran.push(3),
+      ),
+    ).toBe(clean);
     expect(ran).toEqual([1, 3]);
     expect(thrownBy(() => {})).toBeNull();
   });
 
   it("throws the first trap, naming the other errors, with the trap as its cause", () => {
     const trap = new WebAssembly.RuntimeError("unreachable");
-    const thrown = thrownBy(throwing(new Error("the events do not go back")), throwing(trap), throwing(new WebAssembly.RuntimeError("a second trap")));
-    expect(thrown).toMatchObject({ message: "unreachable, and the events do not go back, and a second trap", cause: trap });
+    const thrown = thrownBy(
+      throwing(new Error("the events do not go back")),
+      throwing(trap),
+      throwing(new WebAssembly.RuntimeError("a second trap")),
+    );
+    expect(thrown).toMatchObject({
+      message: "unreachable, and the events do not go back, and a second trap",
+      cause: trap,
+    });
     expect(isEngineTrap(thrown)).toBe(true);
   });
 
@@ -76,15 +103,24 @@ describe("a trap's kind, the code a reliability row carries in place of the mess
     expect(trapKind(new WebAssembly.RuntimeError("memory access out of bounds"))).toBe("out-of-bounds");
     expect(trapKind(new RangeError("Maximum call stack size exceeded"))).toBe("stack-overflow");
     expect(trapKind(named("InternalError", "too much recursion"))).toBe("stack-overflow");
-    expect(trapKind(new Error("recursive use of an object detected which would lead to unsafe aliasing in rust"))).toBe("poisoned");
+    expect(trapKind(new Error("recursive use of an object detected which would lead to unsafe aliasing in rust"))).toBe(
+      "poisoned",
+    );
     expect(trapKind(new WebAssembly.RuntimeError("integer divide by zero"))).toBe("other");
-    expect(trapKind(Object.assign(new Error("a wrapper that quotes a tower name"), { cause: new WebAssembly.RuntimeError("unreachable") }))).toBe("unreachable");
+    expect(
+      trapKind(
+        Object.assign(new Error("a wrapper that quotes a tower name"), {
+          cause: new WebAssembly.RuntimeError("unreachable"),
+        }),
+      ),
+    ).toBe("unreachable");
   });
 
   it("is none for anything that is no trap, and never a code outside the closed list", () => {
     expect(trapKind(new Error("the events do not go back"))).toBe("none");
     expect(trapKind("unreachable")).toBe("none");
     expect(trapKind(undefined)).toBe("none");
-    for (const e of [new WebAssembly.RuntimeError("anything at all"), new Error("x")]) expect(TRAP_KINDS).toContain(trapKind(e));
+    for (const e of [new WebAssembly.RuntimeError("anything at all"), new Error("x")])
+      expect(TRAP_KINDS).toContain(trapKind(e));
   });
 });

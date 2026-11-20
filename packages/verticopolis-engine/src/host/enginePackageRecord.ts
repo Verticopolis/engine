@@ -93,7 +93,13 @@ export function engineBuildRecord(
     [ENGINE_GLUE]: { sha256: sha256Hex(glue), bytes: glue.length },
     [ENGINE_WASM]: { sha256: sha256Hex(wasm), bytes: wasm.length },
   };
-  return { schema: 2, sources, ...(crate ? { crate: { name: crate.name, version: crate.version } } : {}), package: sha256Hex(canonicalFilesJson(files)), files };
+  return {
+    schema: 2,
+    sources,
+    ...(crate ? { crate: { name: crate.name, version: crate.version } } : {}),
+    package: sha256Hex(canonicalFilesJson(files)),
+    files,
+  };
 }
 
 /** The part of a record the shell compiles in. */
@@ -110,13 +116,21 @@ export function expectedOf(record: EnginePackageRecord): ExpectedEnginePackage {
 function readCrate(v: unknown): EngineCrateRecord | undefined {
   if (typeof v !== "object" || v === null || Array.isArray(v)) return undefined;
   const c = v as { name?: unknown; version?: unknown };
-  return typeof c.name === "string" && c.name !== "" && typeof c.version === "string" && c.version !== "" ? { name: c.name, version: c.version } : undefined;
+  return typeof c.name === "string" && c.name !== "" && typeof c.version === "string" && c.version !== ""
+    ? { name: c.name, version: c.version }
+    : undefined;
 }
 
 function isFileRecord(v: unknown): v is EngineFileRecord {
   if (typeof v !== "object" || v === null || Array.isArray(v)) return false;
   const r = v as { sha256?: unknown; bytes?: unknown };
-  return typeof r.sha256 === "string" && SHA256_HEX.test(r.sha256) && typeof r.bytes === "number" && Number.isSafeInteger(r.bytes) && r.bytes >= 0;
+  return (
+    typeof r.sha256 === "string" &&
+    SHA256_HEX.test(r.sha256) &&
+    typeof r.bytes === "number" &&
+    Number.isSafeInteger(r.bytes) &&
+    r.bytes >= 0
+  );
 }
 
 /**
@@ -130,7 +144,9 @@ function isFileRecord(v: unknown): v is EngineFileRecord {
  * labels the package and never gates the load. Returns why not on failure,
  * never throws.
  */
-export function parseEngineRecord(text: string): { ok: true; record: EnginePackageRecord } | { ok: false; why: string } {
+export function parseEngineRecord(
+  text: string,
+): { ok: true; record: EnginePackageRecord } | { ok: false; why: string } {
   let v: unknown;
   try {
     v = JSON.parse(text);
@@ -145,12 +161,22 @@ export function parseEngineRecord(text: string): { ok: true; record: EnginePacka
   const files = r.files;
   if (typeof files !== "object" || files === null || Array.isArray(files)) return { ok: false, why: "no files block" };
   const names = Object.keys(files);
-  if (names.length !== 2 || !names.includes(ENGINE_GLUE) || !names.includes(ENGINE_WASM)) return { ok: false, why: "files block does not name exactly the glue and the binary" };
+  if (names.length !== 2 || !names.includes(ENGINE_GLUE) || !names.includes(ENGINE_WASM))
+    return { ok: false, why: "files block does not name exactly the glue and the binary" };
   for (const name of names) {
     if (!isFileRecord((files as Record<string, unknown>)[name])) return { ok: false, why: `bad entry for ${name}` };
   }
   const f = files as EngineFiles;
   const entry = (name: string): EngineFileRecord => ({ sha256: f[name].sha256, bytes: f[name].bytes });
   const crate = readCrate(r.crate);
-  return { ok: true, record: { schema: 2, sources: r.sources, ...(crate ? { crate } : {}), package: r.package, files: { [ENGINE_GLUE]: entry(ENGINE_GLUE), [ENGINE_WASM]: entry(ENGINE_WASM) } } };
+  return {
+    ok: true,
+    record: {
+      schema: 2,
+      sources: r.sources,
+      ...(crate ? { crate } : {}),
+      package: r.package,
+      files: { [ENGINE_GLUE]: entry(ENGINE_GLUE), [ENGINE_WASM]: entry(ENGINE_WASM) },
+    },
+  };
 }

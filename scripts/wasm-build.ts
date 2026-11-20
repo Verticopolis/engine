@@ -29,9 +29,19 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { engineSourceHash } from "../packages/verticopolis-engine/src/host/packageHash.ts";
 import { engineBuildRecord } from "../packages/verticopolis-engine/src/host/enginePackageRecord.ts";
-import { BUILD_SECTION, customSectionsOf, parseBuildMetadata, stampBuildSection } from "../packages/verticopolis-engine/src/host/buildSection.ts";
+import {
+  BUILD_SECTION,
+  customSectionsOf,
+  parseBuildMetadata,
+  stampBuildSection,
+} from "../packages/verticopolis-engine/src/host/buildSection.ts";
 import { cargoPackage } from "../src/build/engineCompat.ts";
-import { ENGINE_BUILD_RECORD, ENGINE_GLUE, ENGINE_PACKAGE, ENGINE_WASM } from "../packages/verticopolis-engine/src/host/engineAssets.ts";
+import {
+  ENGINE_BUILD_RECORD,
+  ENGINE_GLUE,
+  ENGINE_PACKAGE,
+  ENGINE_WASM,
+} from "../packages/verticopolis-engine/src/host/engineAssets.ts";
 import { ENGINE_THIRD_PARTY, checkToolchain, engineThirdParty } from "./engine-third-party.ts";
 import { checkCatalog, renderGameplayEventRules, renderGameplayEventsDts } from "../src/events/gameplayCatalog.ts";
 
@@ -44,7 +54,8 @@ const CRATES: Record<string, { dir: string; lib: string }> = {
 const args = process.argv.slice(2);
 const playerOnly = args.includes("--player-only");
 const positional = args.filter((a) => a !== "--player-only");
-if (positional.length > 1) throw new Error(`expected at most one argument (the crate) besides --player-only, got ${args.join(" ")}`);
+if (positional.length > 1)
+  throw new Error(`expected at most one argument (the crate) besides --player-only, got ${args.join(" ")}`);
 const which = positional[0] ?? "engine";
 if (playerOnly && which !== "engine") throw new Error("--player-only applies to the engine only");
 const known = Object.hasOwn(CRATES, which) ? CRATES[which] : undefined;
@@ -55,9 +66,11 @@ const crate = resolve(dirname(fileURLToPath(import.meta.url)), "..", target.dir)
 /** The exact wasm-bindgen version Cargo.toml pins, found on the dependency's
  *  line whatever the spacing, or in a `[dependencies.wasm-bindgen]` table. */
 function pinnedWasmBindgen(cargoToml: string): string | undefined {
-  return /^\s*wasm-bindgen\s*=\s*\{[^}]*version\s*=\s*"=([0-9.]+)"/m.exec(cargoToml)?.[1]
-    ?? /^\s*wasm-bindgen\s*=\s*"=([0-9.]+)"/m.exec(cargoToml)?.[1]
-    ?? /^\[dependencies\.wasm-bindgen\]\s*\n(?:(?!\[)[^\n]*\n)*?\s*version\s*=\s*"=([0-9.]+)"/m.exec(cargoToml)?.[1];
+  return (
+    /^\s*wasm-bindgen\s*=\s*\{[^}]*version\s*=\s*"=([0-9.]+)"/m.exec(cargoToml)?.[1] ??
+    /^\s*wasm-bindgen\s*=\s*"=([0-9.]+)"/m.exec(cargoToml)?.[1] ??
+    /^\[dependencies\.wasm-bindgen\]\s*\n(?:(?!\[)[^\n]*\n)*?\s*version\s*=\s*"=([0-9.]+)"/m.exec(cargoToml)?.[1]
+  );
 }
 
 const pinned = pinnedWasmBindgen(readFileSync(resolve(crate, "Cargo.toml"), "utf8"));
@@ -68,7 +81,11 @@ try {
   probe = execFileSync("wasm-bindgen", ["--version"], { encoding: "utf8" });
 } catch (e) {
   const code = (e as { code?: string }).code;
-  throw new Error(code === "ENOENT" ? `the wasm-bindgen CLI is not on PATH; ${install}` : `wasm-bindgen --version failed: ${String(e)}`);
+  throw new Error(
+    code === "ENOENT"
+      ? `the wasm-bindgen CLI is not on PATH; ${install}`
+      : `wasm-bindgen --version failed: ${String(e)}`,
+  );
 }
 const cli = /^wasm-bindgen (\d+\.\d+\.\d+)\r?$/m.exec(probe)?.[1];
 if (!cli) throw new Error(`wasm-bindgen --version printed something unexpected: ${probe.trim()}`);
@@ -89,7 +106,8 @@ if (which === "engine") {
 // for the browser. The other crates have one build, into pkg/.
 const PLAYER_FEATURES = "wasm";
 const TOOLING_FEATURES = "wasm,tooling";
-const run = (cmd: string, args: string[], env?: NodeJS.ProcessEnv) => execFileSync(cmd, args, { cwd: crate, stdio: "inherit", env });
+const run = (cmd: string, args: string[], env?: NodeJS.ProcessEnv) =>
+  execFileSync(cmd, args, { cwd: crate, stdio: "inherit", env });
 const wasm = `target/wasm32-unknown-unknown/release/${target.lib}.wasm`;
 /**
  * The compiler flags that keep this machine's folders out of the binary
@@ -126,7 +144,22 @@ function remapFlags(): string[] {
 function compile(features: string): void {
   const env: NodeJS.ProcessEnv = { ...process.env, CARGO_ENCODED_RUSTFLAGS: remapFlags().join("\x1f") };
   delete env.RUSTFLAGS;
-  run("cargo", ["rustc", "--locked", "--release", "--lib", "--target", "wasm32-unknown-unknown", "--features", features, "--crate-type", "cdylib"], env);
+  run(
+    "cargo",
+    [
+      "rustc",
+      "--locked",
+      "--release",
+      "--lib",
+      "--target",
+      "wasm32-unknown-unknown",
+      "--features",
+      features,
+      "--crate-type",
+      "cdylib",
+    ],
+    env,
+  );
 }
 // The hash of the sources every binary is stamped with and BUILD.json records.
 // It covers the sources only, so stamping a binary with it cannot change it.
@@ -137,7 +170,8 @@ const sources = which === "engine" ? engineSourceHash(crate) : "";
 function stamp(file: string): void {
   writeFileSync(file, stampBuildSection(readFileSync(file), sources));
   const back = parseBuildMetadata(customSectionsOf(readFileSync(file), BUILD_SECTION));
-  if (back.state !== "ok" || back.sourceHash !== sources) throw new Error(`${file} does not carry the ${BUILD_SECTION} section after stamping`);
+  if (back.state !== "ok" || back.sourceHash !== sources)
+    throw new Error(`${file} does not carry the ${BUILD_SECTION} section after stamping`);
 }
 /** The Node target into `dir` (relative to the crate), marked CommonJS (the
  *  repository is ESM, and wasm-bindgen's Node target emits `require`). */
@@ -174,12 +208,23 @@ function webPackage(web: string, label: string, record: ReturnType<typeof engine
   // The crate's name and version ride along (#963) so About can name them when
   // the engine never loads; they are not part of the package id.
   const crateRecord = cargoPackage(readFileSync(resolve(crate, "Cargo.toml"), "utf8"));
-  const build = engineBuildRecord(readFileSync(resolve(web, ENGINE_GLUE)), readFileSync(resolve(web, ENGINE_WASM)), sources, sha256Hex, crateRecord);
+  const build = engineBuildRecord(
+    readFileSync(resolve(web, ENGINE_GLUE)),
+    readFileSync(resolve(web, ENGINE_WASM)),
+    sources,
+    sha256Hex,
+    crateRecord,
+  );
   writeFileSync(resolve(web, ENGINE_BUILD_RECORD), `${JSON.stringify(build, null, 2)}\n`);
   // The record also names the .wasm it describes, so the site build can tell a
   // record from another build of the same sources (or a .wasm copied in).
-  const wasmSha = createHash("sha256").update(readFileSync(resolve(web, ENGINE_WASM))).digest("hex");
-  writeFileSync(resolve(web, ENGINE_THIRD_PARTY), `${JSON.stringify({ sources, wasm: wasmSha, crates: record }, null, 2)}\n`);
+  const wasmSha = createHash("sha256")
+    .update(readFileSync(resolve(web, ENGINE_WASM)))
+    .digest("hex");
+  writeFileSync(
+    resolve(web, ENGINE_THIRD_PARTY),
+    `${JSON.stringify({ sources, wasm: wasmSha, crates: record }, null, 2)}\n`,
+  );
   // Every file left in the package must be listed in engineAssets.ts, which
   // says whether the game fetches it at run time (and so whether the service
   // worker must precache it, #985). A new file from wasm-bindgen (a
@@ -189,9 +234,15 @@ function webPackage(web: string, label: string, record: ReturnType<typeof engine
     .filter((e) => !e.isDirectory())
     .map((e) => relative(web, resolve(e.parentPath, e.name)).split("\\").join("/"));
   const unlisted = written.filter((f) => !listed.has(f));
-  if (unlisted.length > 0) throw new Error(`${label}/ holds files packages/verticopolis-engine/src/host/engineAssets.ts does not list; add each with whether the game fetches it at run time: ${unlisted.join(", ")}`);
+  if (unlisted.length > 0)
+    throw new Error(
+      `${label}/ holds files packages/verticopolis-engine/src/host/engineAssets.ts does not list; add each with whether the game fetches it at run time: ${unlisted.join(", ")}`,
+    );
   const absent = [...listed].filter((f) => !written.includes(f));
-  if (absent.length > 0) throw new Error(`packages/verticopolis-engine/src/host/engineAssets.ts lists files the build did not write to ${label}/: ${absent.join(", ")}`);
+  if (absent.length > 0)
+    throw new Error(
+      `packages/verticopolis-engine/src/host/engineAssets.ts lists files the build did not write to ${label}/: ${absent.join(", ")}`,
+    );
 }
 
 if (which === "engine") {
@@ -204,7 +255,8 @@ if (which === "engine") {
   const toolingRecord = playerOnly ? undefined : engineThirdParty(crate, TOOLING_FEATURES);
   // The old packages go first, so a failed run leaves no stale package behind
   // for the suite to replay.
-  for (const dir of ["pkg", "pkg-player", "pkg-web", "pkg-web-tooling", "pkg-events"]) rmSync(resolve(crate, dir), { recursive: true, force: true });
+  for (const dir of ["pkg", "pkg-player", "pkg-web", "pkg-web-tooling", "pkg-events"])
+    rmSync(resolve(crate, dir), { recursive: true, force: true });
   compile(PLAYER_FEATURES);
   webPackage(resolve(crate, "pkg-web"), `${target.dir}/pkg-web`, playerRecord);
   nodePackage("pkg-player");
@@ -223,8 +275,14 @@ if (which === "engine") {
   mkdirSync(resolve(crate, "pkg-events"), { recursive: true });
   writeFileSync(resolve(crate, "pkg-events/gameplayEvents.d.ts"), renderGameplayEventsDts(catalog));
   writeFileSync(resolve(crate, "pkg-events/gameplayEventRules.ts"), renderGameplayEventRules(catalog));
-  if (toolingRecord) console.log("engine-rs/pkg-web and engine-rs/pkg-player (player build), engine-rs/pkg and engine-rs/pkg-web-tooling (tooling build), engine-rs/pkg-events: built");
-  else console.log("engine-rs/pkg-web and engine-rs/pkg-player (player build), engine-rs/pkg-events: built, tooling build skipped (--player-only)");
+  if (toolingRecord)
+    console.log(
+      "engine-rs/pkg-web and engine-rs/pkg-player (player build), engine-rs/pkg and engine-rs/pkg-web-tooling (tooling build), engine-rs/pkg-events: built",
+    );
+  else
+    console.log(
+      "engine-rs/pkg-web and engine-rs/pkg-player (player build), engine-rs/pkg-events: built, tooling build skipped (--player-only)",
+    );
 } else {
   // The old package goes first here too, so a failed compile leaves none.
   rmSync(resolve(crate, "pkg"), { recursive: true, force: true });

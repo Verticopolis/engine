@@ -9,8 +9,27 @@ import type { Transport, Unit, UnitState, WeatherKind } from "../model/types.ts"
  */
 export const FRAME_HEADER = 26;
 
-export const PERSON_STATES: readonly PersonState[] = ["toShaft", "waiting", "riding", "climbing", "toDest", "dwelling", "done"];
-export const UNIT_STATES: readonly UnitState[] = ["construction", "empty", "occupied", "moving_in", "vacating", "asleep", "dirty", "infested", "fire", "gutted"];
+export const PERSON_STATES: readonly PersonState[] = [
+  "toShaft",
+  "waiting",
+  "riding",
+  "climbing",
+  "toDest",
+  "dwelling",
+  "done",
+];
+export const UNIT_STATES: readonly UnitState[] = [
+  "construction",
+  "empty",
+  "occupied",
+  "moving_in",
+  "vacating",
+  "asleep",
+  "dirty",
+  "infested",
+  "fire",
+  "gutted",
+];
 export const WEATHERS: readonly WeatherKind[] = ["clear", "cloudy", "rain"];
 
 /** The header: the tower fields the engine sends every frame, named as the
@@ -55,7 +74,23 @@ export const ROUTINES: readonly NonNullable<Person["routine"]>[] = ["schoolRun",
  *  undefined when the engine sends -1, as on the instance. */
 export type PersonRecord = Pick<
   Person,
-  "id" | "seed" | "state" | "floor" | "x" | "fy" | "wait" | "originFloor" | "originUnitId" | "venueUnitId" | "mealVenueId" | "countedHotelGuest" | "routine" | "returning" | "dwellSecondsLeft" | "floors" | "shafts"
+  | "id"
+  | "seed"
+  | "state"
+  | "floor"
+  | "x"
+  | "fy"
+  | "wait"
+  | "originFloor"
+  | "originUnitId"
+  | "venueUnitId"
+  | "mealVenueId"
+  | "countedHotelGuest"
+  | "routine"
+  | "returning"
+  | "dwellSecondsLeft"
+  | "floors"
+  | "shafts"
 > & { staff: boolean };
 // (An absent dwell timer crosses as NaN, since no sentinel number is free: the
 // timer stays negative on a person through the return leg, so -1 is taken.)
@@ -128,7 +163,8 @@ export function decodeFrame(v: ArrayLike<number>): FrameView {
   // A route length the record reads before it reads the route: a negative
   // or non-integer one would misalign every record after it.
   const routeCount = (n: number, what: string) => {
-    if (!Number.isInteger(n) || n < 0) throw new Error(`frame view: person record at ${i} has a bad ${what} count ${n}`);
+    if (!Number.isInteger(n) || n < 0)
+      throw new Error(`frame view: person record at ${i} has a bad ${what} count ${n}`);
     return n;
   };
   const people: PersonRecord[] = [];
@@ -137,12 +173,27 @@ export function decodeFrame(v: ArrayLike<number>): FrameView {
     const floorCount = routeCount(v[i + 16], "floors");
     const shaftCount = routeCount(v[i + 17], "shafts");
     const routineCode = v[i + 13];
-    if (routineCode !== 0 && ROUTINES[routineCode - 1] === undefined) throw new Error(`frame view: unknown routine code ${routineCode}`);
+    if (routineCode !== 0 && ROUTINES[routineCode - 1] === undefined)
+      throw new Error(`frame view: unknown routine code ${routineCode}`);
     const record: PersonRecord = {
-      id: v[i], seed: v[i + 1], staff: v[i + 2] === 1, state: enumAt(PERSON_STATES, v[i + 3], "person state"), floor: v[i + 4], x: v[i + 5], fy: v[i + 6], wait: v[i + 7],
-      originFloor: v[i + 8], originUnitId: counter(v[i + 9]), venueUnitId: counter(v[i + 10]), mealVenueId: counter(v[i + 11]),
-      countedHotelGuest: v[i + 12] === 1, routine: routineCode === 0 ? undefined : ROUTINES[routineCode - 1], returning: v[i + 14] === 1, dwellSecondsLeft: Number.isNaN(v[i + 15]) ? undefined : v[i + 15],
-      floors: [], shafts: [],
+      id: v[i],
+      seed: v[i + 1],
+      staff: v[i + 2] === 1,
+      state: enumAt(PERSON_STATES, v[i + 3], "person state"),
+      floor: v[i + 4],
+      x: v[i + 5],
+      fy: v[i + 6],
+      wait: v[i + 7],
+      originFloor: v[i + 8],
+      originUnitId: counter(v[i + 9]),
+      venueUnitId: counter(v[i + 10]),
+      mealVenueId: counter(v[i + 11]),
+      countedHotelGuest: v[i + 12] === 1,
+      routine: routineCode === 0 ? undefined : ROUTINES[routineCode - 1],
+      returning: v[i + 14] === 1,
+      dwellSecondsLeft: Number.isNaN(v[i + 15]) ? undefined : v[i + 15],
+      floors: [],
+      shafts: [],
     };
     i += PERSON_FIXED;
     need(floorCount + shaftCount);
@@ -155,7 +206,14 @@ export function decodeFrame(v: ArrayLike<number>): FrameView {
   const units: UnitRecord[] = [];
   for (let k = 0; k < header.units; k++) {
     need(6);
-    units.push({ id: v[i], state: enumAt(UNIT_STATES, v[i + 1], "unit state"), occupants: v[i + 2], customersIn: counter(v[i + 3]), hotelCustomersIn: counter(v[i + 4]), outForMeal: counter(v[i + 5]) });
+    units.push({
+      id: v[i],
+      state: enumAt(UNIT_STATES, v[i + 1], "unit state"),
+      occupants: v[i + 2],
+      customersIn: counter(v[i + 3]),
+      hotelCustomersIn: counter(v[i + 4]),
+      outForMeal: counter(v[i + 5]),
+    });
     i += 6;
   }
   const transports: TransportRecord[] = [];

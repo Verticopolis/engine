@@ -79,24 +79,31 @@ if (base && !EXEMPT_BRANCHES.some((p) => branch.startsWith(p))) {
   const shipped = rows.filter(([, p]) => isShipped(p)).map(([, p]) => p);
   const list = (paths: string[]) => `${paths.slice(0, 3).join(", ")}${paths.length > 3 ? ", ..." : ""}`;
   if (shipped.length > 0 && added.length === 0) {
-    problems.push(`this pull request changes what the crate ships (${list(shipped)}) and adds no note under ${NOTES}/; add one with its crate tier (see ${NOTES}/README.md)`);
+    problems.push(
+      `this pull request changes what the crate ships (${list(shipped)}) and adds no note under ${NOTES}/; add one with its crate tier (see ${NOTES}/README.md)`,
+    );
   }
   const rust = rows.filter(([, p]) => isRustCode(p)).map(([, p]) => p);
   if (rust.length > 0 && added.length > 0 && added.every((n) => n.tier === "none")) {
-    problems.push(`this pull request changes Rust code (${list(rust)}), so its note needs a crate tier of patch or higher, not none`);
+    problems.push(
+      `this pull request changes Rust code (${list(rust)}), so its note needs a crate tier of patch or higher, not none`,
+    );
   }
 
   if (rows.some(([, p]) => p === CHANGELOG)) {
     const sections = (text: string) => text.slice(Math.max(0, text.search(/^## \d/m)));
     const now = readFileSync(join(root, CHANGELOG), "utf8");
     if (/^## Unreleased\s*$/m.test(now) || sections(now) !== sections(git("show", `${base}:${CHANGELOG}`))) {
-      problems.push(`only a release PR writes the version sections of ${CHANGELOG}; put the entries in a note under ${NOTES}/`);
+      problems.push(
+        `only a release PR writes the version sections of ${CHANGELOG}; put the entries in a note under ${NOTES}/`,
+      );
     }
   }
   if (rows.some(([, p]) => p === CARGO)) {
     const before = crateVersion(git("show", `${base}:${CARGO}`));
     const after = crateVersion(readFileSync(join(root, CARGO), "utf8"));
-    if (before !== after) problems.push(`only a release PR changes the crate version (${before} -> ${after} in ${CARGO})`);
+    if (before !== after)
+      problems.push(`only a release PR changes the crate version (${before} -> ${after} in ${CARGO})`);
   }
 }
 

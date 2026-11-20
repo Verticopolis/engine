@@ -44,14 +44,16 @@ const SHIPPED_PREFIXES: readonly string[] = [
   "scripts/build-engine-wasm.sh",
   "scripts/wasm-build.ts",
 ];
-export const isShipped = (path: string) => SHIPPED_PREFIXES.some((p) => path === p || (p.endsWith("/") && path.startsWith(p)));
+export const isShipped = (path: string) =>
+  SHIPPED_PREFIXES.some((p) => path === p || (p.endsWith("/") && path.startsWith(p)));
 
 /**
  * Rust code under engine-rs/src/ that is not a test file. A change to it,
  * a deletion included, needs a crate tier of patch or higher.
  */
 const TEST_FILE = /(^|\/)(tests?(_[a-z0-9_]+)?|[a-z0-9_]+_tests)\.rs$|\/(rule_tests|tests)\//;
-export const isRustCode = (path: string) => path.startsWith("engine-rs/src/") && path.endsWith(".rs") && !TEST_FILE.test(path);
+export const isRustCode = (path: string) =>
+  path.startsWith("engine-rs/src/") && path.endsWith(".rs") && !TEST_FILE.test(path);
 
 const NOTE_TIERS: readonly NoteTier[] = ["none", "patch", "minor", "major"];
 const TIER_PREFIX = /^- \*\*(major|minor|patch|none)\*\*/;
@@ -73,7 +75,8 @@ export function parseNote(name: string, text: string): ChangeNote {
     const line = raw.replace(/#.*$/, "").trim();
     if (line === "") continue;
     const m = /^([a-z]+):\s*(\S+)$/.exec(line);
-    if (!m || m[1] !== TIER_KEY) throw new Error(`${name}: the front matter takes one "${TIER_KEY}:" line, not "${raw.trim()}"`);
+    if (!m || m[1] !== TIER_KEY)
+      throw new Error(`${name}: the front matter takes one "${TIER_KEY}:" line, not "${raw.trim()}"`);
     if (tier !== undefined) throw new Error(`${name}: "${TIER_KEY}:" is given twice`);
     if (!NOTE_TIERS.includes(m[2] as NoteTier)) {
       throw new Error(`${name}: "${TIER_KEY}: ${m[2]}" is not one of ${NOTE_TIERS.join(", ")}`);
@@ -85,7 +88,8 @@ export function parseNote(name: string, text: string): ChangeNote {
   const entries: string[] = [];
   for (const line of lines.slice(close + 1)) {
     if (line.startsWith("- ")) {
-      if (TIER_PREFIX.test(line)) throw new Error(`${name}: leave the tier to the front matter, not the entry: ${line}`);
+      if (TIER_PREFIX.test(line))
+        throw new Error(`${name}: leave the tier to the front matter, not the entry: ${line}`);
       entries.push(line.trimEnd());
     } else if (line.trim() === "") {
       continue;
@@ -96,7 +100,8 @@ export function parseNote(name: string, text: string): ChangeNote {
     }
   }
   if (tier === "none" && entries.length > 0) throw new Error(`${name}: a "${TIER_KEY}: none" note has no entries`);
-  if (tier !== "none" && entries.length === 0) throw new Error(`${name}: a "${TIER_KEY}: ${tier}" note needs at least one entry`);
+  if (tier !== "none" && entries.length === 0)
+    throw new Error(`${name}: a "${TIER_KEY}: ${tier}" note needs at least one entry`);
   return { name, tier, entries };
 }
 

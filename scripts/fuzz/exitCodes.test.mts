@@ -16,7 +16,15 @@ const run = (script: string, ...args: string[]) =>
 
 const record = (): RunRecord => ({
   checkpoints: [{ label: "start", state: "s0", crowd: "c0", events: "e0" }],
-  details: [{ label: "start", money: 2000000, log: { seq: 0, count: 0, digest: "l0" }, save: { clock: "k0" }, fx: { bombs: 0 } }],
+  details: [
+    {
+      label: "start",
+      money: 2000000,
+      log: { seq: 0, count: 0, digest: "l0" },
+      save: { clock: "k0" },
+      fx: { bombs: 0 },
+    },
+  ],
 });
 const write = (dir: string, id: string, r: RunRecord) => {
   mkdirSync(dir, { recursive: true });

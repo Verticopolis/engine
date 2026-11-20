@@ -3,7 +3,17 @@ import type { CalendarKind, PersonState } from "../model/engineTypes.ts";
 import type { EnginePort } from "./enginePort.ts";
 import { EmergencyReads } from "./emergencyReads.ts";
 import { skyBridgeReads } from "./skyBridgeView.ts";
-import type { CameraView, CrowdView, HeaderView, PersonView, SimView, StructureRunView, TowerView, TransportView, UnitView } from "./view.ts";
+import type {
+  CameraView,
+  CrowdView,
+  HeaderView,
+  PersonView,
+  SimView,
+  StructureRunView,
+  TowerView,
+  TransportView,
+  UnitView,
+} from "./view.ts";
 
 /**
  * The shared view reader (facade slice 7, PR 3; contract section 5): the
@@ -75,14 +85,7 @@ class Room implements UnitView {
   readonly x: number;
   readonly width: number;
 
-  constructor(
-    id: number,
-    kind: FacilityKind,
-    floor: number,
-    x: number,
-    width: number,
-    label: string,
-  ) {
+  constructor(id: number, kind: FacilityKind, floor: number, x: number, width: number, label: string) {
     this.id = id;
     this.kind = kind;
     this.floor = floor;
@@ -198,10 +201,7 @@ export class ViewReader implements SimView {
    *   The frame carries no heights, and `tower.unitAt` answers every story a
    *   room covers, as the tower's own index does.
    */
-  constructor(
-    port: EnginePort,
-    floorsOf: (kind: FacilityKind) => number,
-  ) {
+  constructor(port: EnginePort, floorsOf: (kind: FacilityKind) => number) {
     this.port = port;
     this.floorsOf = floorsOf;
     this.l = JSON.parse(port.viewLayout()) as Layout;
@@ -332,13 +332,25 @@ export class ViewReader implements SimView {
         x: s[at + r.x],
         width: s[at + r.width],
         count: s[at + r.count],
-        fields: [s[at + r.state], s[at + r.occupants], s[at + r.customersIn], s[at + r.hotelCustomersIn], s[at + r.outForMeal]],
+        fields: [
+          s[at + r.state],
+          s[at + r.occupants],
+          s[at + r.customersIn],
+          s[at + r.hotelCustomersIn],
+          s[at + r.outForMeal],
+        ],
       };
       this.runs.push(run);
       this.listAt(this.runsByFloor, run.floor).push(run);
       // `structure` joins runs that split only on the tiles' fields.
       const last = this.structure[this.structure.length - 1] as Run | undefined;
-      if (last && last.kind === run.kind && last.floor === run.floor && last.width === run.width && run.x === last.x + last.count * last.width) {
+      if (
+        last &&
+        last.kind === run.kind &&
+        last.floor === run.floor &&
+        last.width === run.width &&
+        run.x === last.x + last.count * last.width
+      ) {
         this.structure[this.structure.length - 1] = { ...last, count: last.count + run.count };
       } else {
         this.structure.push({ kind: run.kind, floor: run.floor, x: run.x, width: run.width, count: run.count });
@@ -353,9 +365,23 @@ export class ViewReader implements SimView {
       const id = s[at + t.id];
       const skips = s[at + t.skips];
       const skipFloors = skips > 0 ? Array.from(s.subarray(at + l.shaftFixed, at + l.shaftFixed + skips)) : undefined;
-      const shaft = new Shaft(id, l.kinds[s[at + t.kind]], s[at + t.x], s[at + t.width], s[at + t.bottom], s[at + t.top], skipFloors);
+      const shaft = new Shaft(
+        id,
+        l.kinds[s[at + t.kind]],
+        s[at + t.x],
+        s[at + t.width],
+        s[at + t.bottom],
+        s[at + t.top],
+        skipFloors,
+      );
       const prev = oldShafts.get(id);
-      if (prev) Object.assign(shaft, { cars: prev.cars, carPositions: prev.carPositions, carLoad: prev.carLoad, carDir: prev.carDir });
+      if (prev)
+        Object.assign(shaft, {
+          cars: prev.cars,
+          carPositions: prev.carPositions,
+          carLoad: prev.carLoad,
+          carDir: prev.carDir,
+        });
       else shaft.cars = s[at + t.cars];
       this.shafts.push(shaft);
       this.shaftById.set(id, shaft);
@@ -375,7 +401,8 @@ export class ViewReader implements SimView {
     const l = this.l;
     const h = l.header;
     const fx = {
-      santaSeq: f[h.santaFxSeq], vipSeq: f[h.vipFxSeq],
+      santaSeq: f[h.santaFxSeq],
+      vipSeq: f[h.vipFxSeq],
       explosion: { floor: f[h.explosionFxFloor], x: f[h.explosionFxX], seq: f[h.explosionFxSeq] },
       thief: { caught: f[h.thiefFxCaught] === 1, floor: f[h.thiefFxFloor], x: f[h.thiefFxX], seq: f[h.thiefFxSeq] },
       treasure: { floor: f[h.treasureFxFloor], x: f[h.treasureFxX], seq: f[h.treasureFxSeq] },

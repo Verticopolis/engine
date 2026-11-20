@@ -40,7 +40,14 @@ export type RentTier = "unpriced" | "noRate" | "veryLow" | "low" | "average" | "
 export const EVAL_TIERS = ["unrated", "terrible", "good", "excellent"] as const satisfies readonly EvalTier[];
 
 /** Every rent tier, lowest to highest after `unpriced` and `noRate`. */
-export const RENT_TIERS = ["unpriced", "noRate", "veryLow", "low", "average", "high"] as const satisfies readonly RentTier[];
+export const RENT_TIERS = [
+  "unpriced",
+  "noRate",
+  "veryLow",
+  "low",
+  "average",
+  "high",
+] as const satisfies readonly RentTier[];
 
 /** The slots of one `roomTier` row. */
 export type RoomTierSlot = "id" | "floor" | "x" | "evalTier" | "rentTier";
@@ -99,7 +106,10 @@ export function roomTierShape(layoutText: string): RowShape | null {
   const rentOf = tierTable(layout?.rentTiers, RENT_TIERS);
   if (!isList(slots) || !evalOf || !rentOf) return null;
   if (new Set(slots).size !== slots.length || !ROOM_TIER_SLOTS.every((slot) => slots.includes(slot))) return null;
-  const at = Object.fromEntries(ROOM_TIER_SLOTS.map((slot) => [slot, slots.indexOf(slot)])) as Record<RoomTierSlot, number>;
+  const at = Object.fromEntries(ROOM_TIER_SLOTS.map((slot) => [slot, slots.indexOf(slot)])) as Record<
+    RoomTierSlot,
+    number
+  >;
   return { at, width: slots.length, evalOf, rentOf };
 }
 
@@ -112,10 +122,7 @@ export class RoomTiers {
   private readonly rec: PortRecord;
   private readonly shape: RowShape;
 
-  constructor(
-    rec: PortRecord,
-    shape: RowShape,
-  ) {
+  constructor(rec: PortRecord, shape: RowShape) {
     this.rec = rec;
     this.shape = shape;
     this.size = Math.floor(rec.length / shape.width);
@@ -124,7 +131,8 @@ export class RoomTiers {
   /** Throws a RangeError unless `i` is a whole number from 0 to
    *  `size - 1`, so a bad index never reads another row's slot. */
   private slot(i: number, slot: RoomTierSlot): number {
-    if (!Number.isInteger(i) || i < 0 || i >= this.size) throw new RangeError(`room tier row ${i} is outside 0..${this.size - 1}`);
+    if (!Number.isInteger(i) || i < 0 || i >= this.size)
+      throw new RangeError(`room tier row ${i} is outside 0..${this.size - 1}`);
     return this.rec[i * this.shape.width + this.shape.at[slot]];
   }
 

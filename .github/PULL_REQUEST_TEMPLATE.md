@@ -50,6 +50,7 @@ instead of ticking a box.
 - [ ] `cargo test --locked`
 - [ ] `cargo run --release --features conformance --bin conformance` (the referee)
 - [ ] `(cd engine-rs/consumer && cargo test --locked)`
+- [ ] `npm run typecheck`, `npm run lint`, `npm run format:check` and `npm test`, **or** this PR changes no TypeScript, JavaScript or CSS
 
 ## Versioning
 

@@ -61,13 +61,21 @@ if (files.length === 0) {
 }
 
 /** Compare `got` (from `gotDir`) with the native records; a string on failure. */
-function agree(id: string, nativeDir: string, gotDir: string, leg: Leg): { ok: true; checkpoints: number } | { ok: false; harness: boolean; message: string } {
+function agree(
+  id: string,
+  nativeDir: string,
+  gotDir: string,
+  leg: Leg,
+): { ok: true; checkpoints: number } | { ok: false; harness: boolean; message: string } {
   const rust = readRecord(nativeDir, id);
   const other = readRecord(gotDir, id);
-  if (!rust || !other) return { ok: false, harness: true, message: `missing ${leg === "golden" ? "golden" : "records"} for ${id}` };
+  if (!rust || !other)
+    return { ok: false, harness: true, message: `missing ${leg === "golden" ? "golden" : "records"} for ${id}` };
   try {
     const d = compareRuns(other, rust, leg);
-    return d ? { ok: false, harness: false, message: describeDivergence(d, leg) } : { ok: true, checkpoints: rust.checkpoints.length };
+    return d
+      ? { ok: false, harness: false, message: describeDivergence(d, leg) }
+      : { ok: true, checkpoints: rust.checkpoints.length };
   } catch (e) {
     return { ok: false, harness: true, message: (e as Error).message };
   }
@@ -84,6 +92,11 @@ let harness = false;
  *  over-budget refresh leaves the committed goldens as they were. */
 const toPin: string[] = [];
 const remaining = () => budget * 1000 - (Date.now() - started);
+/** What each exit code of the native replay means, for the log line. */
+const NATIVE_OUTCOMES: Record<number, string> = { 1: "stopped", 101: "panicked", 3: "timed out" };
+/** What each exit code of the WebAssembly replay means, for the log line. */
+const WASM_OUTCOMES: Record<number, string> = { 6: "refused what the native build ran", 4: "trapped", 3: "timed out" };
+
 try {
   for (const file of files) {
     const name = basename(file);
@@ -95,7 +108,9 @@ try {
     }
     const rust = nativeReplay(file, nativeDir, Math.min(120_000, remaining()));
     if (rust.code !== 0) {
-      console.log(`${name}: the native run ${rust.code === 1 ? "stopped" : rust.code === 101 ? "panicked" : rust.code === 3 ? "timed out" : `failed (${rust.code})`}: ${rustMessage(rust.stderr)}`);
+      console.log(
+        `${name}: the native run ${NATIVE_OUTCOMES[rust.code] ?? `failed (${rust.code})`}: ${rustMessage(rust.stderr)}`,
+      );
       if (rust.code === 1 || rust.code === 101 || rust.code === 3) failed.push(name);
       else harness = true;
       continue;
@@ -112,7 +127,7 @@ try {
     }
     const wasm = wasmReplay(file, wasmDir, Math.min(120_000, Math.max(1, remaining())));
     if (wasm.code !== 0) {
-      const what = wasm.code === 6 ? "refused what the native build ran" : wasm.code === 4 ? "trapped" : wasm.code === 3 ? "timed out" : `failed to run (${wasm.code})`;
+      const what = WASM_OUTCOMES[wasm.code] ?? `failed to run (${wasm.code})`;
       console.log(`${name}: the WebAssembly build ${what}: ${rustMessage(wasm.stderr)}`);
       if ([3, 4, 6].includes(wasm.code)) failed.push(name);
       else harness = true;
@@ -126,11 +141,14 @@ try {
       else failed.push(name);
     }
   }
-  if (remaining() < 0 && !failed.some((f) => f.endsWith("(over budget)"))) failed.push("(the last entry ran past the budget)");
+  if (remaining() < 0 && !failed.some((f) => f.endsWith("(over budget)")))
+    failed.push("(the last entry ran past the budget)");
   if (update) {
     if (failed.length === 0 && !harness) {
       mkdirSync(GOLDENS, { recursive: true });
-      for (const id of toPin) for (const record of [`${id}.rs.json`, `${id}.rs.detail.json`]) copyFileSync(join(nativeDir, record), join(GOLDENS, record));
+      for (const id of toPin)
+        for (const record of [`${id}.rs.json`, `${id}.rs.detail.json`])
+          copyFileSync(join(nativeDir, record), join(GOLDENS, record));
       console.log(`${toPin.length} goldens pinned`);
     } else console.log("no golden written: the refresh did not pass on every entry");
   }
@@ -139,4 +157,7 @@ try {
 }
 const seconds = ((Date.now() - started) / 1000).toFixed(1);
 console.log(`${files.length} corpus entries in ${seconds} s${failed.length ? `; failed: ${failed.join(", ")}` : ""}`);
-process.exit(failed.length ? 1 : harness ? 3 : 0);
+let exitCode = 0;
+if (failed.length) exitCode = 1;
+else if (harness) exitCode = 3;
+process.exit(exitCode);

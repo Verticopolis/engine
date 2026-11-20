@@ -100,10 +100,15 @@ describe("engineSourceHash", () => {
     // second build hashes the same sources as the first.
     for (const out of ["pkg-player", "pkg-web", "pkg-web-tooling", "pkg-events"]) {
       mkdirSync(join(c, out));
-      expect(moves(() => writeFileSync(join(c, out, "BUILD.json"), "{}")), out).toBe(false);
+      expect(
+        moves(() => writeFileSync(join(c, out, "BUILD.json"), "{}")),
+        out,
+      ).toBe(false);
     }
     mkdirSync(join(c, "fuzz/target"), { recursive: true });
-    expect(moves(() => writeFileSync(join(c, "fuzz/target/out.rs"), 'include!(concat!(env!("OUT_DIR"), "/x.rs"));'))).toBe(false);
+    expect(
+      moves(() => writeFileSync(join(c, "fuzz/target/out.rs"), 'include!(concat!(env!("OUT_DIR"), "/x.rs"));')),
+    ).toBe(false);
     expect(moves(() => writeFileSync(join(c, ".DS_Store"), "x"))).toBe(false);
     expect(moves(() => writeFileSync(join(c, "src/lib.rs~"), "x"))).toBe(false);
   });
@@ -158,7 +163,10 @@ describe("engineSourceHash", () => {
     mkdirSync(join(dir, "shared"));
     writeFileSync(join(dir, "shared/rules.rs"), "pub fn r() {}\n");
     writeFileSync(join(dir, "shared/extra.rs"), "pub fn e() {}\n");
-    writeFileSync(join(c, "src/more.rs"), '#[path = "../../shared/rules.rs"]\nmod rules;\n#[cfg_attr(feature = "x", path = "../../shared/extra.rs")]\nmod extra;\n');
+    writeFileSync(
+      join(c, "src/more.rs"),
+      '#[path = "../../shared/rules.rs"]\nmod rules;\n#[cfg_attr(feature = "x", path = "../../shared/extra.rs")]\nmod extra;\n',
+    );
     let last = engineSourceHash(c);
     for (const f of ["shared/rules.rs", "shared/extra.rs"]) {
       writeFileSync(join(dir, f), "pub fn changed() {}\n");
@@ -193,7 +201,13 @@ describe("engineSourceHash", () => {
     writeFileSync(join(dir, "shared/extra.rs"), "pub fn e() {}\n");
     writeFileSync(join(c, "src/more.rs"), '#[path = "../../shared/rules.rs"]\nmod rules;\n');
     let last = engineSourceHash(c);
-    for (const f of ["shared/child.rs", "shared/child/grand.rs", "shared/inner/kid/mod.rs", "shared/inner/kid/leaf.rs", "shared/extra.rs"]) {
+    for (const f of [
+      "shared/child.rs",
+      "shared/child/grand.rs",
+      "shared/inner/kid/mod.rs",
+      "shared/inner/kid/leaf.rs",
+      "shared/extra.rs",
+    ]) {
       writeFileSync(join(dir, f), `${readFileSync(join(dir, f), "utf8")}// changed\n`);
       const next = engineSourceHash(c);
       expect(next, f).not.toBe(last);
@@ -262,7 +276,7 @@ describe("engineSourceHash", () => {
       return moved;
     };
     expect(moves(() => writeFileSync(join(dir, "helper/src/lib.rs"), "pub fn changed() {}\n"))).toBe(true);
-    expect(moves(() => writeFileSync(join(dir, "helper/Cargo.toml"), "[package]\nname = \"helper\"\n"))).toBe(true);
+    expect(moves(() => writeFileSync(join(dir, "helper/Cargo.toml"), '[package]\nname = "helper"\n'))).toBe(true);
     expect(moves(() => writeFileSync(join(dir, "helper/target/out.rlib"), "x"))).toBe(false);
   });
 
@@ -309,15 +323,35 @@ describe("engineSourceHash", () => {
   });
 
   it.each([
-    ["a missing folder", '[dependencies]\nh = { path = "../gone" }\n', /names the path \.\.\/gone, which does not exist/],
+    [
+      "a missing folder",
+      '[dependencies]\nh = { path = "../gone" }\n',
+      /names the path \.\.\/gone, which does not exist/,
+    ],
     ["a value it cannot read", "[dependencies]\nh = { path = concat }\n", /path key .* cannot follow/],
     ["a multi-line literal string", "[dependencies]\nh = { path = '''../helper''' }\n", /path key .* cannot follow/],
     ["a multi-line basic string", '[dependencies.h]\npath = """../helper"""\n', /path key .* cannot follow/],
     ["an empty value", '[dependencies.h]\npath = ""\n', /path key .* cannot follow/],
-    ["a quoted key naming a missing folder", '[dependencies]\nh = { "path" = "../gone" }\n', /names the path \.\.\/gone, which does not exist/],
-    ["a dotted key naming a missing folder", '[dependencies]\nh.path = "../gone"\n', /names the path \.\.\/gone, which does not exist/],
-    ["a missing folder in a table that only starts like metadata", '[package.metadatax]\npath = "../gone"\n', /names the path \.\.\/gone, which does not exist/],
-    ["a missing folder under a target-specific dependency table", "[target.'cfg(unix)'.dependencies]\nh = { path = \"../gone\" }\n", /names the path \.\.\/gone, which does not exist/],
+    [
+      "a quoted key naming a missing folder",
+      '[dependencies]\nh = { "path" = "../gone" }\n',
+      /names the path \.\.\/gone, which does not exist/,
+    ],
+    [
+      "a dotted key naming a missing folder",
+      '[dependencies]\nh.path = "../gone"\n',
+      /names the path \.\.\/gone, which does not exist/,
+    ],
+    [
+      "a missing folder in a table that only starts like metadata",
+      '[package.metadatax]\npath = "../gone"\n',
+      /names the path \.\.\/gone, which does not exist/,
+    ],
+    [
+      "a missing folder under a target-specific dependency table",
+      "[target.'cfg(unix)'.dependencies]\nh = { path = \"../gone\" }\n",
+      /names the path \.\.\/gone, which does not exist/,
+    ],
   ])("refuses a Cargo path with %s", (_, manifest, error) => {
     const { crate: c } = crate();
     writeFileSync(join(c, "Cargo.toml"), manifest);

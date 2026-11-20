@@ -27,16 +27,13 @@ export const BUILD_SECTION = "verticopolis.build";
 
 /** What the host learns about a binary's build metadata. */
 export type BuildMetadataResult =
-  | { state: "ok"; sourceHash: string }
-  | { state: "missing" }
-  | { state: "malformed"; why: string };
+  { state: "ok"; sourceHash: string } | { state: "missing" } | { state: "malformed"; why: string };
 
 const HEX64 = /^[0-9a-f]{64}$/;
 
 /** The section's payload for a source hash. */
 export function encodeBuildMetadata(sourceHash: string): Uint8Array {
-  if (!HEX64.test(sourceHash))
-    throw new Error("the source hash is not 64 lowercase hex digits");
+  if (!HEX64.test(sourceHash)) throw new Error("the source hash is not 64 lowercase hex digits");
   return new TextEncoder().encode(JSON.stringify({ schema: 1, sourceHash }));
 }
 
@@ -48,9 +45,7 @@ export function encodeBuildMetadata(sourceHash: string): Uint8Array {
  * reason. Unknown keys are ignored so a later field does not strand an older
  * shell.
  */
-export function parseBuildMetadata(
-  payloads: ArrayLike<ArrayBuffer | Uint8Array>,
-): BuildMetadataResult {
+export function parseBuildMetadata(payloads: ArrayLike<ArrayBuffer | Uint8Array>): BuildMetadataResult {
   if (payloads.length === 0) return { state: "missing" };
   if (payloads.length > 1)
     return {
@@ -59,14 +54,11 @@ export function parseBuildMetadata(
     };
   let v: unknown;
   try {
-    v = JSON.parse(
-      new TextDecoder("utf-8", { fatal: true }).decode(payloads[0]),
-    );
+    v = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(payloads[0]));
   } catch {
     return { state: "malformed", why: "not JSON" };
   }
-  if (typeof v !== "object" || v === null || Array.isArray(v))
-    return { state: "malformed", why: "not an object" };
+  if (typeof v !== "object" || v === null || Array.isArray(v)) return { state: "malformed", why: "not an object" };
   const r = v as { schema?: unknown; sourceHash?: unknown };
   if (r.schema !== 1) return { state: "malformed", why: "not schema 1" };
   if (typeof r.sourceHash !== "string" || !HEX64.test(r.sourceHash))
@@ -89,14 +81,10 @@ function leb(n: number): number[] {
 const HEADER = [0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00];
 
 function checkHeader(wasm: Uint8Array): void {
-  if (wasm.length < HEADER.length || HEADER.some((b, i) => wasm[i] !== b))
-    throw new Error("not a WebAssembly binary");
+  if (wasm.length < HEADER.length || HEADER.some((b, i) => wasm[i] !== b)) throw new Error("not a WebAssembly binary");
 }
 
-function readLeb(
-  wasm: Uint8Array,
-  at: number,
-): { value: number; next: number } {
+function readLeb(wasm: Uint8Array, at: number): { value: number; next: number } {
   let value = 0;
   let shift = 0;
   for (let i = at; i < wasm.length && shift < 35; i++, shift += 7) {
@@ -116,18 +104,13 @@ export function customSectionsOf(wasm: Uint8Array, name: string): Uint8Array[] {
     const id = wasm[at];
     const size = readLeb(wasm, at + 1);
     const end = size.next + size.value;
-    if (end > wasm.length)
-      throw new Error("malformed WebAssembly binary (section past the end)");
+    if (end > wasm.length) throw new Error("malformed WebAssembly binary (section past the end)");
     if (id === 0) {
       const len = readLeb(wasm, size.next);
       const nameEnd = len.next + len.value;
-      if (nameEnd > end)
-        throw new Error("malformed WebAssembly binary (custom section name)");
+      if (nameEnd > end) throw new Error("malformed WebAssembly binary (custom section name)");
       const sectionName = wasm.subarray(len.next, nameEnd);
-      if (
-        sectionName.length === want.length &&
-        want.every((b, i) => sectionName[i] === b)
-      )
+      if (sectionName.length === want.length && want.every((b, i) => sectionName[i] === b))
         found.push(wasm.subarray(nameEnd, end));
     }
     at = end;
@@ -140,19 +123,14 @@ export function customSectionsOf(wasm: Uint8Array, name: string): Uint8Array[] {
  * sit anywhere in a module, so appending leaves every other byte as it was.
  * Refuses a binary that already has one: stamping twice is a build bug.
  */
-export function stampBuildSection(
-  wasm: Uint8Array,
-  sourceHash: string,
-): Uint8Array {
+export function stampBuildSection(wasm: Uint8Array, sourceHash: string): Uint8Array {
   if (customSectionsOf(wasm, BUILD_SECTION).length > 0)
     throw new Error(`the binary already has a ${BUILD_SECTION} section`);
   const name = new TextEncoder().encode(BUILD_SECTION);
   const payload = encodeBuildMetadata(sourceHash);
   const body = [...leb(name.length), ...name];
   const size = leb(body.length + payload.length);
-  const out = new Uint8Array(
-    wasm.length + 1 + size.length + body.length + payload.length,
-  );
+  const out = new Uint8Array(wasm.length + 1 + size.length + body.length + payload.length);
   out.set(wasm, 0);
   let at = wasm.length;
   out[at++] = 0;

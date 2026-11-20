@@ -32,16 +32,22 @@ describe("addSection", () => {
 
   it("puts the new section above the newest one and keeps the rest", () => {
     const out = addSection(changelog, "1.59.0", "2026-11-20", "- **minor**: a.\n- **patch**: b.");
-    expect(out).toBe("# Engine changelog\n\nIntro.\n\n## 1.59.0 (2026-11-20)\n\n- **minor**: a.\n- **patch**: b.\n\n## 1.58.0 (2026-11-19)\n\n- **major**: an old entry.\n");
+    expect(out).toBe(
+      "# Engine changelog\n\nIntro.\n\n## 1.59.0 (2026-11-20)\n\n- **minor**: a.\n- **patch**: b.\n\n## 1.58.0 (2026-11-19)\n\n- **major**: an old entry.\n",
+    );
   });
 
   it("appends to a changelog with no version yet", () => {
-    expect(addSection("# Changelog\n\nIntro.\n", "0.1.0", "2026-11-20", "- **patch**: a.")).toBe("# Changelog\n\nIntro.\n\n## 0.1.0 (2026-11-20)\n\n- **patch**: a.\n");
+    expect(addSection("# Changelog\n\nIntro.\n", "0.1.0", "2026-11-20", "- **patch**: a.")).toBe(
+      "# Changelog\n\nIntro.\n\n## 0.1.0 (2026-11-20)\n\n- **patch**: a.\n",
+    );
   });
 
   it("refuses a version the changelog already has, and a leftover Unreleased section", () => {
     expect(() => addSection(changelog, "1.58.0", "2026-11-20", "- **patch**: a.")).toThrow(/already has a 1\.58\.0/);
-    expect(() => addSection("# C\n\n## Unreleased\n\n- x.\n", "1.0.0", "2026-11-20", "- **patch**: a.")).toThrow(/Unreleased/);
+    expect(() => addSection("# C\n\n## Unreleased\n\n- x.\n", "1.0.0", "2026-11-20", "- **patch**: a.")).toThrow(
+      /Unreleased/,
+    );
   });
 });
 
@@ -76,6 +82,8 @@ describe("movePins", () => {
     const text = 'from 1.58.0 the package\nverticopolis-engine = "=1.58.0"\n(`"1.58.0"`, not `"^1.58.0"`)\n"1.58.01"\n';
     const { text: out, moved } = movePins(text, "1.58.0", "1.59.0");
     expect(moved).toBe(3);
-    expect(out).toBe('from 1.58.0 the package\nverticopolis-engine = "=1.59.0"\n(`"1.59.0"`, not `"^1.59.0"`)\n"1.58.01"\n');
+    expect(out).toBe(
+      'from 1.58.0 the package\nverticopolis-engine = "=1.59.0"\n(`"1.59.0"`, not `"^1.59.0"`)\n"1.58.01"\n',
+    );
   });
 });

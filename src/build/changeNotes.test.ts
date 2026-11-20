@@ -5,8 +5,15 @@ const note = (front: string, body: string) => `---\n${front}\n---\n${body}`;
 
 describe("parseNote", () => {
   it("reads the tier and the entries with their continuation lines", () => {
-    const n = parseNote("a.md", note("crate: minor    # a comment", "- a new API.\n  More about it.\n\n- a second entry.\n"));
-    expect(n).toEqual({ name: "a.md", tier: "minor", entries: ["- a new API.\n  More about it.", "- a second entry."] });
+    const n = parseNote(
+      "a.md",
+      note("crate: minor    # a comment", "- a new API.\n  More about it.\n\n- a second entry.\n"),
+    );
+    expect(n).toEqual({
+      name: "a.md",
+      tier: "minor",
+      entries: ["- a new API.\n  More about it.", "- a second entry."],
+    });
   });
 
   it("takes a none note with no entries", () => {
@@ -42,7 +49,9 @@ describe("the release", () => {
   });
 
   it("leads each entry with its tier, highest tier first, then by file name", () => {
-    expect(sectionBody(notes)).toBe("- **minor**: a new API.\n  Two lines.\n- **minor**: another API.\n- **patch**: a fix.");
+    expect(sectionBody(notes)).toBe(
+      "- **minor**: a new API.\n  Two lines.\n- **minor**: another API.\n- **patch**: a fix.",
+    );
   });
 
   it("reads note files only", () => {
@@ -87,7 +96,12 @@ describe("the paths the check reads", () => {
   });
 
   it("tells Rust code from the test files under engine-rs/src/", () => {
-    for (const path of ["engine-rs/src/sim.rs", "engine-rs/src/panels/mod.rs", "engine-rs/src/contest.rs", "engine-rs/src/latest.rs"]) {
+    for (const path of [
+      "engine-rs/src/sim.rs",
+      "engine-rs/src/panels/mod.rs",
+      "engine-rs/src/contest.rs",
+      "engine-rs/src/latest.rs",
+    ]) {
       expect(isRustCode(path), path).toBe(true);
     }
     for (const path of [

@@ -63,7 +63,13 @@ function world() {
     unitLabel: (id) => w.labels.get(id),
     unitSubtype: (id) => w.subtypes.get(id),
     unitMetaChanged: () => w.metaLog,
-    viewStructure: () => structure({ header: { revision: w.revision, highestFloor: 4, lowestFloor: 1, sceneSeed: 77 }, rooms: w.rooms, runs: RUNS, shafts: SHAFTS }),
+    viewStructure: () =>
+      structure({
+        header: { revision: w.revision, highestFloor: 4, lowestFloor: 1, sceneSeed: 77 },
+        rooms: w.rooms,
+        runs: RUNS,
+        shafts: SHAFTS,
+      }),
     viewFrame: (full) =>
       frame({
         header: {
@@ -82,10 +88,25 @@ function world() {
           unlocked: unlockedMask(["lobby", "floor", "office", "cinema"]),
         },
         people: w.people,
-        units: [{ slot: 0, state: code("unitStates", "occupied"), occupants: 6, customersIn: -1, hotelCustomersIn: -1, outForMeal: 2 }],
+        units: [
+          {
+            slot: 0,
+            state: code("unitStates", "occupied"),
+            occupants: 6,
+            customersIn: -1,
+            hotelCustomersIn: -1,
+            outForMeal: 2,
+          },
+        ],
         transports: [
           { id: 20, cars: [{ position: 2.5, load: 4, direction: 1 }] },
-          { id: 21, cars: [{ position: 1, load: 0, direction: 0 }, { position: 4, load: 9, direction: -1 }] },
+          {
+            id: 21,
+            cars: [
+              { position: 1, load: 0, direction: 0 },
+              { position: 4, load: 9, direction: -1 },
+            ],
+          },
         ],
       }),
   });
@@ -113,7 +134,13 @@ describe("ViewReader", () => {
       [12, "cinema", 2, 220, 31, "Cinema", "art house"],
     ]);
     const office = reader.rooms[0];
-    expect([office.state, office.occupants, office.customersIn, office.hotelCustomersIn, office.outForMeal]).toEqual(["occupied", 6, undefined, undefined, 2]);
+    expect([office.state, office.occupants, office.customersIn, office.hotelCustomersIn, office.outForMeal]).toEqual([
+      "occupied",
+      6,
+      undefined,
+      undefined,
+      2,
+    ]);
     // Runs that split only on their tiles' fields are joined.
     expect(reader.structure.map((s) => [s.kind, s.floor, s.x, s.count])).toEqual([
       ["lobby", 1, 160, 120],
@@ -123,7 +150,19 @@ describe("ViewReader", () => {
       ["floor", 4, 160, 10],
       ["floor", 4, 180, 10],
     ]);
-    expect(reader.tower.transports.map((t) => [t.id, t.kind, t.bottom, t.top, t.skipFloors, t.cars, t.carPositions, t.carLoad, t.carDir])).toEqual([
+    expect(
+      reader.tower.transports.map((t) => [
+        t.id,
+        t.kind,
+        t.bottom,
+        t.top,
+        t.skipFloors,
+        t.cars,
+        t.carPositions,
+        t.carLoad,
+        t.carDir,
+      ]),
+    ).toEqual([
       [20, "elevatorStandard", 1, 4, undefined, 1, [2.5], [4], [1]],
       [25, "stairs", 1, 2, undefined, 0, [], [], []],
       [21, "elevatorExpress", 1, 4, [2, 3], 2, [1, 4], [0, 9], [0, -1]],
@@ -132,11 +171,29 @@ describe("ViewReader", () => {
     expect(reader.tower.elevators?.map((t) => t.id)).toEqual([20, 21]);
     expect(reader.tower.elevators?.[1]).toBe(reader.tower.getTransport(21));
     const h = reader.header;
-    expect([h.money, h.star, h.weather, h.minuteOfDay, h.day, h.isWeekend, h.mode, h.modernCalendar, h.sceneSeed]).toEqual([1_250_000, 3, "cloudy", 600, 5, true, "modern", "canon", 77]);
+    expect([
+      h.money,
+      h.star,
+      h.weather,
+      h.minuteOfDay,
+      h.day,
+      h.isWeekend,
+      h.mode,
+      h.modernCalendar,
+      h.sceneSeed,
+    ]).toEqual([1_250_000, 3, "cloudy", 600, 5, true, "modern", "canon", 77]);
     expect([h.camera, h.pendingChoice, h.bombSearch]).toEqual([{ tile: 200, floor: 2, zoom: 1.5 }, null, null]);
-    expect(reader.crowd.people.map((p) => [p.id, p.seed, p.staff, p.state, p.floor, p.x, p.fy, p.wait])).toEqual([[7, 9, true, "riding", 2, 165, 2.5, 12]]);
-    expect([reader.unlocked("office"), reader.unlocked("cinema"), reader.unlocked("hotelSuite")]).toEqual([true, true, false]);
-    expect([reader.tower.highestFloor, reader.tower.lowestFloor, reader.tower.revision, reader.generation]).toEqual([4, 1, 5, 1]);
+    expect(reader.crowd.people.map((p) => [p.id, p.seed, p.staff, p.state, p.floor, p.x, p.fy, p.wait])).toEqual([
+      [7, 9, true, "riding", 2, 165, 2.5, 12],
+    ]);
+    expect([reader.unlocked("office"), reader.unlocked("cinema"), reader.unlocked("hotelSuite")]).toEqual([
+      true,
+      true,
+      false,
+    ]);
+    expect([reader.tower.highestFloor, reader.tower.lowestFloor, reader.tower.revision, reader.generation]).toEqual([
+      4, 1, 5, 1,
+    ]);
   });
 
   it("reads a delta frame in sequence, keeping the structure and each person", () => {
@@ -208,11 +265,26 @@ describe("ViewReader", () => {
   it("answers the point lookups on every story a room covers, and the tiles between", () => {
     const { port, reader } = world();
     const cinema = reader.rooms[2];
-    expect([reader.tower.unitAt(2, 230), reader.tower.unitAt(3, 230), reader.tower.unitAt(4, 230)]).toEqual([cinema, cinema, undefined]);
+    expect([reader.tower.unitAt(2, 230), reader.tower.unitAt(3, 230), reader.tower.unitAt(4, 230)]).toEqual([
+      cinema,
+      cinema,
+      undefined,
+    ]);
     const tile = reader.tower.unitAt(3, 200)!;
-    expect([tile.kind, tile.x, Number.isNaN(tile.id), tile.state, tile.occupants, tile.label]).toEqual(["floor", 200, true, "occupied", 2, "Floor"]);
+    expect([tile.kind, tile.x, Number.isNaN(tile.id), tile.state, tile.occupants, tile.label]).toEqual([
+      "floor",
+      200,
+      true,
+      "occupied",
+      2,
+      "Floor",
+    ]);
     expect([reader.tower.unitAt(2, 400), reader.tower.unitAt(9, 200)]).toEqual([undefined, undefined]);
-    expect([reader.tower.hasStructure(1, 200), reader.tower.structureKindAt(1, 200), reader.tower.hasStructure(5, 200)]).toEqual([true, "lobby", false]);
+    expect([
+      reader.tower.hasStructure(1, 200),
+      reader.tower.structureKindAt(1, 200),
+      reader.tower.hasStructure(5, 200),
+    ]).toEqual([true, "lobby", false]);
     expect(reader.tower.getTransport(21)).toBe(reader.tower.transports[2]);
     // The rooms, then every tile, built once.
     expect(reader.tower.units.length).toBe(3 + 120 + 10 + 11 + 60 + 20);
@@ -224,10 +296,22 @@ describe("ViewReader", () => {
 
   it("finds the nearest structure tile on each side, where a bridge scan stops", () => {
     const { reader } = world();
-    expect([reader.structureBeside(4, 175, -1), reader.structureBeside(4, 175, 1)]).toEqual([{ x: 169, kind: "floor" }, { x: 180, kind: "floor" }]);
-    expect([reader.structureBeside(1, 100, 1), reader.structureBeside(1, 100, -1)]).toEqual([{ x: 160, kind: "lobby" }, undefined]);
-    expect([reader.structureBeside(1, 200, -1), reader.structureBeside(1, 200, 1)]).toEqual([{ x: 199, kind: "lobby" }, { x: 201, kind: "lobby" }]);
-    expect([reader.structureBeside(3, 300, -1), reader.structureBeside(3, 300, 1)]).toEqual([{ x: 219, kind: "floor" }, undefined]);
+    expect([reader.structureBeside(4, 175, -1), reader.structureBeside(4, 175, 1)]).toEqual([
+      { x: 169, kind: "floor" },
+      { x: 180, kind: "floor" },
+    ]);
+    expect([reader.structureBeside(1, 100, 1), reader.structureBeside(1, 100, -1)]).toEqual([
+      { x: 160, kind: "lobby" },
+      undefined,
+    ]);
+    expect([reader.structureBeside(1, 200, -1), reader.structureBeside(1, 200, 1)]).toEqual([
+      { x: 199, kind: "lobby" },
+      { x: 201, kind: "lobby" },
+    ]);
+    expect([reader.structureBeside(3, 300, -1), reader.structureBeside(3, 300, 1)]).toEqual([
+      { x: 219, kind: "floor" },
+      undefined,
+    ]);
     expect([reader.structureBeside(2, 160, -1), reader.structureBeside(9, 200, 1)]).toEqual([undefined, undefined]);
   });
 });

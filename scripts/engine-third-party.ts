@@ -21,7 +21,18 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { dirname, join, relative, isAbsolute, sep } from "node:path";
 import { noticeProblem, type NoticePackage } from "../src/build/thirdPartyNotices.ts";
-import { ENGINE_PORTS, ENGINE_THIRD_PARTY, STD_LICENSE, STD_NAME, cargoTreePackages, htmlText, portEntry, shippedCrates, stdLicenseProblems, type CargoMetadata } from "../src/build/rustNotices.ts";
+import {
+  ENGINE_PORTS,
+  ENGINE_THIRD_PARTY,
+  STD_LICENSE,
+  STD_NAME,
+  cargoTreePackages,
+  htmlText,
+  portEntry,
+  shippedCrates,
+  stdLicenseProblems,
+  type CargoMetadata,
+} from "../src/build/rustNotices.ts";
 import { readLicenseFiles } from "./license-files.ts";
 
 export { ENGINE_THIRD_PARTY };
@@ -29,7 +40,8 @@ export { ENGINE_THIRD_PARTY };
 /** Where the toolchain keeps the standard library's copyright notice and license texts (the rustup layout). */
 function toolchainDocs(crate: string): { version: string; files: string[] } {
   // The compiler cargo itself uses: $RUSTC when set, else rustc on PATH.
-  const rustc = (args: string[]) => execFileSync(process.env.RUSTC || "rustc", args, { cwd: crate, encoding: "utf8" }).trim();
+  const rustc = (args: string[]) =>
+    execFileSync(process.env.RUSTC || "rustc", args, { cwd: crate, encoding: "utf8" }).trim();
   const printed = rustc(["--version"]);
   // A stable release only: a beta or nightly ("1.97.0-nightly") links a different standard library.
   const version = /^rustc (\d+\.\d+\.\d+)(?: |$)/.exec(printed)?.[1];
@@ -63,24 +75,33 @@ export function checkToolchain(crate: string, rustVersion: string): void {
   // install (scripts/build-engine-wasm.sh).
   const want = rustVersion.split(".").length === 2 ? `${rustVersion}.0` : rustVersion;
   if (version !== want) {
-    throw new Error(`rustc ${version} is not ${want}, the release the engine's notices record is built with; run: rustup toolchain install ${want} --target wasm32-unknown-unknown, then build with RUSTUP_TOOLCHAIN=${want}`);
+    throw new Error(
+      `rustc ${version} is not ${want}, the release the engine's notices record is built with; run: rustup toolchain install ${want} --target wasm32-unknown-unknown, then build with RUSTUP_TOOLCHAIN=${want}`,
+    );
   }
   const missing = files.filter((f) => !existsSync(f));
-  if (missing.length > 0) throw new Error(`the Rust toolchain ships no ${missing.join(", ")}, so the standard library cannot be attributed; use a rustup toolchain with its rustc component (its docs carry these files)`);
+  if (missing.length > 0)
+    throw new Error(
+      `the Rust toolchain ships no ${missing.join(", ")}, so the standard library cannot be attributed; use a rustup toolchain with its rustc component (its docs carry these files)`,
+    );
 }
 
 /** The standard library the toolchain links into every Rust binary, from the toolchain's own copyright notice. */
 function standardLibrary(crate: string): NoticePackage & { hasLicenseFile: true } {
   const { version, files } = toolchainDocs(crate);
   const missing = files.filter((f) => !existsSync(f));
-  if (missing.length > 0) throw new Error(`the Rust toolchain ships no ${missing.join(", ")}; the standard library cannot be attributed`);
+  if (missing.length > 0)
+    throw new Error(`the Rust toolchain ships no ${missing.join(", ")}; the standard library cannot be attributed`);
   const [copyright, ...licenses] = files.map((f) => readFileSync(f, "utf8"));
   const empty = files.filter((_, i) => (i === 0 ? copyright : licenses[i - 1]).trim() === "");
-  if (empty.length > 0) throw new Error(`the Rust toolchain's ${empty.join(", ")} is empty; the standard library cannot be attributed`);
+  if (empty.length > 0)
+    throw new Error(`the Rust toolchain's ${empty.join(", ")} is empty; the standard library cannot be attributed`);
   const reviewed = stdLicenseProblems(copyright, STD_LICENSE);
-  if (reviewed.length > 0) throw new Error(`the standard library's license needs a review for this toolchain: ${reviewed.join("; ")}`);
+  if (reviewed.length > 0)
+    throw new Error(`the standard library's license needs a review for this toolchain: ${reviewed.join("; ")}`);
   const notice = htmlText(copyright);
-  if (notice === "") throw new Error(`the Rust toolchain's ${files[0]} has no text; the standard library cannot be attributed`);
+  if (notice === "")
+    throw new Error(`the Rust toolchain's ${files[0]} has no text; the standard library cannot be attributed`);
   // Zlib (foldhash) has no license file in the toolchain; its text is the
   // notice the page carries in foldhash's own section.
   // The part's own section: from its heading (as stdLicenseProblems reads it,
@@ -90,8 +111,13 @@ function standardLibrary(crate: string): NoticePackage & { hasLicenseFile: true 
   const next = /^[ \t]*\u{1F4E6}/mu.exec(after);
   const foldhash = next ? after.slice(0, next.index) : after;
   // Two sentences only the zlib license has.
-  if (!foldhash.includes("This software is provided 'as-is'") || !foldhash.includes("Altered source versions must be plainly marked as such")) {
-    throw new Error(`the Rust toolchain's ${files[0]} no longer carries foldhash's Zlib notice; the standard library cannot be attributed`);
+  if (
+    !foldhash.includes("This software is provided 'as-is'") ||
+    !foldhash.includes("Altered source versions must be plainly marked as such")
+  ) {
+    throw new Error(
+      `the Rust toolchain's ${files[0]} no longer carries foldhash's Zlib notice; the standard library cannot be attributed`,
+    );
   }
   return {
     name: STD_NAME,
@@ -101,7 +127,9 @@ function standardLibrary(crate: string): NoticePackage & { hasLicenseFile: true 
     hasLicenseFile: true,
     licenseText: [
       `--- COPYRIGHT-library ---\n\n${notice}`,
-      ...licenses.map((text, i) => `--- ${STD_FILES[i + 1].replace(/^licenses\/|\.txt$/g, "")} ---\n\n${text.trimEnd()}`),
+      ...licenses.map(
+        (text, i) => `--- ${STD_FILES[i + 1].replace(/^licenses\/|\.txt$/g, "")} ---\n\n${text.trimEnd()}`,
+      ),
     ].join("\n\n"),
   };
 }
@@ -109,23 +137,54 @@ function standardLibrary(crate: string): NoticePackage & { hasLicenseFile: true 
 /** The record for the crate at `crate` (its directory), built for wasm32 with `features`. */
 export function engineThirdParty(crate: string, features: string): (NoticePackage & { hasLicenseFile: true })[] {
   const meta = JSON.parse(
-    execFileSync("cargo", ["metadata", "--locked", "--format-version", "1", "--filter-platform", "wasm32-unknown-unknown", "--features", features], {
-      cwd: crate,
-      encoding: "utf8",
-      maxBuffer: 256 * 1024 * 1024,
-    }),
+    execFileSync(
+      "cargo",
+      [
+        "metadata",
+        "--locked",
+        "--format-version",
+        "1",
+        "--filter-platform",
+        "wasm32-unknown-unknown",
+        "--features",
+        features,
+      ],
+      {
+        cwd: crate,
+        encoding: "utf8",
+        maxBuffer: 256 * 1024 * 1024,
+      },
+    ),
   ) as CargoMetadata;
   const out: (NoticePackage & { hasLicenseFile: true })[] = [];
   const problems: string[] = [];
   const linked = cargoTreePackages(
-    execFileSync("cargo", ["tree", "--locked", "-e", "normal", "--target", "wasm32-unknown-unknown", "--features", features, "--prefix", "none", "--format", "{p}"], {
-      cwd: crate,
-      encoding: "utf8",
-      maxBuffer: 64 * 1024 * 1024,
-    }),
+    execFileSync(
+      "cargo",
+      [
+        "tree",
+        "--locked",
+        "-e",
+        "normal",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--features",
+        features,
+        "--prefix",
+        "none",
+        "--format",
+        "{p}",
+      ],
+      {
+        cwd: crate,
+        encoding: "utf8",
+        maxBuffer: 64 * 1024 * 1024,
+      },
+    ),
   );
   const crates = shippedCrates(meta, linked);
-  if (crates.length === 0) throw new Error("cargo tree and cargo metadata agree on no crate the WASM engine compiles in; check their output");
+  if (crates.length === 0)
+    throw new Error("cargo tree and cargo metadata agree on no crate the WASM engine compiles in; check their output");
   for (const p of crates) {
     const dir = dirname(p.manifest_path);
     const read = readLicenseFiles(dir);
@@ -145,22 +204,35 @@ export function engineThirdParty(crate: string, features: string): (NoticePackag
           text = readFileSync(named, "utf8").trimEnd();
         }
       } catch (err) {
-        problems.push(`${p.name}@${p.version}: license-file ${p.license_file} cannot be read (${(err as NodeJS.ErrnoException).code ?? err})`);
+        problems.push(
+          `${p.name}@${p.version}: license-file ${p.license_file} cannot be read (${(err as NodeJS.ErrnoException).code ?? err})`,
+        );
       }
       if (text !== undefined) {
-        if (!licenseText.includes(text)) licenseText = [licenseText, `--- ${p.license_file} ---\n\n${text}`].filter(Boolean).join("\n\n");
+        if (!licenseText.includes(text))
+          licenseText = [licenseText, `--- ${p.license_file} ---\n\n${text}`].filter(Boolean).join("\n\n");
         hasLicenseFile ||= text.trim() !== "";
       }
     }
     const pkg = { name: p.name, version: p.version, license: p.license ?? null, licenseText, hasLicenseFile };
     const problem = noticeProblem(pkg);
     if (problem) problems.push(problem);
-    else out.push({ name: p.name, version: p.version, license: p.license!, licenseText, kind: "crate", hasLicenseFile: true });
+    else
+      out.push({
+        name: p.name,
+        version: p.version,
+        license: p.license!,
+        licenseText,
+        kind: "crate",
+        hasLicenseFile: true,
+      });
   }
   const std = standardLibrary(crate);
   const stdProblem = noticeProblem(std);
   if (stdProblem) problems.push(stdProblem);
-  const ports = ENGINE_PORTS.filter((p) => existsSync(join(crate, p.source))).map((p) => portEntry(p, readLicenseFiles(join(crate, p.notice)), problems));
+  const ports = ENGINE_PORTS.filter((p) => existsSync(join(crate, p.source))).map((p) =>
+    portEntry(p, readLicenseFiles(join(crate, p.notice)), problems),
+  );
   if (problems.length > 0) throw new Error(`the WASM engine cannot be attributed: ${problems.join("; ")}`);
   out.push(std);
   for (const p of ports) if (p) out.push(p);

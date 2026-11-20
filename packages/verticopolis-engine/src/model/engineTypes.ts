@@ -66,14 +66,7 @@ export type CalendarKind = "canon" | "realWorld";
 
 // Ledger report categories.
 
-export type LedgerCat =
-  | "offices"
-  | "condos"
-  | "hotels"
-  | "retail"
-  | "food"
-  | "entertainment"
-  | "upkeep";
+export type LedgerCat = "offices" | "condos" | "hotels" | "retail" | "food" | "entertainment" | "upkeep";
 
 // The heatmap and batch pricing.
 

@@ -17,7 +17,9 @@ describe("checkBinding (#1057)", () => {
   });
 
   it("refuses the player package on a tooling boot, naming the tier 3 ops it lacks", () => {
-    expect(() => checkBinding(glue(INSTANCE_METHODS), { tooling: true })).toThrow(/lacks Engine#setMoney, Engine#setCars,/);
+    expect(() => checkBinding(glue(INSTANCE_METHODS), { tooling: true })).toThrow(
+      /lacks Engine#setMoney, Engine#setCars,/,
+    );
   });
 
   it("accepts the tooling package on either boot", () => {
@@ -27,7 +29,9 @@ describe("checkBinding (#1057)", () => {
   });
 
   it("still refuses a package missing a player op", () => {
-    expect(() => checkBinding(glue(INSTANCE_METHODS.filter((m) => m !== "tick")), { tooling: false })).toThrow("lacks Engine#tick;");
+    expect(() => checkBinding(glue(INSTANCE_METHODS.filter((m) => m !== "tick")), { tooling: false })).toThrow(
+      "lacks Engine#tick;",
+    );
   });
 
   it("keeps tier 3 out of the player list", () => {

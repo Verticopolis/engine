@@ -4,10 +4,11 @@ name: Engine packages
 # (scripts/pack-engine.sh): @verticopolis/engine, the player build with the
 # tooling build (tooling/, with the tier 3 ops test suites and harnesses use)
 # and the conformance suite (conformance/) as subpaths. It also runs the
-# packer's own TypeScript tests, and installs the tarball into an empty
-# project and uses it there (scripts/package-consumer.sh). The TypeScript
-# layer under packages/verticopolis-engine/src is typechecked and tested
-# against the fresh build, and compiled into the tarball.
+# packer's own TypeScript tests, ESLint and the Prettier check, and installs
+# the tarball into an empty project and uses it there
+# (scripts/package-consumer.sh). The TypeScript layer under
+# packages/verticopolis-engine/src is typechecked and tested against the
+# fresh build, and compiled into the tarball.
 #
 # - A pull request or a push to main uploads the tarball as a run artifact.
 #   A PR's tarball is versioned <crate>-pr.<number>.<run> so a game PR can
@@ -48,9 +49,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Typecheck and test the packer
+      - name: Typecheck, lint, format check and test the packer
         run: |
           npm run typecheck
+          npm run lint
+          npm run format:check
           npm test
 
       - name: Engine WASM package
@@ -96,4 +99,3 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 14
-

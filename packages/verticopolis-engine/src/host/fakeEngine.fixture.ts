@@ -55,7 +55,9 @@ export class FakeEngine {
   }
   serializeForSync(): string {
     this.calls.push("serializeForSync");
-    return this.readsAs ? JSON.stringify({ ...(JSON.parse(this.serialize()) as Record<string, unknown>), ...this.readsAs }) : this.serialize();
+    return this.readsAs
+      ? JSON.stringify({ ...(JSON.parse(this.serialize()) as Record<string, unknown>), ...this.readsAs })
+      : this.serialize();
   }
   /** The delta's shape with no unit records: the fake has no units of its
    *  own to change. `noDelta` makes it answer nothing, as the engine does
@@ -87,29 +89,52 @@ export class FakeEngine {
     this.calls.push(`emit ${text}`);
     this.logSeq++;
   }
-  free(): void { this.freed = true; }
+  free(): void {
+    this.freed = true;
+  }
   /** wasm-bindgen's JavaScript-only half of `free`. */
   __destroy_into_raw(): number {
     this.abandoned = true;
     return 1;
   }
-  pendingChoice(): string | undefined { return this.pending; }
-  logSince(seq: number): string {
-    return JSON.stringify(Array.from({ length: this.logSeq - seq }, (_, i) => ({ seq: seq + i + 1, minute: this.minutes, text: `line ${seq + i + 1}`, kind: "info" })));
+  pendingChoice(): string | undefined {
+    return this.pending;
   }
-  elevatorTelemetry(): string { return '{"util":[],"hourly":[],"origins":[]}'; }
-  housekeepingReport(): string | undefined { return undefined; }
+  logSince(seq: number): string {
+    return JSON.stringify(
+      Array.from({ length: this.logSeq - seq }, (_, i) => ({
+        seq: seq + i + 1,
+        minute: this.minutes,
+        text: `line ${seq + i + 1}`,
+        kind: "info",
+      })),
+    );
+  }
+  elevatorTelemetry(): string {
+    return '{"util":[],"hourly":[],"origins":[]}';
+  }
+  housekeepingReport(): string | undefined {
+    return undefined;
+  }
   commuteRows = "[]";
   commuteRevision = 0;
-  commuteStress(): string { return this.commuteRows; }
-  commuteStressRevision(): number { return this.commuteRevision; }
+  commuteStress(): string {
+    return this.commuteRows;
+  }
+  commuteStressRevision(): number {
+    return this.commuteRevision;
+  }
   drainGameplayEvents(): string {
     const out = JSON.stringify(this.owed);
     this.owed = [];
     return out;
   }
-  gameplayEventsPending(): number { return this.owed.length; }
-  gameplayEventsDropped(): number { return this.dropped; }
+  gameplayEventsPending(): number {
+    return this.owed.length;
+  }
+  gameplayEventsDropped(): number {
+    return this.dropped;
+  }
   private check(name: string): void {
     if (this.failOn === name) {
       this.failOn = null;
@@ -129,7 +154,8 @@ export function fakeModule(opts: { readsAs?: Record<string, unknown> } = {}): Wa
       // Commands the fake does not model are recorded and accepted.
       return new Proxy(e, {
         get(target, key) {
-          if (key in target || typeof key !== "string") return (target as unknown as Record<string | symbol, unknown>)[key];
+          if (key in target || typeof key !== "string")
+            return (target as unknown as Record<string | symbol, unknown>)[key];
           return (...args: unknown[]) => {
             target.calls.push(`${key} ${JSON.stringify(args)}`);
             target.revision++;

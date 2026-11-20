@@ -30,7 +30,11 @@ describe("outcome", () => {
     const port = mockPort(vi, { lastReason: () => "Too high to build" });
     expect(outcome(port, record("buildAt", { status: 1, delta: -40_000 }))).toEqual({ ok: true, delta: -40_000 });
     expect(port.lastReason).not.toHaveBeenCalled();
-    expect(outcome(port, record("buildAt", { status: 0, delta: 0 }))).toEqual({ ok: false, reason: "Too high to build", delta: 0 });
+    expect(outcome(port, record("buildAt", { status: 0, delta: 0 }))).toEqual({
+      ok: false,
+      reason: "Too high to build",
+      delta: 0,
+    });
     expect(port.lastReason).toHaveBeenCalledOnce();
   });
 });

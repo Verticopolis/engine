@@ -21,7 +21,17 @@ const FX = {
 
 /** The reader fields the frame reader reads: the header and the tower's lookups. */
 function readerOf() {
-  const header = { mode: "modern", sceneSeed: 77, camera: { tile: 200, floor: 2, zoom: 1.5 }, weather: "rain", population: 412, minutes: 1440 + 600, revision: 5, fx: FX, bombSearch: null };
+  const header = {
+    mode: "modern",
+    sceneSeed: 77,
+    camera: { tile: 200, floor: 2, zoom: 1.5 },
+    weather: "rain",
+    population: 412,
+    minutes: 1440 + 600,
+    revision: 5,
+    fx: FX,
+    bombSearch: null,
+  };
   const people = [{ id: 7 }];
   const tower = { unitAt: vi.fn(() => undefined), revision: 5 };
   return { header, crowd: { people }, tower } as unknown as ViewReader & { header: typeof header };
@@ -36,8 +46,21 @@ function sim(answers: Parameters<typeof mockPort>[1] = {}) {
 describe("FrameReader", () => {
   it("reads the view through the reader's header, asking the port nothing", () => {
     const { port, reader, r } = sim();
-    expect([r.mode, r.rng.initialSeed, r.view, r.weather, r.population, r.bombSearch]).toEqual(["modern", 77, { tile: 200, floor: 2, zoom: 1.5 }, "rain", 412, null]);
-    expect([r.santaFxSeq, r.vipFxSeq, r.explosionFx, r.thiefFx, r.treasureFx]).toEqual([1, 2, FX.explosion, FX.thief, FX.treasure]);
+    expect([r.mode, r.rng.initialSeed, r.view, r.weather, r.population, r.bombSearch]).toEqual([
+      "modern",
+      77,
+      { tile: 200, floor: 2, zoom: 1.5 },
+      "rain",
+      412,
+      null,
+    ]);
+    expect([r.santaFxSeq, r.vipFxSeq, r.explosionFx, r.thiefFx, r.treasureFx]).toEqual([
+      1,
+      2,
+      FX.explosion,
+      FX.thief,
+      FX.treasure,
+    ]);
     expect([r.clock.minutes, r.clock.hour, r.clock.minute]).toEqual([1440 + 600, 10, 0]);
     expect(r.crowd.people).toBe(reader.crowd.people);
     r.tower.unitAt(2, 170);
@@ -79,7 +102,10 @@ describe("FrameReader", () => {
   it("decodes the queue projection and keeps it until the tower, the minute or the revision moves", () => {
     let gen = 1;
     // One landing (shaft 20, floor 1: 6 waiting, tier 2) and one boarded car (shaft 20, car 0: 4 riders).
-    const { port, reader, r } = sim({ generation: () => gen, queueView: () => Float64Array.of(1, 1, 20, 1, 6, 2, 20, 0, 4) });
+    const { port, reader, r } = sim({
+      generation: () => gen,
+      queueView: () => Float64Array.of(1, 1, 20, 1, 6, 2, 20, 0, 4),
+    });
     const q = r.crowd.queueView();
     expect([...q.landings.get(20)!]).toEqual([[1, { count: 6, tier: 2 }]]);
     expect([...q.boarded.get(20)!]).toEqual([[0, 4]]);

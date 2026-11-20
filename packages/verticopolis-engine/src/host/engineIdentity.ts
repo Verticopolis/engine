@@ -20,30 +20,21 @@ export interface EngineIdentity {
 /** The engine's record text, or undefined when the package has no such call
  *  or it throws. About reports the gap, so a missing identity never stops a
  *  boot. */
-export function readEngineIdentity(
-  mod: Pick<WasmModule, "engineIdentity">,
-): string | undefined {
+export function readEngineIdentity(mod: Pick<WasmModule, "engineIdentity">): string | undefined {
   try {
-    return typeof mod.engineIdentity === "function"
-      ? mod.engineIdentity()
-      : undefined;
+    return typeof mod.engineIdentity === "function" ? mod.engineIdentity() : undefined;
   } catch {
     return undefined;
   }
 }
 
-const isString = (v: unknown): v is string =>
-  typeof v === "string" && v.length > 0;
-const isCount = (v: unknown): v is number =>
-  typeof v === "number" && Number.isInteger(v) && v >= 0;
-const isObject = (v: unknown): v is Record<string, unknown> =>
-  typeof v === "object" && v !== null && !Array.isArray(v);
+const isString = (v: unknown): v is string => typeof v === "string" && v.length > 0;
+const isCount = (v: unknown): v is number => typeof v === "number" && Number.isInteger(v) && v >= 0;
+const isObject = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 
 /** The record from its text, or null when the text is missing, is not JSON or
  *  lacks a field. A record from a newer schema with extra fields still reads. */
-export function parseEngineIdentity(
-  text: string | undefined,
-): EngineIdentity | null {
+export function parseEngineIdentity(text: string | undefined): EngineIdentity | null {
   if (!text) return null;
   let raw: unknown;
   try {
@@ -51,16 +42,8 @@ export function parseEngineIdentity(
   } catch {
     return null;
   }
-  if (!isObject(raw) || !isObject(raw.crate) || !isObject(raw.catalogDigests))
-    return null;
-  const {
-    schema,
-    saveVersion,
-    oldestSaveVersion,
-    frameLayoutVersion,
-    catalogVersion,
-    lockDigest,
-  } = raw;
+  if (!isObject(raw) || !isObject(raw.crate) || !isObject(raw.catalogDigests)) return null;
+  const { schema, saveVersion, oldestSaveVersion, frameLayoutVersion, catalogVersion, lockDigest } = raw;
   const { name, version } = raw.crate;
   const { classic, modern } = raw.catalogDigests;
   if (
@@ -71,13 +54,7 @@ export function parseEngineIdentity(
     !isCount(catalogVersion)
   )
     return null;
-  if (
-    !isString(lockDigest) ||
-    !isString(name) ||
-    !isString(version) ||
-    !isString(classic) ||
-    !isString(modern)
-  )
+  if (!isString(lockDigest) || !isString(name) || !isString(version) || !isString(classic) || !isString(modern))
     return null;
   return {
     schema,

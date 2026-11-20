@@ -52,13 +52,21 @@ export function trapKind(error: unknown): TrapKind {
 
 /** The trap itself, `error` or one of its causes, or null for none. */
 function trapIn(error: unknown): unknown {
-  for (let e = error, depth = 0; typeof e === "object" && e !== null && depth < 4; e = (e as { cause?: unknown }).cause, depth++) {
+  for (
+    let e = error, depth = 0;
+    typeof e === "object" && e !== null && depth < 4;
+    e = (e as { cause?: unknown }).cause, depth++
+  ) {
     if (typeof WebAssembly !== "undefined" && e instanceof WebAssembly.RuntimeError) return e;
     const { name, message } = e as { name?: unknown; message?: unknown };
     if (name === "RuntimeError") return e;
     if (typeof message !== "string") continue;
     if (message.includes(POISONED)) return e;
-    if ((name === "RangeError" && /maximum call stack size exceeded/i.test(message)) || (name === "InternalError" && /too much recursion/i.test(message))) return e;
+    if (
+      (name === "RangeError" && /maximum call stack size exceeded/i.test(message)) ||
+      (name === "InternalError" && /too much recursion/i.test(message))
+    )
+      return e;
   }
   return null;
 }
@@ -81,5 +89,7 @@ export function runEach(...steps: (() => void)[]): void {
   if (errors.length === 1) throw errors[0];
   const first = errors.find((e) => trapIn(e) !== null) ?? errors[0];
   const text = (x: unknown) => (x instanceof Error ? x.message : String(x));
-  throw Object.assign(new Error([first, ...errors.filter((e) => e !== first)].map(text).join(", and ")), { cause: trapIn(first) ?? first });
+  throw Object.assign(new Error([first, ...errors.filter((e) => e !== first)].map(text).join(", and ")), {
+    cause: trapIn(first) ?? first,
+  });
 }

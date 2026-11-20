@@ -7,7 +7,10 @@ describe("skyBridgeReads", () => {
   it("decodes the engine's quads and asks again only when the revision or generation moves", () => {
     let revision = 3;
     let generation = 1;
-    const port = { skyBridgeLooks: vi.fn(() => Float64Array.from([15, 110, 120, 2, 30, 40, 44, 0])), generation: () => generation };
+    const port = {
+      skyBridgeLooks: vi.fn(() => Float64Array.from([15, 110, 120, 2, 30, 40, 44, 0])),
+      generation: () => generation,
+    };
     const read = skyBridgeReads(port, () => revision);
     expect(read()).toEqual([
       { floor: 15, from: 110, to: 120, look: 2 },
@@ -37,7 +40,10 @@ describe("finding a bridge at a cell", () => {
 
   it("counts a bridge finished only with a sky lobby past each end", () => {
     const lobbies = new Set(["15:109", "15:120"]);
-    const tower = { skyBridges: () => bridges, structureKindAt: (f: number, x: number) => (lobbies.has(`${f}:${x}`) ? ("lobby" as const) : undefined) };
+    const tower = {
+      skyBridges: () => bridges,
+      structureKindAt: (f: number, x: number) => (lobbies.has(`${f}:${x}`) ? ("lobby" as const) : undefined),
+    };
     expect(finishedSkyBridgeAt(tower, 15, 113)).toBe(bridges[0]);
     lobbies.delete("15:120");
     expect(finishedSkyBridgeAt(tower, 15, 113)).toBeUndefined();

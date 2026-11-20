@@ -33,19 +33,33 @@ export type { CatalogStarDuty, StarDutyId } from "../catalog/starDutyTypes.ts";
  *  kinds, the ground floor structure) naming a listed facility. The lock pins
  *  the engine's text; this check stops a stale or damaged binding of
  *  the same version from handing a frontend a wrong price or a missing field. */
-export function readCatalog(mod: Pick<WasmModule, "catalog">, mode: GameMode, version: number = CATALOG_VERSION): Catalog {
+export function readCatalog(
+  mod: Pick<WasmModule, "catalog">,
+  mode: GameMode,
+  version: number = CATALOG_VERSION,
+): Catalog {
   if (typeof mod.catalog !== "function") throw new Error("the WASM binding exports no catalog; rebuild it");
   let c: unknown;
   try {
     c = JSON.parse(mod.catalog(mode));
   } catch (e) {
     // The cause keeps a trap a trap for the host (#1113).
-    throw Object.assign(new Error(`the engine returned no ${mode} catalog: ${e instanceof Error ? e.message : String(e)}`), { cause: e });
+    throw Object.assign(
+      new Error(`the engine returned no ${mode} catalog: ${e instanceof Error ? e.message : String(e)}`),
+      { cause: e },
+    );
   }
   if (!isRecord(c)) throw new Error("the engine returned no catalog");
-  if (c.version !== version) throw new Error(`the engine's catalog is version ${String(c.version)}; expected version ${version}`);
+  if (c.version !== version)
+    throw new Error(`the engine's catalog is version ${String(c.version)}; expected version ${version}`);
   if (c.mode !== mode) throw new Error(`asked for the ${mode} catalog, got ${String(c.mode)}`);
-  if (!isRecord(c.world) || !isRecord(c.economy) || !isRecord(c.rules) || !Array.isArray(c.pools) || !Array.isArray(c.facilities)) {
+  if (
+    !isRecord(c.world) ||
+    !isRecord(c.economy) ||
+    !isRecord(c.rules) ||
+    !Array.isArray(c.pools) ||
+    !Array.isArray(c.facilities)
+  ) {
     throw new Error("the engine returned a catalog without its world, economy, rules, pools or facilities");
   }
   checkCatalog(c);
@@ -64,11 +78,28 @@ const count: Check = (v) => int(v) && (v as number) >= 0;
 const size: Check = (v) => int(v) && (v as number) >= 1;
 const bool: Check = (v) => typeof v === "boolean";
 const text: Check = (v) => typeof v === "string" && v.length > 0;
-const orNull = (check: Check): Check => (v) => v === null || check(v);
-const oneOf = (...values: readonly unknown[]): Check => (v) => values.includes(v);
+const orNull =
+  (check: Check): Check =>
+  (v) =>
+    v === null || check(v);
+const oneOf =
+  (...values: readonly unknown[]): Check =>
+  (v) =>
+    values.includes(v);
 const cadence = oneOf("quarterly", "maintenancePeriod", "sale", "nightly");
 const poolKey = oneOf("elevators", "walkways", "venues");
-const category = oneOf("structure", "transport", "office", "residential", "hotel", "food", "retail", "entertainment", "service", "special");
+const category = oneOf(
+  "structure",
+  "transport",
+  "office",
+  "residential",
+  "hotel",
+  "food",
+  "retail",
+  "entertainment",
+  "service",
+  "special",
+);
 
 const WORLD: Shape = {
   lotWidth: size,
@@ -79,7 +110,13 @@ const WORLD: Shape = {
   lobbyInterval: size,
   metroTrain: isRecord,
 };
-const METRO_TRAIN: Shape = { firstHour: count, lastHour: count, legMinutes: positive, dwellMinutes: positive, runMinutes: positive };
+const METRO_TRAIN: Shape = {
+  firstHour: count,
+  lastHour: count,
+  legMinutes: positive,
+  dwellMinutes: positive,
+  runMinutes: positive,
+};
 const ECONOMY: Shape = {
   startingMoney: amount,
   addCarCost: amount,
@@ -100,13 +137,57 @@ const ECONOMY: Shape = {
   ticketPriceDefault: (v) => v === null || typeof v === "string",
   autoBridgeToggleable: bool,
 };
-const RULES: Shape = { variantHouseholds: bool, previewNamesRefusal: bool, scheduleAssist: bool, buildsWhilePaused: bool, exportsTo1994: bool, quotesLobbyDistance: bool, advisesFixes: bool, tallSkyLobbies: bool, maxLobbyHeight: size, decorativePassersBy: bool, shadedLook: bool, venueFlights: bool, frontDoorPerTower: bool, expressStopsOn15thFloors: bool, officesShareOneParkingSpace: bool, fedUpWait: positive, announcesStarDuties: bool, starDuties: Array.isArray, skyBridge: (v) => v === null || isRecord(v) };
-const STAR_DUTY: Shape = { star: size, id: oneOf("emergencies", "suiteParking", "officeParking", "homeParking", "recycling", "vipVisits", "hotelGuestsUncounted", "bombThreats") };
+const RULES: Shape = {
+  variantHouseholds: bool,
+  previewNamesRefusal: bool,
+  scheduleAssist: bool,
+  buildsWhilePaused: bool,
+  exportsTo1994: bool,
+  quotesLobbyDistance: bool,
+  advisesFixes: bool,
+  tallSkyLobbies: bool,
+  maxLobbyHeight: size,
+  decorativePassersBy: bool,
+  shadedLook: bool,
+  venueFlights: bool,
+  frontDoorPerTower: bool,
+  expressStopsOn15thFloors: bool,
+  officesShareOneParkingSpace: bool,
+  fedUpWait: positive,
+  announcesStarDuties: bool,
+  starDuties: Array.isArray,
+  skyBridge: (v) => v === null || isRecord(v),
+};
+const STAR_DUTY: Shape = {
+  star: size,
+  id: oneOf(
+    "emergencies",
+    "suiteParking",
+    "officeParking",
+    "homeParking",
+    "recycling",
+    "vipVisits",
+    "hotelGuestsUncounted",
+    "bombThreats",
+  ),
+};
 const EXTERMINATOR: Shape = { calloutFee: amount, perRoomFee: amount };
-const SKY_BRIDGE: Shape = { minStar: count, maxSpan: size, tileCost: amount, looks: (v) => Array.isArray(v) && v.length > 0 && v.every(text) };
-const FILM: Shape = { key: (v) => v === "new" || v === "classic" || v === "blockbuster", label: (v) => typeof v === "string", price: amount };
+const SKY_BRIDGE: Shape = {
+  minStar: count,
+  maxSpan: size,
+  tileCost: amount,
+  looks: (v) => Array.isArray(v) && v.length > 0 && v.every(text),
+};
+const FILM: Shape = {
+  key: (v) => v === "new" || v === "classic" || v === "blockbuster",
+  label: (v) => typeof v === "string",
+  price: amount,
+};
 const TICKET_PRICE: Shape = { key: text, label: text, incomeMult: positive, pickMult: positive };
-const FILM_REBOOK: Shape = { policy: (v) => typeof v === "string", film: (v) => v === null || v === "new" || v === "classic" || v === "blockbuster" };
+const FILM_REBOOK: Shape = {
+  policy: (v) => typeof v === "string",
+  film: (v) => v === null || v === "new" || v === "classic" || v === "blockbuster",
+};
 const CALENDAR: Shape = {
   key: oneOf("realWorld", "canon"),
   quarterDays: size,
@@ -180,7 +261,8 @@ function checkShape(v: unknown, shape: Shape, path: string): Record<string, unkn
   if (!isRecord(v)) throw new Error(`the engine's catalog has no object at ${path}`);
   for (const [field, check] of Object.entries(shape)) {
     if (!(field in v)) throw new Error(`the engine's catalog is missing ${path}.${field}`);
-    if (!check(v[field])) throw new Error(`the engine's catalog has an invalid ${path}.${field}: ${JSON.stringify(v[field])}`);
+    if (!check(v[field]))
+      throw new Error(`the engine's catalog has an invalid ${path}.${field}: ${JSON.stringify(v[field])}`);
   }
   return v;
 }
@@ -208,9 +290,11 @@ function checkRent(rent: Record<string, unknown>, path: string): void {
 function checkCatalog(c: Record<string, unknown>): void {
   const world = checkShape(c.world, WORLD, "world");
   const [minFloor, groundFloor, maxFloor] = [world.minFloor, world.groundFloor, world.maxFloor] as number[];
-  if (minFloor > groundFloor || groundFloor > maxFloor) refuse("world", "the ground floor lies outside the floor range");
+  if (minFloor > groundFloor || groundFloor > maxFloor)
+    refuse("world", "the ground floor lies outside the floor range");
   const train = checkShape(world.metroTrain, METRO_TRAIN, "world.metroTrain");
-  if ((train.firstHour as number) > (train.lastHour as number) || (train.lastHour as number) > 23) refuse("world.metroTrain", "the hours are out of order");
+  if ((train.firstHour as number) > (train.lastHour as number) || (train.lastHour as number) > 23)
+    refuse("world.metroTrain", "the hours are out of order");
 
   const economy = checkShape(c.economy, ECONOMY, "economy");
   if (economy.exterminator !== null) checkShape(economy.exterminator, EXTERMINATOR, "economy.exterminator");
@@ -241,7 +325,8 @@ function checkCatalog(c: Record<string, unknown>): void {
     if (e.halo !== null) {
       const halo = checkShape(e.halo, HALO, `${path}.halo`);
       // A lift raises a capped room's ceiling; a drain only drains.
-      if ((halo.effect === "lift") !== (halo.capLift !== null)) refuse(`${path}.halo`, `${key}'s capLift does not match its effect`);
+      if ((halo.effect === "lift") !== (halo.capLift !== null))
+        refuse(`${path}.halo`, `${key}'s capLift does not match its effect`);
     }
     (e.noise as unknown[]).forEach((n, j) => checkShape(n, NOISE, `${path}.noise[${j}]`));
   });
@@ -251,7 +336,8 @@ function checkCatalog(c: Record<string, unknown>): void {
       if (!keys.has(kind)) refuse(`facilities[${i}].halo.feltBy`, `${kind} is not a listed facility`);
     }
     e.noise.forEach((n, j) => {
-      for (const kind of n.kinds) if (!keys.has(kind)) refuse(`facilities[${i}].noise[${j}].kinds`, `${kind} is not a listed facility`);
+      for (const kind of n.kinds)
+        if (!keys.has(kind)) refuse(`facilities[${i}].noise[${j}].kinds`, `${kind} is not a listed facility`);
     });
   });
   if (!keys.has(world.groundFloorStructure as string)) {
@@ -263,7 +349,8 @@ function checkCatalog(c: Record<string, unknown>): void {
     const pool = checkShape(p, POOL, `pools[${i}]`);
     pools.add(pool.key);
     for (const kind of pool.kinds as unknown[]) {
-      if (typeof kind !== "string" || !keys.has(kind)) refuse(`pools[${i}].kinds`, `${JSON.stringify(kind)} is not a listed facility`);
+      if (typeof kind !== "string" || !keys.has(kind))
+        refuse(`pools[${i}].kinds`, `${JSON.stringify(kind)} is not a listed facility`);
     }
   });
   facilities.forEach((f, i) => {

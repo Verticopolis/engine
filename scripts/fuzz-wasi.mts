@@ -50,7 +50,8 @@ try {
 }
 try {
   const status = wasi.start(instance);
-  process.exitCode = status === 0 ? 0 : status === 1 ? REFUSED : HARNESS;
+  if (status === 0) process.exitCode = 0;
+  else process.exitCode = status === 1 ? REFUSED : HARNESS;
 } catch (e) {
   if (e instanceof WebAssembly.RuntimeError) {
     console.error(`${scenario}: the WebAssembly build trapped: ${e.message}`);
