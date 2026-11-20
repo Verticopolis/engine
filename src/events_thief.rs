@@ -17,7 +17,11 @@ impl Simulation {
         if self.star < EMERGENCIES_FROM_STAR {
             return;
         }
-        if !self.events.extra.chance(THIEF_DAILY_CHANCE) {
+        if !self
+            .events
+            .extra
+            .chance(self.per_canon_day(THIEF_DAILY_CHANCE))
+        {
             return;
         }
         // After the daily draw, so every tower still spends it, and the

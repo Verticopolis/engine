@@ -115,8 +115,13 @@ fn a_reload_keeps_santas_once_a_year_guard() {
 /// Modern, so a tower with no Security can burn (Classic needs Security
 /// first, #1889); the fire rules are otherwise the same in both modes.
 fn fire_tower(defended: bool, star: i64) -> Simulation {
+    fire_tower_on(CalendarKind::RealWorld, 7, defended, star)
+}
+
+/// [`fire_tower`] on the chosen calendar and seed.
+fn fire_tower_on(calendar: CalendarKind, seed: u32, defended: bool, star: i64) -> Simulation {
     const WIDTH: i64 = 44;
-    let mut sim = Simulation::new_game(7, GameMode::Modern);
+    let mut sim = Simulation::new_game_with(seed, GameMode::Modern, calendar, false);
     sim.money = 1_000_000.0;
     sim.star = star;
     for x in 0..WIDTH {
@@ -166,4 +171,30 @@ fn the_rescue_fee_scales_with_the_rating() {
     };
     assert_eq!(first_fee(2), Some(150_000.0));
     assert_eq!(first_fee(5), Some(500_000.0));
+}
+
+#[test]
+fn a_real_world_month_rolls_the_fire_chance_of_a_canon_month() {
+    // Ten real-world days stand for one canon day (a 30-day month against a
+    // 3-day one), so the daily chance is a tenth, defended or not.
+    for defended in [false, true] {
+        let canon = fire_tower_on(CalendarKind::Canon, 7, defended, 2);
+        let real = fire_tower_on(CalendarKind::RealWorld, 7, defended, 2);
+        assert!((real.fire_chance() * 10.0 - canon.fire_chance()).abs() < 1e-12);
+    }
+}
+
+#[test]
+fn an_undefended_real_world_tower_sees_about_one_fire_by_the_third_quarter() {
+    // A player reported a sixth fire by Year 1 Q3: the daily roll took 1994's
+    // per-day odds over 360-day years, about 6.7 fires by then on average.
+    const SEEDS: u32 = 40;
+    let mut fires = 0;
+    for seed in 1..=SEEDS {
+        let mut sim = fire_tower_on(CalendarKind::RealWorld, seed, false, 2);
+        run_days(&mut sim, 0..YEAR_DAYS * 3 / 4);
+        fires += sim.events.fires_started;
+    }
+    let mean = fires as f64 / SEEDS as f64;
+    assert!(mean < 1.5, "{mean} fires by Q3");
 }

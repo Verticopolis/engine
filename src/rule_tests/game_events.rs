@@ -8,7 +8,7 @@
 //! modes (it no longer settles at once, see the mapping notes); its sweep
 //! and detonation are `events_bomb_tests::{enough_guards_find_the_bomb_before_the_deadline,
 //! with_no_security_the_bomb_goes_off_at_the_deadline, a_refused_ransom_never_settles_at_once_in_either_mode}`.
-use crate::clock::GameMode;
+use crate::clock::{CalendarKind, GameMode};
 use crate::facilities::Kind;
 use crate::rng::Rng;
 use crate::sim::Simulation;
@@ -23,9 +23,20 @@ const THIEF_DAILY_CHANCE: f64 = 0.025;
 const WIDTH: i64 = 20;
 
 /// A lobby and floor 2 twenty tiles wide (optionally Security there), then
-/// one finished office per floor on floors 3 to 6, all at x 0.
+/// one finished office per floor on floors 3 to 6, all at x 0, on the canon
+/// calendar, whose daily odds are 1994's.
 fn office_tower(mode: GameMode, star: i64, security: bool) -> Simulation {
-    let mut sim = Simulation::new_game(7, mode);
+    office_tower_on(CalendarKind::Canon, mode, star, security)
+}
+
+/// [`office_tower`] on the chosen calendar (Classic always runs canon).
+fn office_tower_on(
+    calendar: CalendarKind,
+    mode: GameMode,
+    star: i64,
+    security: bool,
+) -> Simulation {
+    let mut sim = Simulation::new_game_with(7, mode, calendar, false);
     sim.money = 1_000_000.0;
     sim.star = star;
     for x in 0..WIDTH {
@@ -417,5 +428,37 @@ fn a_theft_names_the_fix_in_modern_only() {
             mode.advises_fixes(),
             "{mode:?}: {notice}"
         );
+    }
+}
+
+#[test]
+fn a_real_world_day_takes_a_tenth_of_each_emergencys_canon_odds() {
+    // A roll under 1994's odds but over a tenth of them sets off each
+    // emergency on the canon calendar and none on the real-world one.
+    let fire = |r: &mut Rng| (BASE_FIRE_CHANCE / 10.0..BASE_FIRE_CHANCE).contains(&r.next());
+    let bomb = |r: &mut Rng| {
+        let roll = r.next();
+        (BASE_FIRE_CHANCE + BOMB_WINDOW / 10.0..BASE_FIRE_CHANCE + BOMB_WINDOW).contains(&roll)
+    };
+    let thief = |r: &mut Rng| (THIEF_DAILY_CHANCE / 10.0..THIEF_DAILY_CHANCE).contains(&r.next());
+    for (calendar, strikes) in [
+        (CalendarKind::Canon, true),
+        (CalendarKind::RealWorld, false),
+    ] {
+        let mut burn = office_tower_on(calendar, GameMode::Modern, 2, false);
+        script_main(&mut burn, fire);
+        burn.maybe_random_event();
+        assert_eq!(any_in(&burn, UnitState::Fire), strikes, "{calendar:?} fire");
+
+        let mut call = office_tower_on(calendar, GameMode::Modern, 4, false);
+        script_main(&mut call, bomb);
+        call.maybe_random_event();
+        assert_eq!(call.events.pending.is_some(), strikes, "{calendar:?} bomb");
+
+        let mut rob = office_tower_on(calendar, GameMode::Modern, 2, false);
+        script_events(&mut rob, thief);
+        script_main(&mut rob, |r| r.next() >= 0.5);
+        rob.maybe_random_event();
+        assert_eq!(rob.fx.thief.seq, i64::from(strikes), "{calendar:?} thief");
     }
 }

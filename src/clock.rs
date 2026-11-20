@@ -61,6 +61,16 @@ pub const CANON: Calendar = Calendar {
     maint_period_days: 3,
 };
 
+impl Calendar {
+    /// How many of this calendar's days one day of the 1994 calendar stands
+    /// for, measured by the month between maintenance bills: 1 on the canon
+    /// calendar, 10 on the real-world one. An emergency rolled once a day
+    /// divides its chance by this, so it comes as often per month on either.
+    pub(crate) fn days_per_canon_day(&self) -> f64 {
+        self.maint_period_days as f64 / CANON.maint_period_days as f64
+    }
+}
+
 /// The real-world calendar a Modern game may choose.
 pub const REAL_WORLD: Calendar = Calendar {
     kind: CalendarKind::RealWorld,

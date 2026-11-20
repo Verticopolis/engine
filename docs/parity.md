@@ -64,7 +64,7 @@ checklist lived until 2026-11-20, unless they name another repository.
 
 ## Time, audio, presentation
 - ✅ The 1994 "breathing clock" (presentation only; Steady clock turns it off)
-- ✅ The canon compressed calendar in Classic ([tdt-format.md](tdt/tdt-format.md) §3); Modern may pick a real-world length
+- ✅ The canon compressed calendar in Classic ([tdt-format.md](tdt/tdt-format.md) §3); Modern may pick a real-world length, whose 30-day month brings the fires, bomb threats and thieves a canon 3-day month does
 - ✅ Day and night, lit windows, weather (cosmetic), the crane until floor 100, exterior escape stairs, grand lobbies
 - ✅ Location-aware soundtrack and effects; pan, zoom and pinch
 
