@@ -44,12 +44,15 @@ fn a_wrong_magic_a_tiny_file_and_a_huge_one_are_refused_with_a_reason() {
         ..Spec::default()
     })
     .contains("doesn't look like a SimTower save"));
-    let tiny = parse_tdt(&[0; 8], "TOWER.TDT").err().expect("refused").0;
+    let Err(tiny) = parse_tdt(&[0; 8], "TOWER.TDT") else {
+        panic!("a tiny file was read");
+    };
+    let tiny = tiny.0;
     assert!(tiny.contains("too small"), "{tiny}");
-    let huge = parse_tdt_binary(&vec![0; TDT_MAX_FILE_BYTES + 1])
-        .err()
-        .expect("refused")
-        .0;
+    let Err(huge) = parse_tdt_binary(&vec![0; TDT_MAX_FILE_BYTES + 1]) else {
+        panic!("a huge file was read");
+    };
+    let huge = huge.0;
     assert!(huge.contains("too large"), "{huge}");
 }
 
