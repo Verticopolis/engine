@@ -151,7 +151,7 @@ it, and nothing in the engine reads it or requires it:
 ```
 
 `sourceHash` is the SHA-256 over the engine's Rust sources and the files they
-include (`engineSourceHash` in `src/wasmhost/packageHash.ts`). A packager
+include (`engineSourceHash` in `packages/verticopolis-engine/src/host/packageHash.ts`). A packager
 outside the web build computes the same value as follows. Take every file under
 the crate directory except build output (`target/`, `pkg/`, `pkg-player/` and
 `pkg-web-tooling/` at any depth), the `consumer/` crate at the top of the
@@ -175,7 +175,7 @@ in `BUILD.json`). The web build writes the object, as UTF-8 JSON,
 into a custom section named `verticopolis.build` of each `.wasm`
 (`scripts/wasm-build.ts`, right after wasm-bindgen and before any digest is
 taken), and the page reads it back from the compiled module
-(`src/wasmhost/engineLoad.ts`). A native Rust or Godot host supplies the same
+(`packages/verticopolis-engine/src/host/engineLoad.ts`). A native Rust or Godot host supplies the same
 object its own way, for example a file its build step writes next to the library or a constant it links in, and a frontend that shows
 both shows them side by side. A missing or malformed object is reported as
 unavailable, never as a failure of the engine.
