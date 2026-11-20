@@ -11,6 +11,7 @@ use crate::tower::UnitState;
 #[cfg(test)]
 #[path = "attendance.rs"]
 mod attendance;
+mod attendance_teardown;
 mod auto_backlog;
 mod auto_basement_rush;
 mod auto_idle_express;

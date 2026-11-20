@@ -4,8 +4,8 @@
 //! catalog band is pinned by `catalog::tests::each_mode_matches_the_lock`;
 //! the quoted sale and buy-back prices by
 //! `catalog::charge_tests::a_condo_sells_once_at_the_quoted_household_price`
-//! and `charges_removal_tests`; the re-listing and the stamped price by
-//! `condoModesEngine.integration.test.ts`.
+//! and `charges_removal_tests`; the re-listing and the stamped price are
+//! the last two tests below.
 use serde_json::Value;
 
 use crate::clock::GameMode;

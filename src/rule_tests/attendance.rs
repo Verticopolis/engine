@@ -1,7 +1,7 @@
 //! The arrival recheck and the mid-visit teardowns of the attendance
 //! tallies (#302, #360). The full-day reconcile, the bulldozed origin, the
-//! venue bulldozed under counted visitors and the fire mid-show run on the
-//! engine in `attendanceTripwireEngine.integration.test.ts`.
+//! venue bulldozed under counted visitors and the fire mid-show are in
+//! `attendance_teardown`.
 use crate::clock::{CalendarKind, Clock, GameMode};
 use crate::crowd::motion::finish;
 use crate::crowd::spawn::add;
@@ -14,7 +14,7 @@ use crate::tower::UnitState;
 
 /// Lobby, floors 2 to 6, one elevator, a tenanted party hall on 2, a fast
 /// food and an office on 4 and an asleep hotel single on 5: every tally kind.
-fn mixed_tower() -> Simulation {
+pub(super) fn mixed_tower() -> Simulation {
     let mut sim = Simulation::new_game_with(2024, GameMode::Modern, CalendarKind::RealWorld, false);
     sim.money = 10_000_000.0;
     sim.star = 1;
@@ -51,7 +51,7 @@ fn at_hour(sim: &mut Simulation, hour: i64) {
     sim.clock = Clock::new((hour * 60) as f64, sim.clock.calendar);
 }
 
-fn unit_id(sim: &Simulation, kind: Kind) -> i64 {
+pub(super) fn unit_id(sim: &Simulation, kind: Kind) -> i64 {
     sim.tower.units.iter().find(|u| u.kind == kind).unwrap().id
 }
 

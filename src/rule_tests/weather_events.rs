@@ -4,7 +4,7 @@
 //! it, Santa crosses a three-star sky once a year (never a lower tower's,
 //! and a reload keeps the once-a-year guard), fire defense makes fires
 //! rarer, and the rescue fee scales with the rating. Rain's effect on
-//! commerce is `faqWeatherEngine.integration.test.ts`.
+//! commerce is `rule_tests::weather_crowd`.
 use crate::clock::{CalendarKind, GameMode};
 use crate::facilities::Kind;
 use crate::load::deserialize;
