@@ -472,3 +472,27 @@ fn the_facts_and_preset_queries_answer_their_statuses_and_write_nothing() {
     assert_eq!(preset(&e, id, "rush")["status"], "unavailable-in-mode");
     assert_eq!(preset(&e, id, "stage-up-tower")["status"], "available");
 }
+
+#[test]
+fn the_schedule_queries_refuse_a_stair_a_bad_header_and_a_name_in_another_case() {
+    let mut e = engine();
+    let id = shaft(&mut e);
+    let r = e.port_build_shaft(code(Kind::Stairs), 170.0, 1.0, 2.0);
+    assert_eq!(r[0], 1.0, "{:?}", e.last_reason_text());
+    let stair = e
+        .sim
+        .tower
+        .transports
+        .iter()
+        .find(|t| t.kind == Kind::Stairs)
+        .unwrap()
+        .id as f64;
+    assert_eq!(facts(&e, stair, &[], false)["status"], "not-an-elevator");
+    assert_eq!(preset(&e, stair, "rush")["status"], "not-an-elevator");
+    // A draft of the right length whose header names no known layout.
+    let mut bad = vec![0.0; SCHEDULE_LEN];
+    bad[0] = 7.0;
+    bad[1..=SCHEDULE_HOURS].fill(1.0);
+    assert_eq!(facts(&e, id, &bad, false)["status"], "invalid-draft");
+    assert_eq!(preset(&e, id, "Rush")["status"], "unknown-preset");
+}
