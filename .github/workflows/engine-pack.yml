@@ -76,13 +76,16 @@ jobs:
 
       # The TypeScript layer (packages/verticopolis-engine/src) is typechecked
       # against the binding the build just wrote, and its fixtures must match
-      # the engine's own answers.
+      # the engine's own answers. The glue suites (packages/verticopolis-engine/glue)
+      # then drive that build through its JavaScript binding: the conformance
+      # scenarios and catalog digests, and the binding's commands and refusals.
       - name: Typecheck and test the TypeScript layer
         if: steps.scope.outputs.run == 'true'
         run: |
           npm run layer:typecheck
           npm run layer:test
           node scripts/layer-fixtures.ts --check
+          npm run glue:test
 
       - name: Version
         if: steps.scope.outputs.run == 'true'

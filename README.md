@@ -84,7 +84,7 @@ built from `docs/engine-site/`:
 | `docs/parity.md` | How a Classic tower matches the 1994 game, one line per mechanic |
 | `docs/canon/` | Dated audits of Classic rules and the runs of the original that settle them |
 | `docs/performance/` | Measurements of the engine package |
-| `packages/verticopolis-engine/` | The `@verticopolis/engine` npm package: its `package.json`, README, TypeScript layer and browser types |
+| `packages/verticopolis-engine/` | The `@verticopolis/engine` npm package: its `package.json`, README, TypeScript layer and browser types, and the glue suites (`glue/`) that run the conformance suite through the JavaScript binding |
 | `Cargo.lock` | The lock the crate builds and packages with |
 | `package.json` | The repository's build and check tooling (private, never published) |
 | `history/commit-map.txt` | Each commit here and the `maniator/verticopolis` commit it came from |
@@ -112,7 +112,17 @@ npm test
 
 CI also runs the referee compiled to WebAssembly, under Node's WASI
 (`scripts/conformance-wasi.mts` has the two commands), so the checkpoints hold
-for the engine built the way a browser runs it.
+for the engine built the way a browser runs it. After `npm run wasm:build`,
+the glue suites drive the tooling build through the wasm-bindgen binding a
+frontend loads: the scenarios against the lock, the catalogs against their
+digests, and the binding's commands, reads and refusals.
+
+```sh
+npm run wasm:build
+npm run layer:typecheck   # the TypeScript layer and the glue suites
+npm run layer:test
+npm run glue:test
+```
 
 `docs/engine.md` lists the other tools: the checkpoint dump, the `.TDT`
 replay and coverage.

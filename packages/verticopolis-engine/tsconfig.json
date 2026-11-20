@@ -1,6 +1,7 @@
 {
   // The package's TypeScript layer: model/, catalog/, binding/, port/, host/
-  // and testing/, checked against the fresh wasm-bindgen output. The
+  // and testing/, and the glue suites in glue/ that drive the tooling build,
+  // checked against the fresh wasm-bindgen output. The
   // @verticopolis/engine/* paths are the package's own subpaths (a
   // self-reference): in the repository they point at the wasm/ build, and
   // in the shipped package the exports map resolves them.
@@ -22,5 +23,5 @@
       "@verticopolis/engine/events/gameplayEvents": ["../../wasm/pkg-events/gameplayEvents.d.ts"]
     }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "glue/**/*.ts"]
 }
