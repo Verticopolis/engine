@@ -106,6 +106,7 @@ mod rental_nightclub_gripe;
 mod rental_star_coupling;
 mod retail_yardstick;
 mod review_fixes;
+mod room_counts;
 mod save_hardening;
 mod save_log;
 mod save_versions;
@@ -327,6 +328,8 @@ pub fn fixture_save(name: &str) -> serde_json::Value {
     let text = match name {
         "sixseven_2" => include_str!("../../conformance/fixtures/sixseven_2.vctower"),
         "split-tower" => include_str!("../../conformance/fixtures/split-tower.vctower"),
+        "split-tower-4" => include_str!("../../conformance/fixtures/split-tower-4.vctower"),
+        "towerone-star4" => include_str!("../../conformance/fixtures/towerone-star4.vctower"),
         "towerone_6" => include_str!("../../conformance/fixtures/towerone_6.vctower"),
         _ => panic!("no fixture named {name}"),
     };
