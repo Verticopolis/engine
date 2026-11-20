@@ -1,0 +1,42 @@
+name: Docs-only scope
+description: >-
+  Decide whether a job has work to do. A pull request whose every changed
+  file is prose nothing builds, tests or ships (the list below) answers
+  run=false, so the job skips its later steps and finishes green in seconds;
+  a required check still reports. A push, a merge group, a manual run, any
+  other file, or a diff that cannot be read answers run=true. Needs a
+  checkout with fetch-depth 2, so the pull request's merge commit has its
+  base parent.
+
+outputs:
+  run:
+    description: "'true' when the job must run its steps, 'false' when it may skip them."
+    value: ${{ steps.scope.outputs.run }}
+
+runs:
+  using: composite
+  steps:
+    - id: scope
+      shell: bash
+      env:
+        EVENT: ${{ github.event_name }}
+      run: |
+        # Prose only: Markdown under .changes/, docs/ and history/, the agent
+        # and contributor guides, and the pull request template. Prettier
+        # and ESLint skip Markdown, and nothing builds, tests or packs these
+        # files. READMEs, changelogs and licenses are not on the list,
+        # because the package ships them. Anything not listed runs the job.
+        prose='^((\.changes|docs|history)/.*\.md|\.github/PULL_REQUEST_TEMPLATE\.md|(AGENTS|CLAUDE|CONTRIBUTING)\.md)$'
+        run=true
+        if [ "$EVENT" = pull_request ]; then
+          # A pull request checks out its merge commit; its first parent is
+          # the base it merges into, so this is exactly what the PR changes.
+          if changed="$(git diff --name-only --no-renames HEAD^1 HEAD)" && [ -n "$changed" ]; then
+            echo "Changed files:"; echo "$changed"
+            if ! grep -vE "$prose" <<<"$changed" >/dev/null; then run=false; fi
+          else
+            echo "::warning::the pull request's diff could not be read; running every step"
+          fi
+        fi
+        echo "run=$run"
+        echo "run=$run" >> "$GITHUB_OUTPUT"
