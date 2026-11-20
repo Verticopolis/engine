@@ -1,6 +1,6 @@
 //! Each elevator car's waiting floor through the `.TDT` codec. The 1994
 //! elevator record keeps one home floor per car (byte 186 of the record,
-//! `docs/canon/tdt-byte-map.md`), and a car with nothing to do goes back to
+//! `docs/tdt/tdt-byte-map.md`), and a car with nothing to do goes back to
 //! it. An import writes those floors as the shaft's `schedule.homeFloors`, so
 //! the cars of an imported tower wait where the original had them instead of
 //! all stacking on the lobby; an export writes the authored homes back.

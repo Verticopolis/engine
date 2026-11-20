@@ -404,7 +404,7 @@ saves match: the count equals the stall total except TOWER1 (55 of 63, the
 stalls a whole row of paving away from their ramp are not counted). TOWER7 also holds two short paving
 pieces in one row, yet the file still counts every stall there as connected, which
 is why the importer closes such gaps (`tdt-format.md` section 6.1). Our own
-connectivity rule is in [classic-parking-audit.md](./classic-parking-audit.md).
+connectivity rule is in [classic-parking-audit.md](https://github.com/Verticopolis/web/blob/main/docs/canon/classic-parking-audit.md) in Verticopolis/web.
 
 ### 7.6 Clinic list (F+1,300, 22 bytes)
 
