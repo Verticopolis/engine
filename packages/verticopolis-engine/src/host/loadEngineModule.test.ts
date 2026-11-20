@@ -2,14 +2,14 @@ import { createHash, webcrypto } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { EnginePackageAborted, EnginePackageError } from "./enginePackageCheck";
-import { ENGINE_BUILD_RECORD, ENGINE_GLUE, ENGINE_WASM } from "./enginePackageNames";
-import { engineBuildRecord, expectedOf } from "./enginePackageRecord";
-import { EngineBootError } from "./engineBoot";
-import type { BuildMetadataResult } from "./buildSection";
-import { compileEngineBytes } from "./engineLoad";
-import { loadWasmEngine } from "./rustEngine";
-import { enginePackageUrls, loadEngineModule, type EngineGlue, type LoadEngineOptions } from "./loadEngineModule";
+import { EnginePackageAborted, EnginePackageError } from "./enginePackageCheck.ts";
+import { ENGINE_BUILD_RECORD, ENGINE_GLUE, ENGINE_WASM } from "./enginePackageNames.ts";
+import { engineBuildRecord, expectedOf } from "./enginePackageRecord.ts";
+import { EngineBootError } from "./bootError.ts";
+import type { BuildMetadataResult } from "./buildSection.ts";
+import { compileEngineBytes } from "./engineLoad.ts";
+import { loadWasmEngine } from "./rustEngine.ts";
+import { enginePackageUrls, loadEngineModule, loadEngineUnchecked, type EngineGlue, type LoadEngineOptions } from "./loadEngineModule.ts";
 
 const sha = (d: Uint8Array | string) => createHash("sha256").update(d).digest("hex");
 const enc = (s: string) => new TextEncoder().encode(s);
@@ -75,7 +75,6 @@ function harness() {
 function opts(h: ReturnType<typeof harness>, s: ReturnType<typeof served>, over: Partial<LoadEngineOptions> = {}): LoadEngineOptions {
   return {
     expected,
-    checkInDev: true,
     fetch: s.fetch as unknown as LoadEngineOptions["fetch"],
     digest: async (bytes) => new Uint8Array(await webcrypto.subtle.digest("SHA-256", bytes as unknown as ArrayBuffer)),
     controlled: true,
@@ -91,9 +90,9 @@ describe("enginePackageUrls", () => {
   });
 });
 
-// The served package is build output (npm run wasm:build): these checks skip
+// The browser package is build output (npm run wasm:build): these checks skip
 // without it, as packageHash.test.ts does, and run where the package is built.
-const GLUE_FILE = resolve(import.meta.dirname, "../public/engine/verticopolis_engine.js");
+const GLUE_FILE = resolve(import.meta.dirname, "../../../../engine-rs/pkg-web/verticopolis_engine.js");
 describe.skipIf(!existsSync(GLUE_FILE))("the glue the loader imports from a Blob", () => {
   // A Blob URL has no folder, so anything the glue resolves against its own
   // URL would fail or, made absolute, load code nobody hashed.
@@ -116,7 +115,7 @@ describe("loadWasmEngine on the verified route", () => {
   it("codes a verified package that lacks what the shell calls as package-mismatch", async () => {
     const h = harness();
     const o = opts(h, served());
-    const err = await loadWasmEngine(GLUE_URL, undefined, o).catch((e: unknown) => e);
+    const err = await loadWasmEngine(GLUE_URL, { ...o, tooling: false }).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(EngineBootError);
     expect(err).toMatchObject({ reason: "package-mismatch" });
     expect(h.init).toHaveBeenCalled();
@@ -126,7 +125,7 @@ describe("loadWasmEngine on the verified route", () => {
     const h = harness();
     const ctl = new AbortController();
     ctl.abort();
-    const err = await loadWasmEngine(GLUE_URL, ctl.signal, opts(h, served())).catch((e: unknown) => e);
+    const err = await loadWasmEngine(GLUE_URL, { ...opts(h, served()), signal: ctl.signal, tooling: false }).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(EnginePackageAborted);
     expect(h.io.importModule).not.toHaveBeenCalled();
   });
@@ -323,12 +322,12 @@ describe("loadEngineModule", () => {
   });
 
   describe("a development serve", () => {
-    it("loads the served glue without the check (the unit tests run as a dev serve)", async () => {
+    it("loads the served glue without the check through loadEngineUnchecked", async () => {
       const h = harness();
       const s = served();
       const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
       try {
-        const loaded = await loadEngineModule(GLUE_URL, opts(h, s, { checkInDev: false }));
+        const loaded = await loadEngineUnchecked(GLUE_URL, { initGlue: h.io.initGlue });
         expect(loaded.verified).toBe(false);
         expect(h.imported).toEqual([GLUE_URL]);
         expect(h.io.initGlue).toHaveBeenCalledWith(GLUE_URL, expect.objectContaining({ wasmUrl: undefined }));
