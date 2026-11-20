@@ -107,10 +107,9 @@ regenerated conformance lock in the same PR as any change to how the game
 plays. [CONTRIBUTING.md](CONTRIBUTING.md) covers pull requests, releases
 and the registries.
 
-The engine lives here now. Pull requests open here once the game builds
-from this repository's packages, which takes a few days. Until then, engine
-changes are on hold everywhere, Verticopolis/web included. Issues are
-welcome here now.
+Pull requests and issues for the engine open here. The game takes a change
+when a pull request in Verticopolis/web raises its `@verticopolis/engine`
+pin.
 
 ## History
 

@@ -220,8 +220,14 @@ export function renderGameplayEventRules(catalog: GameplayCatalog): string {
   });
   return [
     "// Generated from engine-rs/src/gameplay/catalog.json by `npm run wasm:build`.",
-    "// Do not edit: change the catalog and regenerate (src/events/gameplayCatalog.test.ts fails while this is stale).",
-    'import type { GameplayEventRules } from "./gameplayCatalog";',
+    "// Do not edit: change the catalog and regenerate.",
+    "",
+    "/** The shape of {@link GAMEPLAY_EVENT_RULES}. Declared here, so the file",
+    " *  needs nothing beside it in the package. */",
+    "export interface GameplayEventRules {",
+    "  enums: Record<string, string[]>;",
+    '  events: { name: string; payload: Record<string, { type: "enum"; enum: string } | { type: "integer"; min: number; max: number }> }[];',
+    "}",
     "",
     "/** The catalog's enums and payload fields, without its prose: what the",
     " *  analytics bridge checks every drained event against. */",

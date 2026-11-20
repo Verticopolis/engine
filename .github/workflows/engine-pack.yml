@@ -4,7 +4,8 @@ name: Engine packages
 # (scripts/pack-engine.sh): @verticopolis/engine, the player build with the
 # tooling build (tooling/, with the tier 3 ops test suites and harnesses use)
 # and the conformance suite (conformance/) as subpaths. It also runs the
-# packer's own TypeScript tests.
+# packer's own TypeScript tests, and installs the tarball into an empty
+# project and uses it there (scripts/package-consumer.sh).
 #
 # - A pull request or a push to main uploads the tarball as a run artifact.
 #   A PR's tarball is versioned <crate>-pr.<number>.<run> so a game PR can
@@ -69,6 +70,13 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: sh scripts/pack-engine.sh "$VERSION" dist
+
+      # Install the tarball into an empty project and use it there, so a
+      # file the package needs but does not carry fails before a release.
+      - name: Use the packed tarball as a game would
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: sh scripts/package-consumer.sh "dist/verticopolis-engine-$VERSION.tgz"
 
       - name: Upload the tarballs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

@@ -18,6 +18,14 @@ raised the version, so they are documentation only.
 There is no entry for 0.17.0, which only
 existed as a step inside a stacked branch.
 
+## Unreleased
+
+- **patch**: the npm package's `events/gameplayEventRules.ts` declares its
+  own `GameplayEventRules` type and exports it. It imported that type from
+  `./gameplayCatalog`, a file the package never carried, so TypeScript
+  refused the file in a game that imported the rules. The rules themselves
+  are unchanged.
+
 ## 1.59.0 (2026-11-20)
 
 - **minor**: a shaft brought in from a 1994 `.TDT` keeps the 56-byte schedule
