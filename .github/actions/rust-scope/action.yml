@@ -35,7 +35,9 @@ runs:
         if [ "$EVENT" = pull_request ]; then
           # A pull request checks out its merge commit; its first parent is
           # the base it merges into, so this is exactly what the PR changes.
-          if changed="$(git diff --name-only --no-renames HEAD^1 HEAD)" && [ -n "$changed" ]; then
+          # In a container job the checkout belongs to another user, and git
+          # treats it as no repository at all without safe.directory.
+          if changed="$(git -c safe.directory="$PWD" diff --name-only --no-renames HEAD^1 HEAD)" && [ -n "$changed" ]; then
             echo "Changed files:"; echo "$changed"
             if ! grep -vE "$elsewhere" <<<"$changed" >/dev/null && ! grep -qE "$inputs" <<<"$changed"; then
               run=false
