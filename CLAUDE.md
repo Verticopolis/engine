@@ -6,8 +6,10 @@ its WebAssembly and npm package (`@verticopolis/engine`, with the TypeScript
 layer in `packages/verticopolis-engine/`), the conformance suite
 (`conformance/`), the docs site and the bench. Every simulation rule, price,
 cap and tuning value lives here. [README.md](README.md) has the layout and
-the checks; [CONTRIBUTING.md](CONTRIBUTING.md) has pull requests, change
-notes, releases and the registries. Read both.
+the checks; [ARCHITECTURE.md](ARCHITECTURE.md) has the design in diagrams;
+[CONTRIBUTING.md](CONTRIBUTING.md) has pull requests, change notes, releases
+and the registries. Read all three. How a Classic tower matches the 1994
+game is [docs/parity.md](docs/parity.md).
 
 ## Load the game's repository too
 

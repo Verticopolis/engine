@@ -15,11 +15,11 @@ every pinned checkpoint hash is running the real simulation.
 | Repository | What it holds |
 | --- | --- |
 | **[Verticopolis/engine](https://github.com/Verticopolis/engine)** (this one) | The Rust engine (the crate at the root), its WebAssembly package, the conformance lock, the engine docs site and the bench |
-| [Verticopolis/components](https://github.com/Verticopolis/components) | The TypeScript pieces a frontend builds on: the renderer and Excalibur scene, the Win95 windows and menus, audio, and the engine binding and host loader |
+| [Verticopolis/components](https://github.com/Verticopolis/components) | The TypeScript pieces a frontend draws and plays with: the renderer and Excalibur scene, the Win95 windows and menus, the procedural sprites and audio. They read a render model the game fills, and know nothing of the engine |
 | [Verticopolis/web](https://github.com/Verticopolis/web) | The web game at [verticopolis.com](https://verticopolis.com) and its player's manual |
 
-The game depends on the engine and the components, and the components load
-the engine's WebAssembly package at run time.
+The game depends on the engine and the components, and joins the two
+itself.
 
 ## Use it
 
@@ -56,6 +56,10 @@ does not import them does not bundle them.
 
 ## Documentation
 
+[ARCHITECTURE.md](ARCHITECTURE.md) is a tour of the engine in diagrams: what
+this repository builds, the boundary with a host, a step of time, Classic vs
+Modern, undo, what a host reads, saves and the conformance lock.
+
 The guides live on [docs.verticopolis.com](https://docs.verticopolis.com),
 built from `docs/engine-site/`:
 
@@ -77,6 +81,9 @@ built from `docs/engine-site/`:
 | `engine-bench/` | The step-cost bench |
 | `docs/engine-site/` | The docs site |
 | `docs/tdt/` | The 1994 `.TDT` save format: what its values mean and a map of every byte |
+| `docs/parity.md` | How a Classic tower matches the 1994 game, one line per mechanic |
+| `docs/canon/` | Dated audits of Classic rules and the runs of the original that settle them |
+| `docs/performance/` | Measurements of the engine package |
 | `packages/verticopolis-engine/` | The `@verticopolis/engine` npm package: its `package.json`, README, TypeScript layer and browser types |
 | `Cargo.lock` | The lock the crate builds and packages with |
 | `package.json` | The repository's build and check tooling (private, never published) |
