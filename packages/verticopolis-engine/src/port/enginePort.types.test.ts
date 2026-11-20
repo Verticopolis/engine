@@ -1,0 +1,14 @@
+import { describe, expectTypeOf, it } from "vitest";
+import type { Engine } from "@verticopolis/engine/tooling/node/verticopolis_engine";
+import type { EnginePort } from "./enginePort.ts";
+
+// The contract's compile-time proof (section 1): the generated binding
+// `Engine` satisfies `EnginePort`, so a member that drifts on the Rust side
+// (a renamed export, a changed argument or answer) fails the typecheck.
+describe("EnginePort", () => {
+  it("is satisfied by the binding's Engine", () => {
+    expectTypeOf<Engine>().toMatchTypeOf<EnginePort>();
+    const port = (e: Engine): EnginePort => e;
+    expectTypeOf(port).returns.toEqualTypeOf<EnginePort>();
+  });
+});

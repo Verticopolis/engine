@@ -30,7 +30,7 @@ export interface EngineCrateRecord {
 /** `engine/BUILD.json` at schema 2. */
 export interface EnginePackageRecord {
   schema: 2;
-  /** The hash of the Rust sources (src/wasmhost/packageHash.ts), unchanged. */
+  /** The hash of the Rust sources (packageHash.ts), unchanged. */
   sources: string;
   /**
    * The crate's name and version (#963), so About can show them when the

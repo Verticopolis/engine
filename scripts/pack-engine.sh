@@ -11,7 +11,11 @@
 #   (`@verticopolis/engine/tooling`). Never shipped to players;
 # - conformance/: the conformance suite as it stands, the scenarios, pinned
 #   hashes, fixtures and cases a host replays to prove it runs the real
-#   simulation (`@verticopolis/engine/conformance/...`).
+#   simulation (`@verticopolis/engine/conformance/...`);
+# - the TypeScript layer (scripts/layer-build.ts): model/, catalog/,
+#   binding/, port/ (with the frame reader), host/ and the Node-only testing/
+#   as ESM with .d.ts files, the JSON fixtures under fixtures/, and the event
+#   rules compiled under events/.
 #
 # A game that imports only the player build bundles nothing from tooling/ or
 # conformance/; they only make the install bigger.
@@ -57,6 +61,7 @@ cp -R engine-rs/pkg-events/. "$work/player/events/"
 cp -R engine-rs/pkg/. "$work/player/tooling/node/"
 cp -R engine-rs/pkg-web-tooling/. "$work/player/tooling/web/"
 cp -R conformance/. "$work/player/conformance/"
+node scripts/layer-build.ts "$work/player"
 sh scripts/engine-package-files.sh "$work/player" "${version%%-*}" "$repo" > /dev/null
 # A pull request's or main's build carries its prerelease suffix.
 VERSION="$version" DIR="$work/player" node -e '

@@ -13,8 +13,8 @@
  * rules (engine-rs/pkg-events/gameplayEvents.d.ts and gameplayEventRules.ts)
  * from engine-rs/src/gameplay/catalog.json, for the packages to carry.
  * Each browser target lands with a BUILD.json naming the
- * sources it came from (see src/wasmhost/packageHash.ts) and the digests of
- * its glue and binary (src/wasmhost/enginePackageRecord.ts) and a
+ * sources it came from (see packages/verticopolis-engine/src/host/packageHash.ts) and the digests of
+ * its glue and binary (packages/verticopolis-engine/src/host/enginePackageRecord.ts) and a
  * THIRD-PARTY.json listing the crates compiled into it (see
  * scripts/engine-third-party.ts).
  * Needs the wasm32-unknown-unknown target and a wasm-bindgen CLI of the
@@ -27,11 +27,11 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { homedir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { engineSourceHash } from "../src/wasmhost/packageHash.ts";
-import { engineBuildRecord } from "../src/wasmhost/enginePackageRecord.ts";
-import { BUILD_SECTION, customSectionsOf, parseBuildMetadata, stampBuildSection } from "../src/wasmhost/buildSection.ts";
+import { engineSourceHash } from "../packages/verticopolis-engine/src/host/packageHash.ts";
+import { engineBuildRecord } from "../packages/verticopolis-engine/src/host/enginePackageRecord.ts";
+import { BUILD_SECTION, customSectionsOf, parseBuildMetadata, stampBuildSection } from "../packages/verticopolis-engine/src/host/buildSection.ts";
 import { cargoPackage } from "../src/build/engineCompat.ts";
-import { ENGINE_BUILD_RECORD, ENGINE_GLUE, ENGINE_PACKAGE, ENGINE_WASM } from "../src/wasmhost/engineAssets.ts";
+import { ENGINE_BUILD_RECORD, ENGINE_GLUE, ENGINE_PACKAGE, ENGINE_WASM } from "../packages/verticopolis-engine/src/host/engineAssets.ts";
 import { ENGINE_THIRD_PARTY, checkToolchain, engineThirdParty } from "./engine-third-party.ts";
 import { checkCatalog, renderGameplayEventRules, renderGameplayEventsDts } from "../src/events/gameplayCatalog.ts";
 
@@ -188,9 +188,9 @@ function webPackage(web: string, label: string, record: ReturnType<typeof engine
     .filter((e) => !e.isDirectory())
     .map((e) => relative(web, resolve(e.parentPath, e.name)).split("\\").join("/"));
   const unlisted = written.filter((f) => !listed.has(f));
-  if (unlisted.length > 0) throw new Error(`${label}/ holds files src/wasmhost/engineAssets.ts does not list; add each with whether the game fetches it at run time: ${unlisted.join(", ")}`);
+  if (unlisted.length > 0) throw new Error(`${label}/ holds files packages/verticopolis-engine/src/host/engineAssets.ts does not list; add each with whether the game fetches it at run time: ${unlisted.join(", ")}`);
   const absent = [...listed].filter((f) => !written.includes(f));
-  if (absent.length > 0) throw new Error(`src/wasmhost/engineAssets.ts lists files the build did not write to ${label}/: ${absent.join(", ")}`);
+  if (absent.length > 0) throw new Error(`packages/verticopolis-engine/src/host/engineAssets.ts lists files the build did not write to ${label}/: ${absent.join(", ")}`);
 }
 
 if (which === "engine") {

@@ -249,6 +249,26 @@ bigger.
   `node_modules/@verticopolis/engine/conformance/`. See the
   [conformance guide](/conformance/).
 
+### The TypeScript layer
+
+The package also carries the TypeScript a frontend builds on, compiled to ES
+modules with declarations. Each module is its own subpath, so a game imports
+what it uses and bundles nothing else.
+
+| Subpath | What it is |
+| --- | --- |
+| `model/*` | The engine's data shapes: units, kinds, serialized games, the view zoom limits. |
+| `catalog/*` | Types for the reference data `catalog(mode)` returns. |
+| `binding/*` | The typed binding (`WasmEngine`) and the tier every binding export belongs to. |
+| `port/*` | The engine port: commands, reads, cards, events, and `port/frameReader`, which reads one frame (clock, crowd, tower, effects, render queries) from the port with nothing but the engine. |
+| `host/*` | Loading and checking an engine package: `loadEngineModule` checks the package identity it expects, and `loadEngineUnchecked` is the explicit path for local development. |
+| `testing/*` | Test helpers: `mockPort(vi, answers)` builds a port of spies from your test runner's spy factory, and `catalogFor(mode)` reads the catalog fixtures. |
+| `fixtures/*.json` | The catalog of each mode and a fresh engine's view layout, written from the engine itself. |
+| `events/gameplayCatalog`, `events/gameplayEventRules` | The gameplay event catalog's checker and the rules it checks against; `events/gameplayEvents` holds the event types. |
+
+None of these modules imports a renderer or any other package. They target
+ES2023, so a bundler or Node 22 or later loads them as they are.
+
 ## Saves
 
 - **`.vctower`** is the native save format, and what the web game imports and

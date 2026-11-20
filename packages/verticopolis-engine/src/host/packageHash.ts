@@ -141,7 +141,7 @@ function attributePaths(text: string, file: string): string[] {
     for (const p of attribute.matchAll(/\bpath\s*=\s*/g)) {
       const value = stringAt.get(open + p.index + p[0].length);
       if (value === undefined || value === null) {
-        throw new Error(`${file} has a path attribute the engine source hash cannot follow (only a plain "..." path is read); extend engineSourceHash in src/wasmhost/packageHash.ts`);
+        throw new Error(`${file} has a path attribute the engine source hash cannot follow (only a plain "..." path is read); extend engineSourceHash in packages/verticopolis-engine/src/host/packageHash.ts`);
       }
       found.push(value);
     }
@@ -262,7 +262,7 @@ function manifestPaths(text: string, file: string): string[] {
     if (METADATA_TABLE.test(key)) continue;
     const value = stringAt.get(m.index + m[0].length);
     if (value === undefined || value === null) {
-      throw new Error(`${file} has a path key the engine source hash cannot follow (only a plain "..." or '...' path is read); extend engineSourceHash in src/wasmhost/packageHash.ts`);
+      throw new Error(`${file} has a path key the engine source hash cannot follow (only a plain "..." or '...' path is read); extend engineSourceHash in packages/verticopolis-engine/src/host/packageHash.ts`);
     }
     found.push(value);
   }
@@ -362,7 +362,7 @@ export function engineSourceHash(crate: string, view?: SourceView): string {
     // place (comparing counts alone would let one miss cancel another).
     const literalAt = new Set(literal.map((m) => m.index));
     if ([...text.matchAll(ANY_INCLUDE)].some((m) => !literalAt.has(m.index))) {
-      throw new Error(`${p} has an include the engine source hash cannot follow (only include_str!/include_bytes! with a plain "..." path are read); extend engineSourceHash in src/wasmhost/packageHash.ts`);
+      throw new Error(`${p} has an include the engine source hash cannot follow (only include_str!/include_bytes! with a plain "..." path are read); extend engineSourceHash in packages/verticopolis-engine/src/host/packageHash.ts`);
     }
     for (const m of literal) follow(p, m[1], "includes");
     for (const named of attributePaths(text, p)) {

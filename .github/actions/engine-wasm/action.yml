@@ -36,7 +36,7 @@ runs:
     - id: key
       shell: bash
       run: |
-        src=$(node --input-type=module -e 'import { engineSourceHash } from "./src/wasmhost/packageHash.ts"; process.stdout.write(engineSourceHash("engine-rs"))')
+        src=$(node --input-type=module -e 'import { engineSourceHash } from "./packages/verticopolis-engine/src/host/packageHash.ts"; process.stdout.write(engineSourceHash("engine-rs"))')
         key=$(SOURCES="$src" node --input-type=module -e 'import { engineCacheKey } from "./src/build/engineCache.ts"; process.stdout.write(engineCacheKey(".", process.env.SOURCES, "engine-wasm-v1", [".github/actions/engine-wasm/action.yml"]))')
         echo "sources=$src" >> "$GITHUB_OUTPUT"
         echo "key=$key" >> "$GITHUB_OUTPUT"

@@ -5,7 +5,9 @@ name: Engine packages
 # tooling build (tooling/, with the tier 3 ops test suites and harnesses use)
 # and the conformance suite (conformance/) as subpaths. It also runs the
 # packer's own TypeScript tests, and installs the tarball into an empty
-# project and uses it there (scripts/package-consumer.sh).
+# project and uses it there (scripts/package-consumer.sh). The TypeScript
+# layer under packages/verticopolis-engine/src is typechecked and tested
+# against the fresh build, and compiled into the tarball.
 #
 # - A pull request or a push to main uploads the tarball as a run artifact.
 #   A PR's tarball is versioned <crate>-pr.<number>.<run> so a game PR can
@@ -53,6 +55,15 @@ jobs:
 
       - name: Engine WASM package
         uses: ./.github/actions/engine-wasm
+
+      # The TypeScript layer (packages/verticopolis-engine/src) is typechecked
+      # against the binding the build just wrote, and its fixtures must match
+      # the engine's own answers.
+      - name: Typecheck and test the TypeScript layer
+        run: |
+          npm run layer:typecheck
+          npm run layer:test
+          node scripts/layer-fixtures.ts --check
 
       - name: Version
         id: version
