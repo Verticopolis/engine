@@ -29,6 +29,26 @@ paths are in `.changes/README.md`), and refuses a feature pull request that
 edits the crate version or the changelog's version sections. **Cut release** picks the version from the
 tiers. Only a release PR edits the version or `engine-rs/CHANGELOG.md`.
 
+### What CI runs on a pull request
+
+Every required job runs on every pull request, so its check always reports,
+but a job skips the work it does not need. Each job starts with a Scope step
+that reads the files the pull request changes:
+
+- The Rust jobs (`engine-rs.yml`) skip their steps when no changed file is an
+  engine input. `.github/actions/rust-scope` lists what is not: docs, change
+  notes, the npm package's TypeScript, repository tooling and other
+  workflows. A file on neither of its lists runs everything.
+- The pack job (`engine-pack.yml`) and CodeQL (`codeql.yml`) skip theirs when
+  every changed file is prose that nothing builds, tests or ships
+  (`.github/actions/docs-only`). READMEs, changelogs and licenses ship with
+  the package, so they still run the pack.
+
+A skipped job finishes green in seconds. A push to `main` always runs
+everything. A new step in one of these jobs needs the same
+`if: steps.scope.outputs.run == 'true'` as its neighbors, or it runs with
+nothing built.
+
 ## Releasing
 
 A release is one merged pull request that raises the crate version.
