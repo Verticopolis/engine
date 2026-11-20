@@ -98,14 +98,21 @@ jobs:
             [ "$last" -le 4294967295 ] || { echo "seeds $first to $last do not fit in 32 bits (seed_block at most 42948)"; exit 2; }
           fi
           # The window key: two nights on one key ran the same engine with the
-          # same pins. It hashes the git objects of the crate, the workspace
-          # manifest and lock, the fuzz scripts and this workflow (which pins the
-          # toolchain and Node). A key that cannot be computed, or that is not a 64-digit hex string, is
+          # same pins. It hashes the git objects of the crate's sources, the
+          # workspace manifest, the fuzz scripts and this workflow (which pins
+          # the toolchain and Node), and the crate manifest and the lock without
+          # the crate's own version, so a release (a version raise and its
+          # changelog) leaves the key alone. A key that cannot be computed, or
+          # that is not a 64-digit hex string, is
           # recorded as unavailable. The key and the run's event and ref are also
           # written to fuzz-out/window-key.txt, so the scenarios artifact carries them,
           # with the runner image version (ImageVersion), which the key cannot see: a
           # window ledger reads a change of image between two nights from it.
-          key=$(git ls-tree -r HEAD -- engine-rs Cargo.toml Cargo.lock .nvmrc scripts/fuzz scripts/fuzz-wasi.mts scripts/fuzz-compare.mts .github/workflows/engine-fuzz.yml | sha256sum | cut -c1-64) || key="unavailable"
+          key=$( {
+            git ls-tree -r HEAD -- engine-rs/src Cargo.toml .nvmrc scripts/fuzz scripts/fuzz-wasi.mts scripts/fuzz-compare.mts .github/workflows/engine-fuzz.yml
+            awk '!done && /^version = / { done = 1; next } 1' engine-rs/Cargo.toml
+            awk 'skip { skip = 0; if (/^version = /) next } /^name = "verticopolis-engine"$/ { skip = 1 } 1' Cargo.lock
+          } | sha256sum | cut -c1-64) || key="unavailable"
           { [ "${#key}" -eq 64 ] && printf '%s' "$key" | grep -Eq '^[0-9a-f]+$'; } || key="unavailable"
           mkdir -p fuzz-out
           echo "key=$key event=$EVENT ref=$GITHUB_REF sha=$GITHUB_SHA image=${ImageVersion:-unknown}" > fuzz-out/window-key.txt
