@@ -293,7 +293,7 @@ flowchart TD
     Host --> Port["port/<br/>EnginePort, commands, queries,<br/>viewReader, frameReader, panels"]
     Host --> Catalog["catalog/<br/>the catalog's types"]
     Host --> Events["events/<br/>the gameplay event catalog"]
-    HostMod --> Binding["binding/<br/>typed adapters over the generated<br/>Engine declarations"]
+    HostMod --> Binding["binding/<br/>the generated Engine declarations,<br/>method lists, catalog reader"]
     Port --> Binding
     Port --> Model["model/<br/>tower and save types"]
     Binding --> Wasm["the WASM Engine"]

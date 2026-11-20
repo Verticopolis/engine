@@ -63,7 +63,7 @@ and warm, compared by the protocol's M5 (time to ready). About 40 minutes. The
 From a clean checkout of the commit to measure (this reproduces the unstamped `wasm-bindgen` output; `npm run wasm:build` produces the shipped, stamped file):
 
 ```
-cd engine-rs
+cd engine-rs   # only at the web commit measured above; in this repository, run from the root
 cargo rustc --locked --release --lib --target wasm32-unknown-unknown \
   --features wasm --crate-type cdylib
 wasm-bindgen --target web --out-dir /tmp/with target/wasm32-unknown-unknown/release/verticopolis_engine.wasm
