@@ -104,3 +104,31 @@ fn only_a_founders_tower_writes_the_mark_and_a_load_alone_never_grants_it() {
         );
     }
 }
+
+/// What the crash flow leans on: after a trap the game reloads the engine's
+/// last autosave, so a fixture played a day a minute at a time, saved and
+/// opened in a new engine saves the same save again.
+#[test]
+fn a_fixture_played_a_day_reopens_unchanged() {
+    for (name, text) in super::log_text::FIXTURES
+        .iter()
+        .filter(|(name, _)| ["towerone_6", "split-tower"].contains(name))
+    {
+        let mut sim = crate::vctower_import::import_vctower(text).unwrap();
+        for _ in 0..24 * 60 {
+            sim.tick(1.0);
+        }
+        let saved = sim.save_text();
+        let reopened = crate::load_stream::load_save_text(saved.as_bytes())
+            .unwrap_or_else(|e| panic!("{name}: {e}"))
+            .save_text();
+        // The criterion the game's reload holds the two to: the same JSON,
+        // whatever order the keys come in.
+        let parse = |t: &str| serde_json::from_str::<Value>(t).unwrap();
+        assert_eq!(
+            parse(&reopened),
+            parse(&saved),
+            "{name} drifted across the reopen"
+        );
+    }
+}
