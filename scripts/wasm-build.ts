@@ -91,6 +91,7 @@ try {
     code === "ENOENT"
       ? `the wasm-bindgen CLI is not on PATH; ${install}`
       : `wasm-bindgen --version failed: ${String(e)}`,
+    { cause: e },
   );
 }
 const cli = /^wasm-bindgen (\d+\.\d+\.\d+)\r?$/m.exec(probe)?.[1];
