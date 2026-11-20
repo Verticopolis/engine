@@ -261,7 +261,7 @@ versions of `tdt-format.md` described as a zero "fixed block".
 | 1 | u8 | type | 0 express, 1 standard, 2 service | Known |
 | 2 | u8 | capacity | 42 or 21 seen; unreliable (a service shaft carried 21) | Inferred |
 | 3 | u8 | cars | 8 in all 146 built shafts | Known |
-| 4 | 56 B | schedule | Dispatch settings per day type; default `01` x14, `05` x14, `00` x28; all zero = no cars run | Known |
+| 4 | 56 B | schedule | The Elevator window's settings, four groups of 14 bytes (see below). Our exporter's default is `01` x14, `05` x14, `00` x28; all zero = no cars run. An import keeps a block that differs from that default and an export writes it back (Verticopolis/web#305) | Inferred |
 | 60 | u8 | shown | 1 shown, 0 hidden [TD] | Inferred |
 | 61 | u8 | reserved | | Unknown |
 | 62 | u16 | x | Left tile | Known |
@@ -269,6 +269,29 @@ versions of `tdt-format.md` described as a zero "fixed block".
 | 65 | u8 | bottomFloor | File index | Known |
 | 66 | 120 B | serviced | One byte per floor: 1 the shaft stops there | Known |
 | 186 | 8 B | homes | Home floor of each car | Inferred |
+
+The schedule block is four groups of 14 bytes, and each group is two runs of
+seven: bytes 0 to 6 of a group for weekdays and 7 to 13 for weekends. The
+Elevator window has six time periods a day (manual p.42 to 46), and the saves
+match: where a group differs from its default, it differs at positions 0 to 5
+and 7 to 12 (for example `01 01 01 01 01 01 00 01 01 01 01 01 01 00`) and positions 6 and
+13 kept the group's default. What the saves the game wrote (the Reddit saves
+and the observation saves) show:
+
+| Bytes | Values seen | Reading | Status |
+| --- | --- | --- | --- |
+| 0 to 13 | 1 in every shaft | Unknown | Unknown |
+| 14 to 27 | 5 mostly; also 1, 2, 3 and 10 | Waiting Car Response, in floors (manual default 5) | Inferred |
+| 28 to 41 | 0, 1, 2; weekdays often `1 2 1 0 2 0` | Possibly the period's direction mode (normal, express to top, express to bottom) | Inferred |
+| 42 to 55 | 0 or 1 | Unknown, possibly Standard Floor Departure | Unknown |
+
+The original game loads our exports, which carry the default block, but no run
+has confirmed the readings above: they come from the values alone. Our simulation does not run
+these settings: it schedules cars by the hour (`engine-rs/src/schedule.rs`).
+So the importer keeps a non-default block on its shaft as `tdtSchedule`, a
+save carries it (version 13), and an export writes it back byte for byte. A
+shaft built in this game, or one whose block is the default or all zero,
+keeps nothing and exports the default.
 
 ### 6.2 Per-floor map (480 bytes, 120 x 4)
 

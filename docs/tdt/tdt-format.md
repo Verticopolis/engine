@@ -391,6 +391,13 @@ how the file is read:
   (the same run, Verticopolis/web#920 claim 1). Neither the original's build tool nor ours makes
   such a tower, so a file with them is malformed: the importer keeps the first and
   drops the later one with a warning, and the export warns about any it writes.
+- The schedule block (the 56 bytes of the Elevator window's settings; layout in
+  the byte map, [section 6.1](./tdt-byte-map.md#61-header-194-bytes)). Our
+  simulation never reads it. The importer keeps a block that is neither our
+  exporter's default nor all zero on its shaft as `tdtSchedule` (112 hex
+  digits), and a save that holds one is version 13, which an older build
+  refuses instead of dropping the block. The exporter writes a kept block back
+  byte for byte and the default otherwise (Verticopolis/web#305, engine 1.59.0).
 
 The stops themselves follow the original's rule, measured on SimTower 1.0 in the
 parity run of 2026-11-15 (Verticopolis/web#1527): an express is placed on the ground floor or a
@@ -621,6 +628,11 @@ point after the first import. Known canonical forms:
   back the same. Exports before Verticopolis/web#1503 wrote plain floor tiles there.
 - A room the file's flags mark occupied but whose people the finance lines do not
   count comes back vacant and never lived in.
+- An elevator's schedule block comes back as it was (`tdtSchedule`), except
+  that a block equal to our exporter's default or all zero (a shaft whose cars
+  run in no period) is not kept: it comes back with no `tdtSchedule` and
+  exports as the default, so the cars of an all-zero shaft run after the trip.
+  Exports before Verticopolis/web#305 wrote the default block for every shaft.
 - An infested hotel room is written as a dirty room (`0x20`) and comes back
   dirty. The file's `0x40` flag is not the same state (section 5.1).
 - A hotel room that was rented and is now empty is written `0x18` and comes back
