@@ -3,7 +3,9 @@
 //! office and a condo, and each film policy's booking, are pinned by
 //! `catalog::charge_tests::{overhead_and_the_condo_hold_tax_follow_the_quote,
 //! film_and_dj_bookings_follow_the_quote}`. This file holds the kind list,
-//! the refusal on a non-cinema and the policy's trip through a save.
+//! a room under construction paying none, the overhead drawing nothing
+//! from the shared stream, the refusal on a non-cinema and the policy's
+//! trip through a save.
 use crate::clock::{CalendarKind, GameMode};
 use crate::facilities::Kind;
 use crate::load::deserialize;
@@ -118,4 +120,41 @@ fn a_film_policy_is_refused_for_a_non_cinema_and_survives_a_save() {
     }
     let loaded = deserialize(&raw).unwrap();
     assert_eq!(unit(&loaded, cinema).extras().film_policy, None);
+}
+
+#[test]
+fn a_room_under_construction_pays_no_overhead_until_it_opens() {
+    let mut sim = Simulation::new_game_with(2, GameMode::Modern, CalendarKind::Canon, false);
+    sim.money = 1e12;
+    lay_row(&mut sim, Kind::Lobby, 1);
+    lay_row(&mut sim, Kind::Floor, 2);
+    let office = put(&mut sim, Kind::Office, 2, MID);
+    sim.tower.get_unit_mut(office).unwrap().state = UnitState::Construction;
+    let before = sim.money;
+    sim.pay_maintenance();
+    assert_eq!(before - sim.money, 0.0, "a room mid-build owes nothing");
+    sim.tower.get_unit_mut(office).unwrap().state = UnitState::Empty;
+    let before = sim.money;
+    sim.pay_maintenance();
+    assert_eq!(
+        before - sim.money,
+        overhead_of(Some(Kind::Office)),
+        "the same room pays once it opens"
+    );
+}
+
+#[test]
+fn the_overhead_draws_nothing_from_the_shared_stream() {
+    let mut sim = Simulation::new_game_with(123, GameMode::Modern, CalendarKind::Canon, false);
+    sim.money = 1e12;
+    lay_row(&mut sim, Kind::Lobby, 1);
+    lay_row(&mut sim, Kind::Floor, 2);
+    for i in 0..10 {
+        put(&mut sim, Kind::Office, 2, i * 9);
+    }
+    let seed = sim.rng.seed();
+    let before = sim.money;
+    sim.pay_maintenance();
+    assert!(before > sim.money, "ten offices pay the overhead");
+    assert_eq!(sim.rng.seed(), seed, "and the stream has not moved");
 }

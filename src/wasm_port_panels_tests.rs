@@ -339,3 +339,22 @@ fn a_tower_with_no_rated_or_priced_room_answers_no_rows() {
     let e = Engine::of(Simulation::new_game(7, GameMode::Classic));
     assert!(e.port_room_tiers().is_empty());
 }
+
+#[test]
+fn an_id_that_names_nothing_gets_no_diagnostics_and_an_empty_shaft_card() {
+    let mut e = built();
+    let shaft = e.sim.tower.transports[0].id as f64;
+    let office = e.sim.tower.unit_at(2, 160).unwrap().id as f64;
+    assert!(
+        !e.port_shaft_card(shaft).is_empty(),
+        "the real shaft's card"
+    );
+    assert!(e.port_service_diagnostics(office).is_some());
+    for id in [shaft + 0.5, -shaft, 2f64.powi(32) + shaft, f64::NAN] {
+        assert!(e.port_shaft_card(id).is_empty(), "shaft card, {id}");
+        assert!(
+            e.port_service_diagnostics(id).is_none(),
+            "diagnostics, {id}"
+        );
+    }
+}

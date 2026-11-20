@@ -4,7 +4,7 @@
 //! day hash; retail keeps the rain multiplier on its takings (fast food
 //! 0.5 x 0.6 with no metro), an attendance venue does not, and a cinema's
 //! audience over a rainy afternoon is smaller. That rain lowers commercial
-//! income at all is also the Rust-run `faqWeatherEngine.integration.test.ts`.
+//! income over a day follows from the multiplier test below.
 use crate::clock::{Clock, GameMode};
 use crate::crowd::spawn::spawn_step;
 use crate::crowd::MAX_PEOPLE;

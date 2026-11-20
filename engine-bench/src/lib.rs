@@ -7,9 +7,13 @@
 //! the same tower and walks the same day, so the series carries on across the
 //! port. Timings are venue-noisy, so they are evidence for a trend, never an
 //! assertion. The checks here are structural: the tower built as planned and
-//! the walk crossed every hour boundary.
+//! the walk crossed every hour boundary. After the walk, each panel getter
+//! is timed on the same tower (`panels`), with one loose tripwire.
 
 use std::time::Instant;
+
+mod panels;
+pub use panels::{panel_getters, panel_line};
 
 use verticopolis_engine::clock::GameMode;
 use verticopolis_engine::facilities::{Kind, LOT_WIDTH};

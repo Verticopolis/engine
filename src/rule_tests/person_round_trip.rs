@@ -14,8 +14,8 @@
 //! `rule_tests::person_census::a_load_starts_every_crowd_tally_at_zero_and_stamps_version_7`;
 //! the crowd cap through a lunch is
 //! `rule_tests::meal_cadence::the_crowd_cap_holds_through_a_lunch_peak`; the
-//! arrival clamp and the spawn-side filter at a full venue are the Rust-run
-//! `personRoundTripVenueCap.integration.test.ts`.
+//! arrival clamp and the spawn-side filter at a full venue are the last tests
+//! below.
 use crate::clock::GameMode;
 use crate::crowd::{PState, CROWD_SECONDS_PER_MINUTE};
 use crate::facilities::Kind;
@@ -385,4 +385,117 @@ fn a_heavy_lunch_never_overfills_a_lone_fast_food() {
         peak = peak.max(inside);
     }
     assert!(peak > 0, "the crowd used the venue");
+}
+
+/// Stamps a venue's live tally the way the tooling `setCustomersIn` does: an
+/// attendance or meal venue mirrors it into its occupants.
+fn stamp(sim: &mut Simulation, id: i64, n: i64) {
+    let (u, at) = sim.tower.marked_by_id(id).unwrap();
+    u.set_customers_in(at, Some(n));
+    u.sync_visitor_occupants(at);
+    sim.tower.bump_meal_overlay_revision();
+}
+
+fn inside(sim: &Simulation, id: i64) -> i64 {
+    sim.tower.get_unit(id).unwrap().customers_in.unwrap_or(0)
+}
+
+/// A diner already on the way to a venue that fills before they arrive sits
+/// down uncounted, so the house never passes its population. Moved here from
+/// the game's venue-cap check, like the two below.
+#[test]
+fn a_diner_arriving_at_a_just_filled_venue_eats_uncounted() {
+    let (mut sim, _, food) = office_and_fast_food();
+    let cap = Kind::FastFood.facility().population;
+    at_time(&mut sim, 0, 12);
+    let mut traveler = None;
+    for _ in 0..30 {
+        sim.tick(1.0);
+        traveler = sim
+            .crowd
+            .people
+            .iter()
+            .position(|p| p.meal_venue_id == Some(food) && p.state != PState::Dwelling);
+        if traveler.is_some() {
+            break;
+        }
+    }
+    let i = traveler.expect("a diner is on the way");
+    let id = sim.crowd.people[i].id;
+    assert_eq!(inside(&sim, food), 0);
+    stamp(&mut sim, food, cap);
+    let mut sat = false;
+    for _ in 0..90 {
+        sim.tick(1.0);
+        assert_eq!(inside(&sim, food), cap);
+        let p = sim
+            .crowd
+            .people
+            .iter()
+            .find(|p| p.id == id)
+            .expect("still in the crowd");
+        if p.state == PState::Dwelling {
+            assert_eq!(p.venue_unit_id, None, "seated but never counted");
+            sat = true;
+            break;
+        }
+    }
+    assert!(sat, "the diner reached the venue");
+}
+
+/// The control for the two absences around it: the same lunch sends a diner
+/// within the hour, and an arrival is counted.
+#[test]
+fn an_open_venue_draws_diners_who_are_counted() {
+    let (mut sim, _, food) = office_and_fast_food();
+    at_time(&mut sim, 0, 12);
+    let (mut first_trip, mut counted) = (None, false);
+    for m in 0..90 {
+        sim.tick(1.0);
+        for p in &sim.crowd.people {
+            if p.meal_venue_id == Some(food) {
+                first_trip.get_or_insert(m);
+            }
+            counted |= p.venue_unit_id == Some(food);
+        }
+        if counted {
+            break;
+        }
+    }
+    assert!(first_trip.is_some_and(|m| m < 60), "a trip within the hour");
+    assert!(counted && inside(&sim, food) > 0);
+}
+
+#[test]
+fn a_full_venue_draws_no_new_meal_trips() {
+    let (mut sim, _, food) = office_and_fast_food();
+    let cap = Kind::FastFood.facility().population;
+    stamp(&mut sim, food, cap);
+    at_time(&mut sim, 0, 12);
+    for _ in 0..60 {
+        sim.tick(1.0);
+        assert_eq!(inside(&sim, food), cap);
+        assert!(!sim
+            .crowd
+            .people
+            .iter()
+            .any(|p| p.meal_venue_id == Some(food)));
+    }
+}
+
+/// An attendance venue and a meal venue both mirror a stamped tally into
+/// their occupants.
+#[test]
+fn a_stamped_tally_mirrors_into_a_venues_occupants() {
+    let mut sim = strip_tower(2024, GameMode::Modern, 40, 4);
+    shaft(&mut sim, Kind::ElevatorStandard, 38, 1, 4);
+    let hall = place_seated(&mut sim, Kind::PartyHall, 3, 0, UnitState::Occupied, 0);
+    let food = place_seated(&mut sim, Kind::FastFood, 2, 0, UnitState::Occupied, 0);
+    assert!(Kind::PartyHall.attendance_cap().is_some());
+    assert!(Kind::FastFood.attendance_cap().is_none());
+    for (id, n) in [(hall, 5), (food, 4)] {
+        stamp(&mut sim, id, n);
+        assert_eq!(inside(&sim, id), n);
+        assert_eq!(sim.tower.get_unit(id).unwrap().occupants, n);
+    }
 }

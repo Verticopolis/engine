@@ -11,10 +11,12 @@ use crate::tower::UnitState;
 #[cfg(test)]
 #[path = "attendance.rs"]
 mod attendance;
+mod attendance_teardown;
 mod auto_backlog;
 mod auto_basement_rush;
 mod auto_idle_express;
 mod auto_rush_end;
+mod batch_pricing;
 mod busy_meter_riders;
 mod calendar;
 mod canon;
@@ -76,6 +78,7 @@ mod lobby_distance;
 mod meal_cadence;
 mod metro_shoppers;
 mod metro_stations;
+mod milestones;
 mod mode_rules;
 mod modern_amenity_halos;
 mod modern_economy;
@@ -104,11 +107,13 @@ mod rental_nightclub_gripe;
 mod rental_star_coupling;
 mod retail_yardstick;
 mod review_fixes;
+mod room_counts;
 mod save_hardening;
 mod save_log;
 mod save_versions;
 mod segment_routing;
 mod segment_routing_reachable;
+mod service_diagnostics;
 mod service_shortfall;
 mod simulation_bridge;
 mod simulation_economy;
@@ -325,6 +330,8 @@ pub fn fixture_save(name: &str) -> serde_json::Value {
     let text = match name {
         "sixseven_2" => include_str!("../../conformance/fixtures/sixseven_2.vctower"),
         "split-tower" => include_str!("../../conformance/fixtures/split-tower.vctower"),
+        "split-tower-4" => include_str!("../../conformance/fixtures/split-tower-4.vctower"),
+        "towerone-star4" => include_str!("../../conformance/fixtures/towerone-star4.vctower"),
         "towerone_6" => include_str!("../../conformance/fixtures/towerone_6.vctower"),
         _ => panic!("no fixture named {name}"),
     };

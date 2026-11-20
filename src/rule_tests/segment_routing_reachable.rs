@@ -5,11 +5,10 @@
 //! no patrons, shaft balancing never moves a rider onto a shaft their run
 //! cannot reach, and a shaft straddling a gap serves both runs and sets its
 //! riders down on the one they asked for. The meal and return legs on the
-//! same kind of floor are the Rust-run
-//! `segmentRoutingMealRush.integration.test.ts`.
+//! same kind of floor are the lunch-rush tests at the end.
 use crate::clock::GameMode;
 use crate::crowd::motion::advance;
-use crate::crowd::CROWD_SECONDS_PER_MINUTE;
+use crate::crowd::{PState, CROWD_SECONDS_PER_MINUTE};
 use crate::demand::compute_demand_map;
 use crate::facilities::Kind;
 use crate::housekeeping_shift::MaidSent;
@@ -212,4 +211,114 @@ fn a_straddling_shaft_never_banks_with_a_one_run_shaft() {
     let (mut sim, stairs) = straddled_stair();
     shaft(&mut sim, Kind::ElevatorStandard, 2, 1, 2);
     assert!(shafts_to(&mut sim, 20.0).iter().all(|s| *s == vec![stairs]));
+}
+
+/// A Modern strip lobby 60 wide with floor 2 laid over `runs`, a standard
+/// elevator at each of `shafts`, and an occupied condo and fast food on
+/// floor 2 at `condo_x` and `venue_x`.
+fn meal_tower(
+    runs: &[std::ops::Range<i64>],
+    shafts: [i64; 2],
+    condo_x: i64,
+    venue_x: i64,
+) -> (Simulation, i64, i64) {
+    let mut sim = split_floor(4242, 60, runs);
+    sim.money = 5_000_000.0;
+    for x in shafts {
+        assert!(
+            sim.tower
+                .place_transport(Kind::ElevatorStandard, x, 1, 2)
+                .ok
+        );
+    }
+    let household = Kind::Condo.facility().population;
+    let condo = place_seated(
+        &mut sim,
+        Kind::Condo,
+        2,
+        condo_x,
+        UnitState::Occupied,
+        household,
+    );
+    let venue = place_seated(&mut sim, Kind::FastFood, 2, venue_x, UnitState::Occupied, 0);
+    (sim, condo, venue)
+}
+
+/// A lunch rush held at noon: the clock is put back to 12:00 and the condo
+/// and venue kept open before every one-minute tick, so the condo keeps
+/// sending diners. `visit` sees every person after each tick; the answer is
+/// whether anyone ever stood upstairs in `gap`.
+fn meal_rush(
+    sim: &mut Simulation,
+    (condo, venue): (i64, i64),
+    ticks: usize,
+    gap: std::ops::RangeInclusive<i64>,
+    mut visit: impl FnMut(&crate::crowd::Person),
+) -> bool {
+    let household = Kind::Condo.facility().population;
+    let mut in_gap = false;
+    for _ in 0..ticks {
+        let c = sim.tower.get_unit_mut(condo).unwrap();
+        (c.state, c.occupants) = (UnitState::Occupied, household);
+        sim.tower.get_unit_mut(venue).unwrap().state = UnitState::Occupied;
+        sim.clock = crate::clock::Clock::new(12.0 * 60.0, sim.clock.calendar);
+        sim.tick(1.0);
+        for p in &sim.crowd.people {
+            in_gap |= p.floor >= 2 && gap.contains(&(p.x.round() as i64));
+            visit(p);
+        }
+    }
+    in_gap
+}
+
+/// Moved here from the game's meal-rush check, like the two below: diners
+/// bound for a venue on the far run ride down and back up to it, and none
+/// strolls the near run toward it.
+#[test]
+fn a_meal_trip_lands_on_the_venues_own_run() {
+    let (mut sim, condo, venue) = meal_tower(&[0..25, 35..60], [0, 56], 6, 38);
+    let (mut seated, mut wrong_run) = (false, false);
+    let in_gap = meal_rush(&mut sim, (condo, venue), 300, 25..=34, |p| {
+        if p.meal_venue_id != Some(venue) || p.floor != 2 {
+            return;
+        }
+        let x = p.x.round() as i64;
+        seated |= p.state == PState::Dwelling && x >= 35;
+        wrong_run |= !p.returning && p.state == PState::ToDest && x <= 24;
+    });
+    assert!(!in_gap, "nobody stands in the gap");
+    assert!(seated, "the far-run venue seated a diner on its own run");
+    assert!(!wrong_run, "no diner strolls the near run toward it");
+}
+
+#[test]
+fn a_diner_stays_on_the_run_it_set_out_from() {
+    let (mut sim, condo, venue) = meal_tower(&[0..40, 50..60], [38, 52], 2, 20);
+    let (mut any, mut crossed) = (false, false);
+    meal_rush(&mut sim, (condo, venue), 300, 40..=49, |p| {
+        if p.meal_venue_id != Some(venue) {
+            return;
+        }
+        any = true;
+        crossed |= p.floor == 2 && p.x.round() as i64 >= 50;
+    });
+    assert!(any, "the venue drew diners");
+    assert!(!crossed, "no near-run diner appears on the far run");
+}
+
+#[test]
+fn a_return_leg_lands_on_the_tenants_own_run() {
+    let (mut sim, condo, venue) = meal_tower(&[0..25, 35..60], [0, 56], 38, 6);
+    let (mut home, mut stranded) = (false, false);
+    let in_gap = meal_rush(&mut sim, (condo, venue), 400, 25..=34, |p| {
+        if !(p.returning && p.origin_unit_id == Some(condo)) || p.floor != 2 {
+            return;
+        }
+        let x = p.x.round() as i64;
+        home |= p.state == PState::ToDest && x >= 35;
+        stranded |= p.state == PState::ToDest && x <= 24;
+    });
+    assert!(!in_gap, "nobody stands in the gap");
+    assert!(home, "a far-run tenant came home to its own run");
+    assert!(!stranded, "no returning tenant ends on the near run");
 }
