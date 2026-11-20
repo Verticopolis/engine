@@ -1,0 +1,98 @@
+import { renameSync, writeFileSync } from "node:fs";
+import { afterAll, type RunnerTask } from "vitest";
+
+/**
+ * The refresh rule every golden here keeps: its own switch writes it only from
+ * a run in which every test in the writing file ran and passed, never in CI.
+ * Each golden has its own switch, and each switch names one writer, so a
+ * refresh of one golden (or of the conformance lock, the referee's `--update`)
+ * never rewrites another, and no run has two suites writing the same file:
+ * - `VC_FRAME_DAYS_UPDATE=1`: the frame-day golden, from the Rust engine;
+ * - `VC_PORT_EDITS_UPDATE=1`: the port-edit golden, from the Rust engine.
+ */
+
+/** A switch's value, or undefined when it is unset, empty or "0" (off). */
+function refreshSwitch<T extends string>(name: string, values: readonly T[]): T | undefined {
+  const value = process.env[name];
+  if (value === undefined || value === "" || value === "0") return undefined;
+  if (process.env.CI) throw new Error(`${name} is a local regeneration switch and never runs in CI`);
+  if (!(values as readonly string[]).includes(value))
+    throw new Error(`${name} must be ${values.join(" or ")}, not ${JSON.stringify(value)}`);
+  return value as T;
+}
+
+/** `VC_FRAME_DAYS_UPDATE=1`: the Rust run writes the frame-day golden. */
+export const FRAME_DAYS_UPDATE = refreshSwitch("VC_FRAME_DAYS_UPDATE", ["1"]) === "1";
+
+/** `VC_PORT_EDITS_UPDATE=1`: the Rust run writes the port-edit golden. */
+export const PORT_EDITS_UPDATE = refreshSwitch("VC_PORT_EDITS_UPDATE", ["1"]) === "1";
+
+/** The full names of the tests under `task` that did not pass: the ones
+ *  that failed, and the ones a filter (`-t`) or a skip left out. A suite
+ *  whose own hook threw (a nested `afterAll` that fails after its tests
+ *  pass) is named too, since its tests' passes do not cover it. */
+export function testsNotPassed(task: RunnerTask, path: readonly string[] = []): string[] {
+  const here = task.type === "suite" && task.name ? [...path, task.name] : path;
+  if (task.type === "suite") {
+    const own = task.name && task.result?.state === "fail" ? [`${here.join(" > ")} (suite fail)`] : [];
+    return [...own, ...task.tasks.flatMap((t) => testsNotPassed(t, here))];
+  }
+  const state = task.result?.state ?? task.mode;
+  return state === "pass" ? [] : [`${[...here, task.name].join(" > ")} (${state})`];
+}
+
+/**
+ * The end of a writing run, the body of the hook `writeAfterPassingRun`
+ * registers: `suite` is the suite the hook ran for. It refuses a suite below
+ * the file (the gate has to cover the whole file) before it looks at
+ * `writing`, so a misplaced call fails every run. With `writing` on, it
+ * writes only when every test passed and `unfinished()` names no case.
+ */
+export function finishWritingRun(
+  what: string,
+  writing: boolean,
+  unfinished: () => readonly string[],
+  write: () => void,
+  suite: RunnerTask,
+): void {
+  if (!("filepath" in suite))
+    throw new Error(`writeAfterPassingRun for the ${what} belongs at the top level of the test file`);
+  if (!writing) return;
+  const notPassed = testsNotPassed(suite);
+  if (notPassed.length > 0)
+    throw new Error(
+      `${what} NOT written; every test in the file has to run and pass, and these did not: ${notPassed.join("; ")}`,
+    );
+  const missing = unfinished();
+  if (missing.length > 0) throw new Error(`${what} NOT written; these cases did not finish: ${missing.join(", ")}`);
+  write();
+}
+
+/**
+ * When `writing` is on, write the golden once the test file has finished, and
+ * only when every test in it ran and passed and `unfinished()` names no case
+ * (it returns the cases that never produced output). A `-t` filter that
+ * leaves a test out writes nothing; one that matches no test in the file
+ * runs no hook at all, so it writes nothing either. Call it at the top level
+ * of the file, outside any `describe`, so the gate covers the whole file; a
+ * call inside a `describe` fails the run even when `writing` is off.
+ */
+export function writeAfterPassingRun(
+  what: string,
+  writing: boolean,
+  unfinished: () => readonly string[],
+  write: () => void,
+): void {
+  // Vitest reads the first argument as fixtures and wants an object pattern
+  // there; the file's suite comes second.
+  // eslint-disable-next-line no-empty-pattern
+  afterAll(({}, suite) => finishWritingRun(what, writing, unfinished, write, suite as RunnerTask));
+}
+
+/** Write a golden file whole or not at all, so a test reading it beside the
+ *  writer never sees half of one. */
+export function writeGoldenFile(file: string, text: string | Uint8Array): void {
+  const tmp = `${file}.${process.pid}.tmp`;
+  writeFileSync(tmp, text);
+  renameSync(tmp, file);
+}

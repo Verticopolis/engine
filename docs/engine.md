@@ -238,7 +238,7 @@ that release and build with `RUSTUP_TOOLCHAIN=1.97.0 npm run wasm:build`.
 rustup target add wasm32-unknown-unknown
 cargo install wasm-bindgen-cli --locked --version 0.2.129   # the version Cargo.toml pins
 npm run wasm:build          # cargo rustc (cdylib) for wasm32 + wasm-bindgen: the player and tooling packages below
-npm run test:wasm           # every scenario through the binding, the frame-day and port-edit goldens, the .TDT differential test and the .vctower writer test (fails without the package)
+npm run glue:test           # every scenario through the binding, the frame-day and port-edit goldens and the other glue suites (fails without the package)
 ```
 
 `wasm:build` compiles the crate twice (#1057). The player build
@@ -331,8 +331,8 @@ facility table.
 How a frontend loads the package, steps it each frame and checks it is
 that frontend's own documentation. The web game's is
 [`docs/architecture/engine-host.md`](https://github.com/Verticopolis/web/blob/main/docs/architecture/engine-host.md)
-in Verticopolis/web, which also covers the frame-day and port-edit goldens
-its tests pin the engine with. Gameplay events (`src/gameplay/catalog.json`,
+in Verticopolis/web. The frame-day and port-edit goldens that pin the engine
+as a frame loop drives it live in the glue lane (`conformance/README.md`). Gameplay events (`src/gameplay/catalog.json`,
 `src/gameplay.rs`) come from the engine: `Engine.drainGameplayEvents()`
 returns and clears the batch as JSON, and `Engine.gameplayEventsPending()`
 says how many it holds. The TypeScript layer's typed drain is
