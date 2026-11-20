@@ -86,7 +86,7 @@ jobs:
             echo "Commit: \`${GITHUB_SHA}\`. Rust engine, native release build. Shared-runner timings: read as a trend, not an absolute."
             echo
             echo '```'
-            grep -E "^(runner:|bench |regular |boundary |per hour)" bench-output.txt || echo "bench lines not found; see the uploaded log"
+            grep -E "^(runner:|bench |regular |boundary |per hour|panel getters)" bench-output.txt || echo "bench lines not found; see the uploaded log"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
