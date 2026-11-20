@@ -22,10 +22,6 @@ names its tier: **major** for a break in saves, the frame or view layout or
 the binding, **minor** for a new API, **patch** for a fix. Only a release PR
 edits the version.
 
-Until the web game builds from this repository's packages, engine changes are
-on hold (README, "Contributing"). Fixes to the docs, the workflows and the
-packaging are fine.
-
 ## Releasing
 
 A release is one merged pull request that raises the crate version.
