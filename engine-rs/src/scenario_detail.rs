@@ -1,9 +1,10 @@
 //! What the seeded differential compares at a checkpoint beyond the three
 //! hashes: the money, the log, a digest of each top-level field of the full
 //! save, and the fx sequences and emergency counters, which sit outside the
-//! hashed views (#879). `scripts/fuzz-compare.ts` builds the same record from
-//! the TypeScript engine and names the first field that differs. The record
-//! stays out of `conformance/expected.json`.
+//! hashed views (#879). The fuzzer writes it for each run, and
+//! `scripts/fuzz-compare.mts` names the first field where the native and the
+//! WebAssembly builds' records differ. The record stays out of
+//! `conformance/expected.json`.
 
 use crate::canonical::digest;
 use crate::sim::Simulation;
@@ -20,8 +21,8 @@ pub struct CheckpointDetail {
     pub log: Value,
     /// The digest of each top-level field of `serialize()`, by name.
     pub save: BTreeMap<String, String>,
-    /// The fx sequences and emergency counters, by the names the TypeScript
-    /// runner and the WASM adapter use (`FX_SLOTS` in `checkpointDetail.ts`).
+    /// The fx sequences and emergency counters, by slot name (`fx_slots`
+    /// below; the game's WASM adapter reads the same names).
     pub fx: BTreeMap<String, f64>,
 }
 

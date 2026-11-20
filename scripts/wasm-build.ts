@@ -47,8 +47,9 @@ const positional = args.filter((a) => a !== "--player-only");
 if (positional.length > 1) throw new Error(`expected at most one argument (the crate) besides --player-only, got ${args.join(" ")}`);
 const which = positional[0] ?? "engine";
 if (playerOnly && which !== "engine") throw new Error("--player-only applies to the engine only");
-const target = Object.hasOwn(CRATES, which) ? CRATES[which] : undefined;
-if (!target) throw new Error(`unknown crate ${which}; expected one of ${Object.keys(CRATES).join(", ")}`);
+const known = Object.hasOwn(CRATES, which) ? CRATES[which] : undefined;
+if (!known) throw new Error(`unknown crate ${which}; expected one of ${Object.keys(CRATES).join(", ")}`);
+const target = known;
 const crate = resolve(dirname(fileURLToPath(import.meta.url)), "..", target.dir);
 
 /** The exact wasm-bindgen version Cargo.toml pins, found on the dependency's
@@ -123,7 +124,7 @@ function remapFlags(): string[] {
 /** Compile the cdylib with `features`. The crate is an rlib; the cdylib is
  *  asked for here so the native build stays as it is. */
 function compile(features: string): void {
-  const env = { ...process.env, CARGO_ENCODED_RUSTFLAGS: remapFlags().join("\x1f") };
+  const env: NodeJS.ProcessEnv = { ...process.env, CARGO_ENCODED_RUSTFLAGS: remapFlags().join("\x1f") };
   delete env.RUSTFLAGS;
   run("cargo", ["rustc", "--locked", "--release", "--lib", "--target", "wasm32-unknown-unknown", "--features", features, "--crate-type", "cdylib"], env);
 }

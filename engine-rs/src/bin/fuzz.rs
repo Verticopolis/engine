@@ -1,10 +1,13 @@
 //! Differential fuzzer: grow a random scenario from a seed, one command at a
 //! time, keeping only commands the Rust engine accepts (a refusal keeps
-//! its `expectFail`), then write the scenario and the Rust checkpoints so
-//! `scripts/fuzz-compare.ts` can replay it on the TypeScript engine and name
-//! the first divergence. Usage: fuzz <seed> <out-dir> [commands]
-//! The shrinker and the corpus replay use the other form: fuzz --replay
-//! <scenario.json> <out-dir> runs a given scenario and writes the same records.
+//! its `expectFail`), then write the scenario and the Rust checkpoints.
+//! Usage: fuzz <seed> <out-dir> [commands]
+//! The other form, fuzz --replay <scenario.json> <out-dir> [conformance-dir],
+//! runs a given scenario and writes the same records. The nightly workflow
+//! runs it again on this binary built for wasm32-wasip1 under Node's WASI
+//! (`scripts/fuzz-wasi.mts`), and `scripts/fuzz-compare.mts` names the first
+//! checkpoint where the two builds part; the corpus check and the shrinker
+//! use it too.
 
 use std::path::PathBuf;
 
@@ -55,7 +58,7 @@ fn write_failed(out: &std::path::Path, id: &str, scenario: &Value) {
 }
 
 /// Write a run's checkpoints and details beside each other, named for the
-/// scenario id, in the form `scripts/fuzz-compare.ts` reads.
+/// scenario id, in the form `scripts/fuzz-compare.mts` reads.
 fn write_records(out: &std::path::Path, id: &str, run: &Run, details: &impl serde::Serialize) {
     if let Err(e) = try_write_records(out, id, run, details) {
         // A failed write is bad input or a full disk, not an engine panic.
@@ -87,14 +90,27 @@ fn try_write_records(
     Ok(())
 }
 
-/// `fuzz --replay <scenario.json> <out-dir>`: run a scenario that was not just
-/// grown (a shrinker's candidate, a corpus entry) and write its records as
-/// `<scenario id>.rs.json` and `.rs.detail.json`. Exit 1 when the Rust engine
-/// refuses it, so the caller can tell an invalid candidate from a divergence.
+/// `fuzz --replay <scenario.json> <out-dir> [conformance-dir]`: run a scenario
+/// that was not just grown (a shrinker's candidate, a corpus entry) and write
+/// its records as `<scenario id>.rs.json` and `.rs.detail.json`. Exit 1 when
+/// the Rust engine refuses it, so the caller can tell an invalid candidate
+/// from a divergence. The conformance directory (for the fixtures a scenario
+/// loads) defaults to the repository's; the WebAssembly build run under WASI
+/// names the directory it was given, since it sees no other path.
 fn replay(args: &[String]) {
-    let [file, out] = args else {
-        eprintln!("usage: fuzz --replay <scenario.json> <out-dir>");
-        std::process::exit(2);
+    let (file, out, suite) = match args {
+        [file, out] => (
+            file,
+            out,
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("..")
+                .join("conformance"),
+        ),
+        [file, out, suite] => (file, out, PathBuf::from(suite)),
+        _ => {
+            eprintln!("usage: fuzz --replay <scenario.json> <out-dir> [conformance-dir]");
+            std::process::exit(2);
+        }
     };
     let text = std::fs::read_to_string(file).unwrap_or_else(|e| {
         eprintln!("{file}: {e}");
@@ -104,9 +120,6 @@ fn replay(args: &[String]) {
         eprintln!("{file}: {e}");
         std::process::exit(2);
     });
-    let suite = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("conformance");
     let (run, details) = run_scenario_detailed(&scenario, &suite);
     if let Some(e) = run.error {
         eprintln!("{file}: the Rust engine stopped: {e:?}");

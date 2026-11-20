@@ -4,29 +4,33 @@
  * the corpus. Delta debugging does not promise the globally shortest list, and
  * a run cut off by `--max-tests` may not be 1-minimal; the entry's description
  * says so. Usage:
- *   npx tsx scripts/fuzz-shrink.ts <fuzz-out>/fuzz-<seed>.json <name> [--max-tests 4000]
- * The candidates replay natively and on the shipped WASM build in Node, so the
- * fuzzer (`cargo build --release --features conformance --bin fuzz`, in
- * engine-rs/) and the WASM package (`npm run wasm:build`) must both be built.
- * A candidate counts as still failing only when the native Rust engine runs it
- * cleanly and the WASM build shows the same kind of divergence as the original
- * (`state:units`, `money`, `threw`, `trap`), so a smaller scenario that merely
- * breaks differently is not accepted. The result goes to
+ *   node scripts/fuzz-shrink.mts <fuzz-out>/fuzz-<seed>.json <name> [--max-tests 4000]
+ * The candidates replay on the native fuzzer and on the fuzzer built for
+ * WebAssembly under Node's WASI, so both builds must exist
+ * (`cargo build --release --features conformance --bin fuzz`, in engine-rs/,
+ * once as is and once with `--target wasm32-wasip1`).
+ * A candidate counts as still failing only when the native build runs it
+ * cleanly and the WebAssembly build shows the same kind of divergence as the
+ * original (`state:units`, `money`, `refused`, `trap`), so a smaller scenario
+ * that merely breaks differently is not accepted. The result goes to
  * conformance/fuzz-corpus/<name>.json; once the fix is in, pin its golden with
- * `npx tsx scripts/fuzz-corpus.ts --update` and commit both with the fix, where
+ * `node scripts/fuzz-corpus.mts --update` and commit both with the fix, where
  * the corpus job then holds the entry to its golden and to agreement. Exit 0
  * written, 1 the original does not diverge (or the Rust engine refuses it),
  * 2 bad arguments, an unreadable input or a taken name, 3 the harness failed
- * (no fuzzer, no WASM package, a timeout, a malformed record). The default limit is 4000 tests: a
+ * (a build missing, a timeout, a malformed record). The default limit is 4000 tests: a
  * tall night needs about 1300.
  */
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { binaryProblem, rustMessage, rustReplay } from "../src/tests/conformance/fuzzBinary";
-import { replayCompare } from "../src/tests/conformance/fuzzReplay";
-import { ddmin } from "../src/tests/conformance/fuzzShrink";
-import { CORPUS_NAME, corpusDir } from "../src/tests/conformance/fuzzCorpus";
+import { ddmin } from "./fuzz/ddmin.mts";
+import { compareRuns, readRecord, signature } from "./fuzz/records.mts";
+import { buildProblem, CONFORMANCE_DIR, nativeReplay, rustMessage, wasmReplay } from "./fuzz/run.mts";
+
+/** A corpus file name: lowercase words and digits joined by dashes. */
+const CORPUS_NAME = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const corpusDir = (): string => resolve(CONFORMANCE_DIR, "fuzz-corpus");
 
 /** What running a candidate natively and on the WASM build showed. Only `diverged` can be
  *  shrunk toward; the others tell the caller why it cannot. */
@@ -61,7 +65,7 @@ function main(): number {
     return 2;
   }
   const { maxTests } = options;
-  const problem = binaryProblem();
+  const problem = buildProblem(true);
   if (problem) {
     console.error(problem);
     return 3;
@@ -84,17 +88,31 @@ function main(): number {
   }
   const work = mkdtempSync(join(tmpdir(), "vc-shrink-"));
   try {
-    /** Run a candidate: the Rust engine must run it cleanly (a scenario it
-     *  refuses is not a valid shrink) and the WASM build must then differ. */
+    /** Run a candidate: the native build must run it cleanly (a scenario it
+     *  refuses is not a valid shrink) and the WebAssembly build must then differ. */
     const show = (commands: readonly unknown[], id = "candidate"): Shown => {
       const path = join(work, `${id}.json`);
+      const nativeDir = join(work, "native");
+      const wasmDir = join(work, "wasm");
+      rmSync(nativeDir, { recursive: true, force: true });
+      rmSync(wasmDir, { recursive: true, force: true });
       writeFileSync(path, JSON.stringify({ ...original, id, commands }));
-      const rust = rustReplay(path, work);
-      if (rust.code === 1) return { kind: "refused", message: `the Rust engine refuses it: ${rustMessage(rust.stderr)}` };
-      if (rust.code !== 0) return { kind: "harness", message: `the Rust replay failed (${rust.code}): ${rustMessage(rust.stderr)}` };
-      const r = replayCompare(path, work);
-      if (r.status === "harness") return { kind: "harness", message: r.message };
-      return r.status === "diverged" ? { kind: "diverged", signature: r.signature } : { kind: "converged" };
+      const rust = nativeReplay(path, nativeDir);
+      if (rust.code === 1) return { kind: "refused", message: `the native build refuses it: ${rustMessage(rust.stderr)}` };
+      if (rust.code !== 0) return { kind: "harness", message: `the native replay failed (${rust.code}): ${rustMessage(rust.stderr)}` };
+      const wasm = wasmReplay(path, wasmDir);
+      if (wasm.code === 1) return { kind: "diverged", signature: "refused" };
+      if (wasm.code === 4) return { kind: "diverged", signature: "trap" };
+      if (wasm.code !== 0) return { kind: "harness", message: `the WebAssembly replay failed (${wasm.code}): ${rustMessage(wasm.stderr)}` };
+      const a = readRecord(nativeDir, id);
+      const b = readRecord(wasmDir, id);
+      if (!a || !b) return { kind: "harness", message: `missing records for ${id}` };
+      try {
+        const d = compareRuns(b, a, "WASM");
+        return d ? { kind: "diverged", signature: signature(d) } : { kind: "converged" };
+      } catch (e) {
+        return { kind: "harness", message: (e as Error).message };
+      }
     };
 
     const first = show(original.commands, "original");
