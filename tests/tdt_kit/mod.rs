@@ -4,6 +4,9 @@
 //! put where.
 #![allow(dead_code)]
 
+pub mod builder;
+pub mod reading;
+
 use std::io::Read;
 use std::path::PathBuf;
 
@@ -15,10 +18,9 @@ use verticopolis_engine::tdt::format::{
 };
 use verticopolis_engine::tdt::parse::{parse_tdt, ParsedLegacyTower};
 
-/// The sample tower the conformance lock's import cases start from: its
-/// `.TDT` file pulled through the importer, so it carries rooms, hotel
-/// states, transports, paving and parking in the shape the game saves.
-pub fn sample_save() -> Value {
+/// The bytes of the conformance lock's import case `id`. The lock's import
+/// cases are synthetic `.TDT` files, one per shape the importer must read.
+pub fn case_bytes(id: &str) -> Vec<u8> {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("conformance/tdt-cases.json");
     let lock: Value =
         serde_json::from_str(&std::fs::read_to_string(path).expect("lock")).expect("json");
@@ -26,8 +28,8 @@ pub fn sample_save() -> Value {
         .as_array()
         .expect("import cases")
         .iter()
-        .find(|c| c["id"] == "sample")
-        .expect("the lock holds the sample case");
+        .find(|c| c["id"] == id)
+        .unwrap_or_else(|| panic!("the lock holds no import case {id}"));
     let packed = base64::Engine::decode(
         &base64::engine::general_purpose::STANDARD,
         case["bytes"].as_str().expect("bytes"),
@@ -37,7 +39,14 @@ pub fn sample_save() -> Value {
     flate2::read::DeflateDecoder::new(&packed[..])
         .read_to_end(&mut bytes)
         .expect("inflate");
-    import(&bytes).save
+    bytes
+}
+
+/// The sample tower the conformance lock's import cases start from: its
+/// `.TDT` file pulled through the importer, so it carries rooms, hotel
+/// states, transports, paving and parking in the shape the game saves.
+pub fn sample_save() -> Value {
+    import(&case_bytes("sample")).save
 }
 
 /// A room or paving tile for a hand-built save.
