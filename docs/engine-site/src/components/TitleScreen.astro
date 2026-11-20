@@ -3,8 +3,9 @@
 // Dusk"): the dusk sky, the setting sun, the skyline and the VERTICO/POLIS
 // wordmark. Starlight renders it in place of its own hero (astro.config.mjs,
 // components.Hero) from the page's `hero` front matter. The colors are the
-// game's --splash-* tokens (retro-tokens.css) and the skyline is the game's
-// splash-skyline.svg, both copied in by scripts/sync-pages.mjs.
+// game's --splash-* tokens (retro-tokens.css from @verticopolis/components)
+// and the skyline is the game's splash-skyline.svg, copied in by
+// scripts/sync-pages.mjs.
 const { data } = Astro.locals.starlightRoute.entry;
 const { tagline, actions = [] } = data.hero || {};
 ---

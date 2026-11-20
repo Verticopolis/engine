@@ -5,7 +5,8 @@
 // (Starlight prints the title), and its links rewritten: a link to another
 // page of the site stays on the site, and any other repository link points at
 // GitHub at DOCS_REF (the release tag on a release build, main otherwise).
-// The game's palette, logo, favicon and title-screen skyline are copied in the same way.
+// The game's logo, favicon and title-screen skyline are copied in the same way;
+// its palette comes from @verticopolis/components (astro.config.mjs).
 import { copyFileSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, posix, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -88,7 +89,6 @@ function main() {
   copyFileSync(join(site, "brand/icon-1024x1024.png"), join(site, "src/assets/logo.png"));
   copyFileSync(join(site, "brand/favicon.png"), join(site, "public/favicon.png"));
   copyFileSync(join(site, "brand/splash-skyline.svg"), join(site, "public/splash-skyline.svg"));
-  copyFileSync(join(site, "brand/retro-tokens.css"), join(site, "src/styles/retro-tokens.css"));
   console.log(`synced ${pages.length} pages at ${ref}`);
 }
 

@@ -1,8 +1,8 @@
 // The engine developer docs at docs.verticopolis.com. The pages come from the
 // repository's own READMEs and guides (pages.json, scripts/sync-pages.mjs);
-// the look comes from the game's Windows 3.1 palette (src/styles/theme.css
-// over the game's retro-tokens.css). .github/workflows/engine-docs.yml builds
-// it with the crate's Rust API reference under /rust/.
+// the look is the game's, from @verticopolis/components (its Starlight theme,
+// styles/starlight.css, over the game's palette). .github/workflows/engine-docs.yml
+// builds it with the crate's Rust API reference under /rust/.
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import { GITHUB, sidebar, siteTitle } from "./site.mjs";
@@ -27,7 +27,11 @@ export default defineConfig({
         Header: "./src/components/Header.astro",
         Hero: "./src/components/TitleScreen.astro",
       },
-      customCss: ["./src/styles/retro-tokens.css", "./src/styles/theme.css", "./src/styles/title-bar.css"],
+      // Starlight's CSS sits in the `starlight` layer and the components' in
+      // `vc`; this orders them before any stylesheet loads, so the game look
+      // wins (the components README, "Styles").
+      head: [{ tag: "style", content: "@layer starlight, vc;" }],
+      customCss: ["@verticopolis/components/styles/starlight.css"],
       sidebar,
     }),
   ],
