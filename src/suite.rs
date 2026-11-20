@@ -93,7 +93,7 @@ mod tests {
     /// exists, so the referee reads them from the suite alone.
     #[test]
     fn every_fixture_the_lock_names_is_in_the_suite() {
-        let suite = Path::new(env!("CARGO_MANIFEST_DIR")).join("../conformance");
+        let suite = Path::new(env!("CARGO_MANIFEST_DIR")).join("conformance");
         // Every string-valued `fixture` field, wherever it sits in a file.
         fn fixtures(v: &serde_json::Value, out: &mut Vec<String>) {
             match v {

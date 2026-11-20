@@ -13,13 +13,13 @@ readme = "CRATE_README.md"
 keywords = ["simulation", "game", "tower", "simtower", "wasm"]
 categories = ["game-engines", "simulation", "wasm"]
 # What crates.io receives: the library, its binaries and the data they compile
-# in, with the license (a copy of the repository's, held equal by
-# src/tests/engineCrateReadme.guard.test.ts). The tests, the consumer crate
-# and the contributors' docs stay in the
-# repository; they read the conformance suite, which is not packaged yet
-# (#893). engine-rs.yml packages the crate on every engine change and builds
-# the consumer against the packaged copy.
-include = ["src/**", "Cargo.toml", "Cargo.lock", "CRATE_README.md", "CHANGELOG.md", "LICENSE"]
+# in, with the license. The tests, the consumer crate and the contributors'
+# docs stay in the repository; they read the conformance suite, which is not
+# packaged yet (#893). engine-rs.yml packages the crate on every engine change
+# and builds the consumer against the packaged copy. Each entry starts with
+# `/` so it names a path at the root only: an unanchored "LICENSE" would also
+# match node_modules/*/LICENSE.
+include = ["/src/**", "/Cargo.toml", "/Cargo.lock", "/CRATE_README.md", "/CHANGELOG.md", "/LICENSE"]
 # Every binary is declared below with the conformance feature it needs; none
 # is found by its path alone (tests/independence.rs holds this).
 autobins = false
@@ -70,7 +70,7 @@ indexmap = "2.12.0"
 flate2 = "1.1.5"
 base64 = "0.22.1"
 # The JavaScript binding, built only for wasm32 with `--features wasm`; the
-# CLI that generates the glue must be the same version (see engine-rs/README).
+# CLI that generates the glue must be the same version (see docs/engine.md).
 wasm-bindgen = { version = "=0.2.129", optional = true }
 
 [features]
@@ -85,3 +85,18 @@ tooling = ["wasm"]
 # host links no file reads; the referee and a host that replays the lock turn
 # it on (`cargo run --features conformance --bin conformance`).
 conformance = []
+
+# The repository root is the crate and its workspace. The consumer crate and
+# the bench keep their own workspaces, so each resolves the engine the way a
+# project outside this repository would.
+[workspace]
+resolver = "2"
+exclude = ["consumer", "engine-bench"]
+
+# One codegen unit: the player .wasm is about 470 KB (15%) smaller and a
+# game day up to 3% faster in WASM than at the default 16, and timing no
+# longer shifts when rustc splits the crate differently after an unrelated
+# change (perf audit, 2026-11-17; owner chose it for the slower build).
+[profile.release]
+debug = 1
+codegen-units = 1

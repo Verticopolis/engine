@@ -64,7 +64,7 @@ fn a_venue_crowd_that_fills_a_car_reads_as_a_full_shaft() {
 /// The owner's Modern split tower (`split-tower-26`, saved at 9 AM), played
 /// `minutes` in one-minute steps.
 fn split_tower_after(minutes: usize) -> Simulation {
-    let bytes = include_bytes!("../../../conformance/fixtures/regression/split-tower-26.vctower");
+    let bytes = include_bytes!("../../conformance/fixtures/regression/split-tower-26.vctower");
     let save = decode_vctower_bytes(bytes).expect("the fixture decodes");
     let mut sim = deserialize(&save).expect("the fixture loads");
     assert_eq!(sim.tower.mode, GameMode::Modern);

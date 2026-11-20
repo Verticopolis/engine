@@ -14,7 +14,7 @@ every pinned checkpoint hash is running the real simulation.
 
 | Repository | What it holds |
 | --- | --- |
-| **[Verticopolis/engine](https://github.com/Verticopolis/engine)** (this one) | The Rust engine (`engine-rs/`), its WebAssembly package, the conformance lock, the engine docs site and the bench |
+| **[Verticopolis/engine](https://github.com/Verticopolis/engine)** (this one) | The Rust engine (the crate at the root), its WebAssembly package, the conformance lock, the engine docs site and the bench |
 | [Verticopolis/components](https://github.com/Verticopolis/components) | The TypeScript pieces a frontend builds on: the renderer and Excalibur scene, the Win95 windows and menus, audio, and the engine binding and host loader |
 | [Verticopolis/web](https://github.com/Verticopolis/web) | The web game at [verticopolis.com](https://verticopolis.com) and its player's manual |
 
@@ -30,7 +30,7 @@ cargo add verticopolis-engine
 ```
 
 The crate needs the Rust release named by `rust-version` in
-`engine-rs/Cargo.toml` and nothing else: no Node.js, no build script, no
+`Cargo.toml` and nothing else: no Node.js, no build script, no
 system library.
 
 ### JavaScript
@@ -62,23 +62,23 @@ built from `docs/engine-site/`:
 - [Rust crate](https://docs.verticopolis.com/crate/): a quick start, how the
   engine works, features, saves and versioning.
 - [Host API guide](https://docs.verticopolis.com/api/): every call a frontend
-  makes. [`engine-rs/API.md`](engine-rs/API.md) is the same list in the repo.
+  makes. [`API.md`](API.md) is the same list in the repo.
 - [Rust API reference](https://docs.verticopolis.com/rust/verticopolis_engine/).
 - [Conformance suite](https://docs.verticopolis.com/conformance/).
-- [Changelog](engine-rs/CHANGELOG.md).
+- [Changelog](CHANGELOG.md).
 
 ## Layout
 
 | Path | What it is |
 | --- | --- |
-| `engine-rs/` | The `verticopolis-engine` crate. [`engine-rs/README.md`](engine-rs/README.md) maps its modules |
-| `engine-rs/consumer/` | A small frontend-free host, built against the public API only |
+| `Cargo.toml`, `src/`, `tests/` | The `verticopolis-engine` crate. [`docs/engine.md`](docs/engine.md) maps its modules |
+| `consumer/` | A small frontend-free host, built against the public API only |
 | `conformance/` | The scenarios, the pinned hashes and the `.TDT` cases the referee checks |
 | `engine-bench/` | The step-cost bench |
 | `docs/engine-site/` | The docs site |
 | `docs/tdt/` | The 1994 `.TDT` save format: what its values mean and a map of every byte |
 | `packages/verticopolis-engine/` | The npm package's README and browser types |
-| `Cargo.toml`, `Cargo.lock` | The workspace root (member `engine-rs`) |
+| `Cargo.lock` | The lock the crate builds and packages with |
 | `package.json` | The `@verticopolis/engine` package definition |
 | `history/commit-map.txt` | Each commit here and the `maniator/verticopolis` commit it came from |
 
@@ -89,7 +89,7 @@ cargo fmt --all -- --check
 cargo clippy --locked --all-targets -- -D warnings
 cargo test --locked
 cargo run --release --features conformance --bin conformance   # the referee
-(cd engine-rs/consumer && cargo test --locked)
+(cd consumer && cargo test --locked)
 ```
 
 The TypeScript around the engine (the packer, the event rules, the
@@ -107,14 +107,14 @@ CI also runs the referee compiled to WebAssembly, under Node's WASI
 (`scripts/conformance-wasi.mts` has the two commands), so the checkpoints hold
 for the engine built the way a browser runs it.
 
-`engine-rs/README.md` lists the other tools: the checkpoint dump, the `.TDT`
+`docs/engine.md` lists the other tools: the checkpoint dump, the `.TDT`
 replay and coverage.
 
 ## Contributing
 
 The engine came out of the game's repository, and its rules came with it:
 American English, no em-dashes in prose, a 500-line ceiling per source file,
-no host access in the simulation (`engine-rs/tests/independence.rs`), and a
+no host access in the simulation (`tests/independence.rs`), and a
 regenerated conformance lock in the same PR as any change to how the game
 plays. [CONTRIBUTING.md](CONTRIBUTING.md) covers pull requests, releases
 and the registries.

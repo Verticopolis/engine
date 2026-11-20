@@ -13,10 +13,9 @@ export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..
 export const CONFORMANCE_DIR = resolve(REPO_ROOT, "conformance");
 
 /** The release build of the fuzzer, or `VC_FUZZ_BIN`. */
-export const FUZZ_BIN = process.env.VC_FUZZ_BIN ?? resolve(REPO_ROOT, "engine-rs/target/release/fuzz");
+export const FUZZ_BIN = process.env.VC_FUZZ_BIN ?? resolve(REPO_ROOT, "target/release/fuzz");
 /** The fuzzer built for wasm32-wasip1, or `VC_FUZZ_WASM`. */
-export const FUZZ_WASM =
-  process.env.VC_FUZZ_WASM ?? resolve(REPO_ROOT, "engine-rs/target/wasm32-wasip1/release/fuzz.wasm");
+export const FUZZ_WASM = process.env.VC_FUZZ_WASM ?? resolve(REPO_ROOT, "target/wasm32-wasip1/release/fuzz.wasm");
 
 export interface Replay {
   /** The native fuzzer: 0 ran, 1 the engine refused the scenario, 2 bad
@@ -30,7 +29,7 @@ export interface Replay {
 /** What is missing before a replay can run, or `null`. */
 export function buildProblem(wasm: boolean): string | null {
   if (!existsSync(FUZZ_BIN))
-    return `no fuzzer at ${FUZZ_BIN} (cargo build --release --features conformance --bin fuzz, in engine-rs/)`;
+    return `no fuzzer at ${FUZZ_BIN} (cargo build --release --features conformance --bin fuzz, at the repository root)`;
   if (wasm && !existsSync(FUZZ_WASM))
     return `no WebAssembly fuzzer at ${FUZZ_WASM} (add --target wasm32-wasip1 to that build)`;
   return null;

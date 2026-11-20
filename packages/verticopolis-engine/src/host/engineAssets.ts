@@ -1,6 +1,6 @@
 /**
  * Every file the engine's browser package build writes into
- * `engine-rs/pkg-web/` (which a game serves, for example from its
+ * `wasm/pkg-web/` (which a game serves, for example from its
  * `dist/engine/`), each marked by whether the game fetches it at run time. The audio layer has the same list in src/audio/audioAssets.ts.
  *
  * An installed game must start the engine offline (#945, #985), so every
@@ -19,7 +19,7 @@
  * the compiled module to the glue's `init`, so the glue never fetches the
  * binary itself.
  * `THIRD-PARTY.json` is read only at
- * build and test time (the notices in src/build/rustNotices.ts), so it stays
+ * build and test time (the notices in tools/rustNotices.ts), so it stays
  * out of the precache. Each run-time file is listed in the workbox glob by its
  * own path where the pattern matches no `.json` (see the note in
  * vite.config.ts).
@@ -51,7 +51,7 @@ export interface EngineFile {
   readBy: string;
 }
 
-/** Every file the package build leaves in `engine-rs/pkg-web/`. Add a new
+/** Every file the package build leaves in `wasm/pkg-web/`. Add a new
  *  one here in the same change that writes it. */
 export const ENGINE_PACKAGE: readonly EngineFile[] = [
   {

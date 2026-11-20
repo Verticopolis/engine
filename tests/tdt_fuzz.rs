@@ -10,7 +10,7 @@
 //! 4. one more round trip changes nothing (the export is a fixed point).
 //!
 //! The pull-request run uses a small budget. The nightly run (`tdt-fuzz.yml`)
-//! raises it. To replay a failure, from `engine-rs/`: `VC_TDT_FUZZ_FIRST=<seed>
+//! raises it. To replay a failure, from the repository root: `VC_TDT_FUZZ_FIRST=<seed>
 //! VC_TDT_FUZZ_SEEDS=1 cargo test --release --test tdt_fuzz`. A failing seed
 //! also writes the damaged file to `target/tdt-fuzz/` for local debugging.
 //!
@@ -65,7 +65,6 @@ fn env_number(name: &str, default: u64) -> u64 {
 
 fn fixtures() -> Vec<(&'static str, Vec<u8>)> {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
         .join("conformance")
         .join("fixtures")
         .join("tdt-reddit");

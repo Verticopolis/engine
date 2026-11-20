@@ -243,7 +243,7 @@ fn the_flag_saves_loads_and_stamps_version_12() {
 /// no shaft on Auto and writes the same version it was read at.
 #[test]
 fn committed_towers_load_with_auto_off() {
-    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures");
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures");
     let mut seen = 0;
     for entry in std::fs::read_dir(dir).unwrap() {
         let path = entry.unwrap().path();

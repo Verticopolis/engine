@@ -102,7 +102,7 @@ fn same(p: &Person, what: &str) {
 
 #[test]
 fn everyone_in_the_committed_towers_writes_as_before() {
-    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures");
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures");
     let mut paths: Vec<_> = std::fs::read_dir(dir)
         .unwrap()
         .map(|e| e.unwrap().path())
@@ -136,7 +136,7 @@ fn everyone_in_the_committed_towers_writes_as_before() {
 #[test]
 fn a_person_with_every_key_writes_as_before() {
     let save = decode_vctower(include_str!(
-        "../../../conformance/fixtures/split-tower-4.vctower"
+        "../../conformance/fixtures/split-tower-4.vctower"
     ))
     .unwrap();
     let mut sim = deserialize(&save).unwrap();

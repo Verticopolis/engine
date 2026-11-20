@@ -21,7 +21,7 @@ fn lock_save() -> Value {
 }
 
 fn lock_case(id: &str) -> Value {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../conformance/tdt-cases.json");
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("conformance/tdt-cases.json");
     let lock = read_lock(&path).expect("the lock reads");
     lock.export
         .into_iter()

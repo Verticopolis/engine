@@ -1,6 +1,7 @@
 # Verticopolis engine in Rust
 
-`engine-rs/` is the game's simulation, written in Rust and compiled to
+The crate at the repository root (`Cargo.toml`, `src/`, `tests/`) is the
+game's simulation, written in Rust and compiled to
 WebAssembly for the web game, where it is the only engine that runs. It began
 as a port of the TypeScript simulation in `src/engine/`, which was deleted in
 #1875; its rules are Rust tests now. Comments that name a file under
@@ -12,7 +13,7 @@ run under hosts other than the browser (a native desktop client, a plain Rust
 program) while staying one simulation.
 
 Frontends may differ. Simulations may not. The referee for that rule is the
-conformance suite in `../conformance/`: the port replays every scenario and
+conformance suite in `conformance/`: the port replays every scenario and
 must reproduce every pinned checkpoint hash (`expected.json`) byte for byte.
 
 ## Layout
@@ -33,11 +34,11 @@ must reproduce every pinned checkpoint hash (`expected.json`) byte for byte.
 
 Outside `src/`: `tests/` holds the integration tests (`independence.rs`,
 `read_boundary.rs`, `api.rs` and the `.TDT` suites), `consumer/` is a small
-frontend-free host, and [`API.md`](API.md) is the host API.
+frontend-free host, and [`API.md`](../API.md) is the host API.
 
 Unit tests sit beside their module as `<module>_tests.rs` (or `tests.rs` in a
 module folder). Every file stays under the 500-line ceiling that
-`src/tests/fileSize.guard.test.ts` enforces, so a growing module splits into a
+CLAUDE.md sets, so a growing module splits into a
 folder.
 
 Many functions keep the names and shape of their TypeScript originals. Where
@@ -76,9 +77,9 @@ crate" page) is for people who build on the engine, and its quick start is
 `consumer/examples/quick_start.rs`, which the `consumer` job compiles.
 The crate guide, the JavaScript guide (`docs/engine-site/guides/`) and
 `API.md` are published at docs.verticopolis.com (`docs/engine-site/`,
-rebuilt whenever they change on `main`). [`CRATE_README.md`](CRATE_README.md)
+rebuilt whenever they change on `main`). [`CRATE_README.md`](../CRATE_README.md)
 is the short README crates.io shows, pointing at the site.
-[`API.md`](API.md) is the page for a host that is not the web game: how to
+[`API.md`](../API.md) is the page for a host that is not the web game: how to
 depend on the crate, the calls a frontend makes, and what is stable.
 [`packages/verticopolis-engine/README.md`](../packages/verticopolis-engine/README.md)
 is the short README of the WASM package each crate release publishes to npm
@@ -88,25 +89,25 @@ is the short README of the WASM package each crate release publishes to npm
 registries").
 `consumer/` is a small crate that depends on the engine by path and makes
 those calls; CI builds and runs a copy of it outside the checkout, in the
-Rust container image with no Node.js and a checkout holding only
-`engine-rs/` and `conformance/` (`engine-rs.yml`, job `consumer`), and
+Rust container image with no Node.js and a checkout holding only the
+crate's files, `consumer/` and `conformance/` (`engine-rs.yml`, job
+`consumer`), and
 `tests/independence.rs` checks that the library source (the conformance
 harness aside, which is behind the `conformance` feature) reaches for no
 file, clock, console, network, thread or process access, compiles in
 nothing from the web game's tree, and pulls in no unreviewed crate.
-`tests/read_boundary.rs` keeps the tests and binaries reading only
-`engine-rs/` and `conformance/`, and `tests/api.rs` names the host API.
+`tests/read_boundary.rs` keeps the tests and binaries reading only the
+crate and `conformance/`, and `tests/api.rs` names the host API.
 
 ## Running
 
 ```sh
-cd engine-rs
 cargo test                                  # unit tests (rng, number formatting, hash)
 # The referee and the tools below are the `conformance` feature.
 cargo run --release --features conformance --bin conformance       # replay every scenario against expected.json
 # The same referee as WebAssembly under Node's WASI (rustup target add wasm32-wasip1):
 cargo build --locked --release --features conformance --bin conformance --target wasm32-wasip1
-(cd .. && node --no-turbo-fast-api-calls scripts/conformance-wasi.mts engine-rs/target/wasm32-wasip1/release/conformance.wasm conformance)
+node --no-turbo-fast-api-calls scripts/conformance-wasi.mts target/wasm32-wasip1/release/conformance.wasm conformance
 cargo llvm-cov --no-report test --features conformance && cargo llvm-cov --no-report run --features conformance --bin conformance \
   && cargo llvm-cov report               # what the tests and the referee reach; CI floors lines at 87%
 cargo run --release --features conformance --bin dump -- starter-classic t+60   # canonical JSON of one checkpoint
@@ -121,7 +122,7 @@ codec every frontend uses: `import_tdt(bytes, filename)` gives the
 serialized game as JSON (what `load::deserialize` takes) plus the binary
 walk's warnings, and `export_tdt(save_json)` gives the file bytes for a
 serialized game (what `Simulation::serialize` writes). The format itself
-is written up in [`docs/tdt/`](../docs/tdt/): `tdt-format.md` for what the
+is written up in [`docs/tdt/`](tdt/): `tdt-format.md` for what the
 values mean and `tdt-byte-map.md` for every offset. Its referee is
 `conformance/tdt-cases.json` (see the conformance README):
 `cargo run --release --features conformance --bin tdt` prints
@@ -236,18 +237,18 @@ npm run test:wasm           # every scenario through the binding, the frame-day 
 
 `wasm:build` compiles the crate twice (#1057). The player build
 (`--features wasm`) is the one the game ships and npm publishes: the browser
-package in `engine-rs/pkg-web/` and the Node package in `engine-rs/pkg-player/`.
+package in `wasm/pkg-web/` and the Node package in `wasm/pkg-player/`.
 The tooling build (`--features tooling`, which turns `wasm` on too) adds the
 binding's tier 3 ops (raw edits, scripted events and seeding calls, listed in
 `src/engineBinding/exportTiers.ts`) that the tests and the tooling harnesses
-call: the Node package in `engine-rs/pkg/`, which the WASM suites load, and
-the browser package in `engine-rs/pkg-web-tooling/`, which a `VC_TOOLING=1`
+call: the Node package in `wasm/pkg/`, which the WASM suites load, and
+the browser package in `wasm/pkg-web-tooling/`, which a `VC_TOOLING=1`
 build and a dev serve put in place of the player's browser package. The build guard
 (`scripts/verify-engine-bundle.ts`) fails a production build whose engine has
 a tier 3 op and a tooling build whose engine lacks one.
 
 These packages are build output and are not checked in, except for the
-declaration wasm-bindgen writes for `engine-rs/pkg/`, copied to
+declaration wasm-bindgen writes for `wasm/pkg/`, copied to
 `src/engineBinding/engine.d.ts` (the tooling build's, so it names tier 3 too):
 `src/engineBinding/binding.ts` types the adapters against it, so a method added
 or renamed in `wasm.rs` reaches TypeScript as a type change, and the
@@ -369,7 +370,7 @@ of the build before the change.
 
 A simulation change lands in this crate, with the regenerated
 `conformance/expected.json` (see `conformance/README.md`). CI runs
-the referee on every change to `engine-rs/` or `conformance/`, the save
+the referee on every change to the crate or `conformance/`, the save
 fixtures in `conformance/fixtures/` included (`.github/workflows/engine-rs.yml`).
 
 ## The crate version

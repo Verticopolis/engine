@@ -13,7 +13,7 @@ use crate::snapshot::state_view;
 
 /// The conformance fixture towers, as save text.
 fn fixtures() -> Vec<(String, String)> {
-    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures");
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures");
     let mut paths: Vec<_> = std::fs::read_dir(dir)
         .unwrap()
         .map(|e| e.unwrap().path())

@@ -25,7 +25,7 @@ export const INVALID_COMMAND = "That request is not valid.";
 /** The refusal reason when a build or a car change costs more than the cash on
  *  hand. The web compares an outcome's reason against it to tell a money refusal
  *  (which speaks) from the others (which stay quiet). The engine's own text is
- *  `NOT_ENOUGH_MONEY` in `engine-rs/src/charges.rs`; `request.test.ts` and
+ *  `NOT_ENOUGH_MONEY` in `src/charges.rs`; `request.test.ts` and
  *  `charges_tests.rs` pin both to the same words. */
 export const NOT_ENOUGH_MONEY = "Not enough money.";
 
@@ -39,7 +39,7 @@ export const MAX_BRUSH_TILES = 32;
  *  bulletin). The web's own are far shorter (a name box holds 28); the cap
  *  keeps a hostile request from growing every save and undo step. The Rust
  *  port refuses the same length on `labelUnit`, `nameTower` and `logLine`
- *  (`MAX_TEXT` in `engine-rs/src/wasm_port_edit.rs`, #1405). */
+ *  (`MAX_TEXT` in `src/wasm_port_edit.rs`, #1405). */
 export const MAX_TEXT = 4096;
 
 type Fields = Readonly<Record<string, unknown>>;

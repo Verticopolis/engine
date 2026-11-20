@@ -154,7 +154,7 @@ fn same(u: &Unit, what: &str) {
 }
 
 fn fixtures() -> Vec<(String, Simulation)> {
-    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures");
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures");
     let mut paths: Vec<_> = std::fs::read_dir(dir)
         .unwrap()
         .map(|e| e.unwrap().path())

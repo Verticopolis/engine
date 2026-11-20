@@ -309,7 +309,7 @@ fn edited_games_write_the_trees_text() {
 #[test]
 fn loader_cases_write_the_trees_text() {
     let table: Value =
-        serde_json::from_str(include_str!("../../conformance/loader-cases.json")).unwrap();
+        serde_json::from_str(include_str!("../conformance/loader-cases.json")).unwrap();
     let mut loaded = 0;
     for case in table["cases"].as_array().unwrap() {
         if let Ok(sim) = deserialize(&case["input"]) {
@@ -323,7 +323,7 @@ fn loader_cases_write_the_trees_text() {
 /// Every committed player tower writes the same text both ways.
 #[test]
 fn fixture_towers_write_the_trees_text() {
-    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures");
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures");
     let mut paths: Vec<_> = std::fs::read_dir(dir)
         .unwrap()
         .map(|e| e.unwrap().path())

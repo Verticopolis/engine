@@ -119,7 +119,7 @@ fn fingerprint(sim: &Simulation) -> String {
 #[test]
 fn assemble_reads_nothing_from_units() {
     let table: Value =
-        serde_json::from_str(include_str!("../../conformance/loader-cases.json")).unwrap();
+        serde_json::from_str(include_str!("../conformance/loader-cases.json")).unwrap();
     let mut seen = 0;
     for case in table["cases"].as_array().unwrap() {
         let raw = &case["input"];

@@ -20,7 +20,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { dirname, join, relative, isAbsolute, sep } from "node:path";
-import { noticeProblem, type NoticePackage } from "../src/build/thirdPartyNotices.ts";
+import { noticeProblem, type NoticePackage } from "../tools/thirdPartyNotices.ts";
 import {
   ENGINE_PORTS,
   ENGINE_THIRD_PARTY,
@@ -32,7 +32,7 @@ import {
   shippedCrates,
   stdLicenseProblems,
   type CargoMetadata,
-} from "../src/build/rustNotices.ts";
+} from "../tools/rustNotices.ts";
 import { readLicenseFiles } from "./license-files.ts";
 
 export { ENGINE_THIRD_PARTY };

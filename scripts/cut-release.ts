@@ -6,17 +6,17 @@
  *   node scripts/cut-release.ts                   the tier the notes ask for
  *   node scripts/cut-release.ts --version 2.0.0   a named version, at or past it
  *
- * It raises the crate version in `engine-rs/Cargo.toml`, the three lockfiles
- * that name the crate and `engine-rs/src/compat-record.json`, writes the
+ * It raises the crate version in `Cargo.toml`, the three lockfiles
+ * that name the crate and `src/compat-record.json`, writes the
  * notes' entries into a new `## <version> (<date>)` changelog section, deletes
  * the notes and moves the quoted version pins in the guides. The rules are in
- * `src/build/releaseCut.ts` and `src/build/changeNotes.ts`. It prints the new
+ * `tools/releaseCut.ts` and `tools/changeNotes.ts`. It prints the new
  * version on its last line.
  */
 import { readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { highestTier, isNoteFile, parseNote, sectionBody } from "../src/build/changeNotes.ts";
+import { highestTier, isNoteFile, parseNote, sectionBody } from "../tools/changeNotes.ts";
 import {
   addSection,
   crateVersion,
@@ -25,17 +25,17 @@ import {
   setCrateVersion,
   setLockedVersion,
   setRecordVersion,
-} from "../src/build/releaseCut.ts";
+} from "../tools/releaseCut.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel: string) => readFileSync(join(root, rel), "utf8");
 const write = (rel: string, text: string) => writeFileSync(join(root, rel), text);
 
-const CARGO = "engine-rs/Cargo.toml";
-const CHANGELOG = "engine-rs/CHANGELOG.md";
+const CARGO = "Cargo.toml";
+const CHANGELOG = "CHANGELOG.md";
 const NOTES = ".changes";
-const RECORD = "engine-rs/src/compat-record.json";
-const LOCKFILES = ["Cargo.lock", "engine-rs/consumer/Cargo.lock", "engine-bench/Cargo.lock"];
+const RECORD = "src/compat-record.json";
+const LOCKFILES = ["Cargo.lock", "consumer/Cargo.lock", "engine-bench/Cargo.lock"];
 const GUIDES = ["docs/engine-site/guides/crate.md", "docs/engine-site/guides/javascript.md"];
 
 function arg(name: string): string | undefined {

@@ -2,7 +2,7 @@
  * Floor runs in a save (version 11). The engine folds a row of plain floor
  * tiles into the first tile's entry with a `run` count:
  * `{"id":43,"kind":"floor","floor":2,"x":167,"run":60}` stands for 60 tiles
- * on floor 2 at x 167 to 226, ids 43 to 102 (`engine-rs/src/save_floor_runs.rs`).
+ * on floor 2 at x 167 to 226, ids 43 to 102 (`src/save_floor_runs.rs`).
  * The engine is the only loader; this unfolds a save the tooling harness
  * reads and patches by unit id, so every tile has its own record again. The
  * engine reads the unfolded list back the same. It reads saves the engine

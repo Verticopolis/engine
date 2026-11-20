@@ -5,13 +5,13 @@ saves and gameplay events. A frontend owns everything a player sees and
 hears (rendering, audio, UI, input, presentation) and drives the engine
 through the calls below. Frontends may differ. Simulations may not: a host
 proves it runs the real simulation by replaying the conformance suite
-(`../conformance/`).
+(`conformance/`).
 
 `consumer/` is a working example and the CI gate for this page: a crate
 outside the engine that depends on it by path and makes every tier 1 call
 below. The `consumer` job in `.github/workflows/engine-rs.yml` runs in the
 official Rust container image, which has no Node.js, from a checkout
-holding only `engine-rs/` and `conformance/`. It copies `consumer/` out of
+holding only the crate's files, `consumer/` and `conformance/`. It copies `consumer/` out of
 the checkout and builds, tests and runs the copy there, depending on the
 engine by an absolute path. The same job runs the engine's own tests and
 the full referee from that checkout. The plan this page belongs to is issue
@@ -24,7 +24,7 @@ it is given, can drive it and replay every conformance scenario, the ones
 that start from a saved tower (`conformance/fixtures/`) included, from a
 copy of the suite under another directory name. The job builds that crate
 against the packaged crate (`cargo package`, what crates.io receives), so
-the library needs nothing outside `engine-rs/`. What it does not prove yet:
+the library needs nothing outside its `include` list. What it does not prove yet:
 that the suite ships with the crate; a host reads it from a checkout of the
 repository at the release tag (#47).
 
@@ -41,7 +41,7 @@ verticopolis-engine = "=<version>"
 ```toml
 [dependencies]
 # From a checkout of this repository:
-verticopolis-engine = { path = "../engine/engine-rs" }
+verticopolis-engine = { path = "../engine" }
 ```
 
 ```toml
@@ -74,10 +74,10 @@ game's UI (#946).
 The build needs the Rust toolchain in `Cargo.toml` (`rust-version`) and
 nothing else: no Node.js, no npm, nothing from the web game. The crate is
 self-contained (the event catalog is compiled in from
-`engine-rs/src/gameplay/catalog.json`), so the copy on crates.io builds on
+`src/gameplay/catalog.json`), so the copy on crates.io builds on
 its own, and the `consumer` job builds against the packaged crate on every
 engine change to keep it that way. The referee binaries (`src/bin/`) read
-the conformance suite from `../conformance/` at run time, so they run from a
+the conformance suite from `conformance/` at run time, so they run from a
 checkout; the suite does not ship with the crate yet (#47).
 
 A game does no IO. The simulation reads no file, clock, environment,
@@ -91,7 +91,7 @@ rest of each file is checked like any other library code.
 `tests/independence.rs` scans the library source for those services (by
 path, grouped import, macro and foreign-function block), refuses a build
 script for the engine itself, data (`include_str!`, `include_bytes!`) from
-outside `engine-rs/` and `conformance/`, and code (`include!`, `#[path]`)
+outside `src/` and `conformance/`, and code (`include!`, `#[path]`)
 from anything but a `.rs` file under `src/` outside `src/bin/`, and fails
 when the engine's or the consumer's `Cargo.lock` names
 a crate nobody reviewed for host access. It also checks that the harness
@@ -115,13 +115,13 @@ tier 2, the harness a host uses to prove conformance.
 | --- | --- |
 | Start a game | `sim::Simulation::new_game(seed, GameMode::Classic)`, or `new_game_with(seed, mode, calendar, start_unbridged)` |
 | Advance time | `sim.tick(dt_minutes)`: any `dt`, split into steps that never skip an hour. Same seed, same commands and the same sequence of `dt` give the same game |
-| Drive time from frames | `stepper.advance(&mut sim, dt_ms, minutes_per_second, steady_clock, step)` on a `fixed_step::FrameStepper::default()`: the frame loop the web host runs, for a Rust host that drives the engine itself. It owes each frame's minutes (paced by the canon day curve, or flat with the steady clock), caps the carry at `MAX_CATCHUP_MINUTES`, and cuts what is owed into whole quanta sized from the sim's own clock (`quantum_for`, at most `MAX_STEPS_PER_FRAME` a frame), so the tower is the same at any frame rate. Use it instead of choosing your own `dt`. Given the same frames, the ticks it cuts and the carry it keeps match the browser's frame loop bit for bit (`engine-rs/tests/data/fixed-step-cases.json` records them). Two kinds of rule live in the browser's host, outside that loop: Excalibur turns any frame over 200 ms into 1 ms before the loop sees it, and the host zeroes the carry (`stepper.acc_minutes = 0.0`) when the player changes speed (even when the change is undone before the next frame) or toggles the steady clock, while a blocking modal is open, and once the engine has stopped. A host that wants the browser's tower applies these before calling `advance` |
+| Drive time from frames | `stepper.advance(&mut sim, dt_ms, minutes_per_second, steady_clock, step)` on a `fixed_step::FrameStepper::default()`: the frame loop the web host runs, for a Rust host that drives the engine itself. It owes each frame's minutes (paced by the canon day curve, or flat with the steady clock), caps the carry at `MAX_CATCHUP_MINUTES`, and cuts what is owed into whole quanta sized from the sim's own clock (`quantum_for`, at most `MAX_STEPS_PER_FRAME` a frame), so the tower is the same at any frame rate. Use it instead of choosing your own `dt`. Given the same frames, the ticks it cuts and the carry it keeps match the browser's frame loop bit for bit (`tests/data/fixed-step-cases.json` records them). Two kinds of rule live in the browser's host, outside that loop: Excalibur turns any frame over 200 ms into 1 ms before the loop sees it, and the host zeroes the carry (`stepper.acc_minutes = 0.0`) when the player changes speed (even when the change is undone before the next frame) or toggles the steady clock, while a blocking modal is open, and once the engine has stopped. A host that wants the browser's tower applies these before calling `advance` |
 | Quote a placement | `sim.can_build(kind, floor, x)`: `{ ok, reason, cost }`, the dry run `build` makes, with the full price. `sim.can_build_transport(kind, x, bottom, top)` is the same for a shaft, the dry run `build_transport` makes: an elevator costs the catalog `cost` plus `transportFloorCost` for each floor past its first, stairs and escalators the catalog `cost`. The price is a shaft's only when the kind is a transport and `top` is above `bottom`; the engine refuses anything else. `sim.quote_skybridge(floor, x)` (Modern, `sim_skybridge_build.rs`) finds the sky bridge a click at that cell lays: `{ ok, reason, tiles, cost }`, every missing tile of the open air between two sky lobbies and their full price, refused below the catalog's `rules.sky_bridge.min_star` |
 | Player commands | `build`, `build_transport`, `sell_at`, `toggle_auto_bridge` (`build.rs`); `build_skybridge` (`sim_skybridge_build.rs`), which lays the whole bridge `quote_skybridge` names and charges its full price, or lays nothing (a lobby tile over open air is refused: bridges come only from this command); `paint_brush` (`brush.rs`), the floor and lobby brush as one command, with `set_lobby_height` and the scoped `with_lobby_height` choosing how many stories (1 to 3) a floor's first lobby rises (#308); `add_car`, `remove_car`, `extend_transport`, `remove_facility` (`charges.rs`), which charge or refund and report the money moved, with `begin_extend` and `end_extend` around a drag so `extend_transport` bills a wiggle once against the engine-held mark; `adjust_rent`, `set_no_rate`, `price_unit`, `apply_rent_batch` (`rent.rs`); `resolve_choice`, `set_film_policy` (`events.rs`) |
 | Read state | the public fields (`money`, `star`, `clock`, `tower`, `crowd`, `log`, ...) and `population()`; read them, never write them |
 | Read a frame | `frame::frame_view(&sim)`: every value a renderer reads between two structural syncs (clock, money, rating, effects, then one record per person, per unit and per shaft with its cars) as one flat `Vec<f64>`, laid out in `src/frame.rs`. Read it by name: the slots in `frame::header`, `frame::person`, `frame::unit`, `frame::transport` and `frame::car` (`frame::header::MONEY`, `frame::person::ROUTINE`, ...), and the record widths `FRAME_HEADER`, `PERSON_FIXED`, `UNIT_RECORD`, `TRANSPORT_FIXED` and `CAR_RECORD`; a routine code of `UNKNOWN_ROUTINE` means the engine has a routine the layout does not name yet, and a decoder should refuse it. `frame::log_since(&sim, seq)` returns the log entries numbered after `seq`. The JavaScript binding passes the same frame across as one typed array |
 | Read the view | The renderer-facing view (facade slice 6a, #1213), for a host that keeps no copy of the simulation: `view::structure_view(&sim)`, the structural snapshot (the floor bounds, the mode and calendar, the scene seed, the rooms by slot, the floor and lobby tiles as runs by floor and x, the shafts with their skipped floors), read again when `tower.revision` moves and after a load, whose tower starts its revisions over; `view::ViewReader::new()` and `reader.frame(&sim, full)`, the dynamic frame (the header, the people, the rooms whose fields changed since that reader's last frame, every room on its first frame, after a structural change, on another tower or when `full` asks, and the elevators' cars, stairs and escalators running none and coming only with the structure; from half the rooms' worth of marks, or when the tower's mark log dropped marks that reader had not read, it compares every room instead, which sends the same rooms), read every rendered frame (the engine marks a room when its own commands and tick change it, so a host that writes a unit's fields itself passes `full` on its next frame); `reader.set_people_window(view::PeopleWindow::new(floor_lo, floor_hi, x_lo, x_hi))` makes its frames carry only the people a view shows, padded a floor and half the widest shaft so every rider of a car on screen comes along (`None` sends every person, and a window with nobody in it sends none; from 512 people the frame reads them from a per-floor index the step keeps, so its cost follows the screen; the window is the camera, never saved or hashed); `view::meta_since(&sim.tower, since)`, the labels and subtypes changed after a meta revision, read when `tower.meta_revision` moves (a tower starts at meta revision 1, so `None` or 0 lists them all, and a `since` holds for one tower only); `sim.tower_signature()`, a pure fingerprint of the fields the tower half of undo's signature reads, equal at two reads when those fields are (one walk over the units and shafts, a per-command read). Read them by name: the slots and widths in `view::layout` (`view::layout::header::POPULATION`, `view::layout::RUN_RECORD`, ...), all of them with the kind, state, weather, mode and calendar codes as JSON from `view::layout_json()`, versioned by `VIEW_LAYOUT_VERSION`. The JavaScript binding's `viewStructure`, `viewFrame`, `setPeopleWindow`, `unitMetaSince`, `towerSignature` (a `bigint`) and `viewLayout` wrap these, with one frame reader per engine, whose frames the header's `frameSeq` numbers |
-| Gameplay events | `sim.gameplay.drain()` after each frame; `to_json()` on each event; names and payloads are listed in `engine-rs/src/gameplay/catalog.json` (`gameplay::CATALOG_JSON`, checked with `check_event`). The buffer holds `GAMEPLAY_RING_CAP` events and counts any it had to drop in `sim.gameplay.dropped` |
+| Gameplay events | `sim.gameplay.drain()` after each frame; `to_json()` on each event; names and payloads are listed in `src/gameplay/catalog.json` (`gameplay::CATALOG_JSON`, checked with `check_event`). The buffer holds `GAMEPLAY_RING_CAP` events and counts any it had to drop in `sim.gameplay.dropped` |
 | Reference data | `catalog::catalog(mode)`: prices, sizes, caps and rules per facility kind, versioned by `CATALOG_VERSION` |
 | Identity | `identity::identity()` (`engineIdentity()` in the binding): schema, crate name and version, `SAVE_VERSION` and the oldest save version loaded, `FRAME_LAYOUT_VERSION`, `CATALOG_VERSION` with each mode's digest, and the conformance lock digest. It holds no build hash: a hash of the sources cannot be compiled into them, so the packaging supplies it as build metadata (below). The crate version goes up with the conformance lock, `SAVE_VERSION`, the frame layout, view layout, catalog and identity record versions, and `src/engineBinding/engine.d.ts` (`compat-record.json`, guarded by `src/tests/engineCompat.guard.test.ts`); the guard does not see the Rust `pub` API, so a change there is a review call (`CONTRIBUTING.md`, Versioning) |
 | Snapshot hash | `canonical::digest(&snapshot::state_view(&sim))`: the hashed view the conformance lock pins (with the `conformance` feature, `scenario::state_view` names the same function) |
@@ -155,7 +155,10 @@ include (`engineSourceHash` in `packages/verticopolis-engine/src/host/packageHas
 outside the web build computes the same value as follows. Take every file under
 the crate directory except build output (`target/`, `pkg/`, `pkg-player/` and
 `pkg-web-tooling/` at any depth), the `consumer/` crate at the top of the
-crate directory, hidden names, names ending in `~` and Markdown files. Add every
+crate directory, hidden names, names ending in `~` and Markdown files. When
+the crate's `Cargo.toml` has an `include` list, take at the top of the crate
+directory only the names its patterns start with (`src` for `src/**`), since
+the crate shares its directory with the npm package and the docs. Add every
 file a plain `include_str!("...")` or `include_bytes!("...")` names, every module
 a plain `#[path = "..."]` attribute names (inside `cfg_attr` too, read relative
 to the naming file's folder; for such a module the
@@ -165,8 +168,9 @@ them), and every file under a folder a Cargo manifest's
 path dependency, with the same exclusions apart from
 `consumer/`), following
 the files added in turn. Label each file with its path relative to the
-crate directory, using `/` (a file outside the crate is labeled
-`../conformance/...`). Sort the labels
+crate directory, using `/` (a conformance file is labeled
+`conformance/...`, and a file outside the crate directory starts with
+`../`). Sort the labels
 by UTF-16 code unit. For each file in that order, feed the SHA-256 the label, a
 zero byte, the file with each CRLF read as LF (a file containing a zero byte is taken as it is), and a zero byte.
 The hex digest, in lowercase, is the value. That makes the hash a fact about

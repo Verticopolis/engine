@@ -5,7 +5,7 @@ use crate::sim_loop::Weather;
 
 /// A scenario of the lock run up to one of its checkpoints.
 fn at(id: &str, label: &str) -> Simulation {
-    let suite = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../conformance");
+    let suite = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("conformance");
     let text = std::fs::read_to_string(suite.join(format!("scenarios/{id}.json"))).unwrap();
     let s = crate::scenario::Scenario::parse(&text).unwrap();
     crate::scenario::run_scenario_until(&s, &suite, label).unwrap()

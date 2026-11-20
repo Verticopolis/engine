@@ -7,7 +7,7 @@
  *
  *   cargo build --locked --release --features conformance --bin fuzz --target wasm32-wasip1
  *   node --no-turbo-fast-api-calls scripts/fuzz-wasi.mts \
- *     engine-rs/target/wasm32-wasip1/release/fuzz.wasm <scenario.json> <out-dir> [conformance-dir]
+ *     target/wasm32-wasip1/release/fuzz.wasm <scenario.json> <out-dir> [conformance-dir]
  *
  * Exits 0 when the scenario ran, 6 when the engine refused it (the fuzzer's
  * own status 1), 4 when the build trapped (a Rust panic aborts with an

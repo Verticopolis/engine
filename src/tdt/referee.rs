@@ -206,9 +206,7 @@ mod tests {
     /// message so one run names every divergent case.
     #[test]
     fn every_tdt_case_matches_the_lock() {
-        let suite = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("conformance");
+        let suite = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("conformance");
         let lock = read_lock(&suite.join("tdt-cases.json")).expect("lock");
         assert!(
             !lock.import.is_empty() && !lock.export.is_empty(),
@@ -226,9 +224,7 @@ mod tests {
     /// units: the save split into the tree without `units` and the entries.
     #[test]
     fn the_streamed_build_matches_the_whole_save_build_on_every_case() {
-        let suite = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("conformance");
+        let suite = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("conformance");
         let lock = read_lock(&suite.join("tdt-cases.json")).expect("lock");
         let mut compared = 0;
         for case in &lock.export {
@@ -262,9 +258,7 @@ mod tests {
     /// (`tdtExportForged`).
     #[test]
     fn the_forged_transport_entries_drop_six() {
-        let suite = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("conformance");
+        let suite = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("conformance");
         let lock = read_lock(&suite.join("tdt-cases.json")).expect("lock");
         let case = lock
             .export

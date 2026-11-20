@@ -11,7 +11,7 @@ change, and keep a layout fact in one place only.
 `conformance/fixtures/tdt-reddit/`, the game's own re-saves of our exports
 (`pc-verify/ground-truth` in the project files) and the public specs. It is a
 snapshot of what we knew that day. The live evidence is the fixtures plus
-`engine-rs/tests/tdt_real_saves.rs`; re-measure there before trusting a
+`tests/tdt_real_saves.rs`; re-measure there before trusting a
 "constant in every save" claim for a save the nine do not cover.
 
 **Sources.** **[OS]** OpenSkyscraper's notes, **[TD]** dfloer/tower-docs
@@ -287,7 +287,7 @@ and the observation saves) show:
 
 The original game loads our exports, which carry the default block, but no run
 has confirmed the readings above: they come from the values alone. Our simulation does not run
-these settings: it schedules cars by the hour (`engine-rs/src/schedule.rs`).
+these settings: it schedules cars by the hour (`src/schedule.rs`).
 So the importer keeps a non-default block on its shaft as `tdtSchedule`, a
 save carries it (version 13), and an export writes it back byte for byte. A
 shaft built in this game, or one whose block is the default or all zero,

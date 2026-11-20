@@ -34,7 +34,7 @@ const GROUND_LOBBY: i64 = 1;
 const SCREEN_TILES: f64 = 137.0;
 const SCREEN_FLOORS: f64 = 17.0;
 /// The towers the design note's table measured, relative to the repository.
-/// The crate reads only `engine-rs/` and `conformance/` (`tests/read_boundary.rs`),
+/// The crate reads only its own files and `conformance/` (`tests/read_boundary.rs`),
 /// so a tower elsewhere, such as the web's perf towers, is named on the
 /// command line.
 const DEFAULT_TOWERS: [&str; 3] = [
@@ -58,9 +58,7 @@ fn usage() -> ! {
 }
 
 fn parse_options() -> Options {
-    let suite = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("conformance");
+    let suite = Path::new(env!("CARGO_MANIFEST_DIR")).join("conformance");
     let mut options = Options {
         steps: 240,
         // One 60 Hz frame at 15 game minutes a second.

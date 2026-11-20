@@ -14,11 +14,7 @@ fn main() {
     let root = std::env::args()
         .nth(1)
         .map(PathBuf::from)
-        .unwrap_or_else(|| {
-            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("..")
-                .join("conformance")
-        });
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("conformance"));
     let lock_path = root.join("expected.json");
     let lock_text = match std::fs::read_to_string(&lock_path) {
         Ok(t) => t,

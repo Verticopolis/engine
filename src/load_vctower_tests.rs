@@ -230,7 +230,7 @@ fn edge_cases_with_a_set_mode() {
 /// the conformance runs load them, with no mode set and with each one.
 #[test]
 fn fixture_towers_import_the_same() {
-    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures");
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures");
     let mut paths: Vec<_> = std::fs::read_dir(dir)
         .unwrap()
         .map(|e| e.unwrap().path())

@@ -14,7 +14,7 @@ export default [
       "**/dist/",
       "**/coverage/",
       "**/target/",
-      "engine-rs/pkg*/",
+      "wasm/",
       "docs/engine-site/.astro/",
       "tooling/",
     ],

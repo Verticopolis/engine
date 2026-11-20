@@ -9,12 +9,7 @@
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import {
-  byCodePoint,
-  isLicenseFileName,
-  isLicenseTextFileName,
-  isNoticeFileName,
-} from "../src/build/thirdPartyNotices.ts";
+import { byCodePoint, isLicenseFileName, isLicenseTextFileName, isNoticeFileName } from "../tools/thirdPartyNotices.ts";
 
 export function readLicenseFiles(dir: string): {
   licenseText: string;

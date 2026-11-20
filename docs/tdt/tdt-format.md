@@ -35,7 +35,7 @@ behavior, published FAQs and reverse-engineered data formats. It must never come
 from the original games' source code (including the YootTower archive): nobody
 working on Verticopolis reads it, even if it is relicensed.
 
-**Where it is used.** `engine-rs/src/tdt/` is the one `.TDT` codec, held to
+**Where it is used.** `src/tdt/` is the one `.TDT` codec, held to
 `conformance/tdt-cases.json` (see [the conformance README](../../conformance/README.md#the-tdt-table)).
 Frontends reach it through the package (`loadTdt`, `adoptTdt`, `tdtExport`) and
 decode none of the file themselves. In Verticopolis/web the game picks the file, names the
@@ -85,7 +85,7 @@ field, with offsets and grades, see the byte map,
 
 The floor map starts at byte 560. Our exporter writes the live camera view into
 the window position when the save has one, else 1105, 3491 (opens on the ground
-lobby); see `view_words_from_view` in `engine-rs/src/tdt/format.rs`.
+lobby); see `view_words_from_view` in `src/tdt/format.rs`.
 
 ## 3. Money scale
 
@@ -110,7 +110,7 @@ uniform:
   a year is 4 quarters = 12 days.
 - A clock minute inside the 1880 to 2000 span has no tick of its own; the
   exporter picks the first tick at or past it, capped at 2599.
-- `engine-rs/src/tdt/pacing.rs` implements the
+- `src/tdt/pacing.rs` implements the
   mapping. The simulation itself runs a uniform 1,440-minute day.
 
 ## 5. Floors
@@ -415,7 +415,7 @@ Before Verticopolis/web#1527 the loader kept a lobby-only rule above ground and 
 forced both ends of an express to stop.
 
 Canon car capacities (not read from the file): express 42, standard 21, service 17 (the Windows Help file). The exporter still writes 10 in a service shaft's header byte, because that byte is unreliable (one PC save showed 21) and the referee pins the bytes.
-Limits: 24 shafts, 8 cars, spans in `engine-rs/src/facilities.rs` (`POOLED_CAPS`, `Kind::max_cars`, `Kind::max_span`).
+Limits: 24 shafts, 8 cars, spans in `src/facilities.rs` (`POOLED_CAPS`, `Kind::max_cars`, `Kind::max_span`).
 
 ## 10. Stairs and escalators
 
@@ -436,7 +436,7 @@ and 1 only. The pool is 64 links shared by stairs and escalators.
 - The importer takes the table at the game's place when the file is ours from
   generation 3, or when its clinic list agrees with header byte 52; every other
   file, including our older exports, is searched for the table by shape
-  (`locate_stairs` in `engine-rs/src/tdt/stair_scan.rs`).
+  (`locate_stairs` in `src/tdt/stair_scan.rs`).
 
 ## 11. Statistic words and finance block (88 + 132 bytes)
 
@@ -557,7 +557,7 @@ game never reads it and its re-saves drop it. A reader never requires it.
 | 3 | By eligible floors, and the blocks after the elevators and the stairs table where the game keeps them (sections 10 to 12) |
 
 An unstamped file, or a generation we do not know, is decided by structural
-inference (`choose_layout` in `engine-rs/src/tdt/tail.rs`): it picks the layout
+inference (`choose_layout` in `src/tdt/tail.rs`): it picks the layout
 whose walk finds the most shafts; ties go to eligible, serviced, spanned, then
 serviced-only.
 
@@ -576,7 +576,7 @@ serviced-only.
   save. Shops, fast food and restaurants are seeded from each retail row's
   byte 8 (yesterday's served visitors), which is their census in both the
   original and our engine, so the app matches the file's three lines on the
-  observation saves (`engine-rs/tests/tdt_observed_census.rs`). A shop's and
+  observation saves (`tests/tdt_observed_census.rs`). A shop's and
   a fast food's byte 8, and the finance lines that sum them, change together
   around 10:00 (between the original's ticks 202 and 247), and a
   restaurant's overnight: 23 saves of TOWER5 over four days on the PC parity

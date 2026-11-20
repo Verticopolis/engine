@@ -6,7 +6,7 @@
 //! output is written; the input save is never copied, and a file is never
 //! written over the input.
 //!
-//!   cargo run --release --manifest-path engine-rs/Cargo.toml \
+//!   cargo run --release --manifest-path Cargo.toml \
 //!       --features conformance --bin tdt_fixtures -- \
 //!       claim1|claim7|express740|infested1629 tools/simtower/saves/TOWERx.TDT
 //!

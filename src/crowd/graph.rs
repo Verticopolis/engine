@@ -425,7 +425,7 @@ mod tests {
 
     #[test]
     fn the_fixture_towers_answer_as_the_searches_do() {
-        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures/");
+        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures/");
         let mut modes = Vec::new();
         for name in ["split-tower-4", "split-tower", "sixseven_2", "towerone_6"] {
             let path = format!("{dir}{name}.vctower");

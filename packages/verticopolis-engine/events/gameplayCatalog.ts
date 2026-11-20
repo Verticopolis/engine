@@ -1,9 +1,9 @@
 /**
- * The gameplay event catalog (`engine-rs/src/gameplay/catalog.json`) as data:
+ * The gameplay event catalog (`src/gameplay/catalog.json`) as data:
  * its shape, the payload rule both engines hold it to, a check for one
- * drained event, and the renderer that writes `src/events/gameplayEvents.d.ts`
+ * drained event, and the renderer that writes the package's `events/gameplayEvents.d.ts`
  * from it (`npm run wasm:build`). The Rust twin is
- * `engine-rs/src/gameplay.rs` (`check_catalog`, `check_event`). Pure: no file
+ * `src/gameplay.rs` (`check_catalog`, `check_event`). Pure: no file
  * access here, so the script and the tests hand it the parsed catalog.
  */
 
@@ -61,7 +61,7 @@ const whole = (v: unknown): v is number => Number.isSafeInteger(v);
  *  a closed enum the catalog defines or a bounded integer. A string, number,
  *  boolean or any other field type is refused, so free text, a tower name or
  *  a money amount cannot enter the contract. The twin of `check_catalog` in
- *  `engine-rs/src/gameplay.rs`; both refuse the same catalogs. */
+ *  `src/gameplay.rs`; both refuse the same catalogs. */
 export function checkCatalog(raw: unknown): GameplayCatalog {
   if (!isObject(raw)) throw new Error("catalog: must be an object");
   if (!whole(raw.catalogVersion) || raw.catalogVersion < 1)
@@ -175,11 +175,11 @@ function doc(text: string, indent: string): string {
   return [`${indent}/**`, ...lines.map((l) => `${indent} * ${l}`), `${indent} */`].join("\n");
 }
 
-/** The text of `src/events/gameplayEvents.d.ts` for a checked catalog. */
+/** The text of the package's `events/gameplayEvents.d.ts` for a checked catalog. */
 export function renderGameplayEventsDts(catalog: GameplayCatalog): string {
   const out: string[] = [
-    "// Generated from engine-rs/src/gameplay/catalog.json by `npm run wasm:build`.",
-    "// Do not edit: change the catalog and regenerate (src/events/gameplayCatalog.test.ts fails while this is stale).",
+    "// Generated from src/gameplay/catalog.json by `npm run wasm:build`.",
+    "// Do not edit: change the catalog and run `npm run wasm:build` again.",
     "",
     doc(catalog.about, ""),
     `export type GameplayCatalogVersion = ${catalog.catalogVersion};`,
@@ -218,7 +218,7 @@ export function renderGameplayEventsDts(catalog: GameplayCatalog): string {
   return out.join("\n");
 }
 
-/** The text of `src/events/gameplayEventRules.ts` for a checked catalog: the
+/** The text of the package's `events/gameplayEventRules.ts` for a checked catalog: the
  *  rules {@link checkEvent} needs at runtime, so the shipped bridge checks
  *  every drained event against the same catalog the engines are held to. */
 export function renderGameplayEventRules(catalog: GameplayCatalog): string {
@@ -234,7 +234,7 @@ export function renderGameplayEventRules(catalog: GameplayCatalog): string {
     return `    { name: ${JSON.stringify(e.name)}, payload: {${fields.length ? ` ${fields.join(", ")} ` : ""}} },`;
   });
   return [
-    "// Generated from engine-rs/src/gameplay/catalog.json by `npm run wasm:build`.",
+    "// Generated from src/gameplay/catalog.json by `npm run wasm:build`.",
     "// Do not edit: change the catalog and regenerate.",
     "",
     "/** The shape of {@link GAMEPLAY_EVENT_RULES}. Declared here, so the file",

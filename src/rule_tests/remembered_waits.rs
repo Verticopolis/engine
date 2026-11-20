@@ -78,9 +78,8 @@ fn only_a_modern_elevator_rider_leaves_a_wait_behind() {
 /// (`split-tower-26-remembered.vctower`), so it carries the memory as a save
 /// from this build writes it, and a later build must still read it.
 fn split_tower_mid_rush() -> Simulation {
-    let bytes = include_bytes!(
-        "../../../conformance/fixtures/regression/split-tower-26-remembered.vctower"
-    );
+    let bytes =
+        include_bytes!("../../conformance/fixtures/regression/split-tower-26-remembered.vctower");
     let sim = load_vctower_bytes(bytes, None).expect("the fixture loads");
     assert_eq!(sim.tower.mode, GameMode::Modern);
     assert!(

@@ -14,7 +14,7 @@ and stairway table. `TOWER6.TDT` and `MYTOWER.TDT` hit the same rule, and in
 `MYTOWER.TDT` an express shaft does not stop at its own bottom floor.
 `TOWER8.TDT` has no elevators or stairways built. Two tests read all nine:
 `src/tests/integration/tdtRealSaves.integration.test.ts` and
-`engine-rs/tests/tdt_real_saves.rs`.
+`tests/tdt_real_saves.rs`.
 
 The files are the originals, unmodified. Do not add them to the conformance
 lock (`conformance/tdt-cases.json`): its cases are synthetic.

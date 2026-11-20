@@ -2,7 +2,7 @@
   // The package's TypeScript layer: model/, catalog/, binding/, port/, host/
   // and testing/, checked against the fresh wasm-bindgen output. The
   // @verticopolis/engine/* paths are the package's own subpaths (a
-  // self-reference): in the repository they point at engine-rs/'s build, and
+  // self-reference): in the repository they point at the wasm/ build, and
   // in the shipped package the exports map resolves them.
   "compilerOptions": {
     "target": "ES2023",
@@ -18,8 +18,8 @@
     "types": ["node"],
     "skipLibCheck": true,
     "paths": {
-      "@verticopolis/engine/tooling/node/verticopolis_engine": ["../../engine-rs/pkg/verticopolis_engine.d.ts"],
-      "@verticopolis/engine/events/gameplayEvents": ["../../engine-rs/pkg-events/gameplayEvents.d.ts"]
+      "@verticopolis/engine/tooling/node/verticopolis_engine": ["../../wasm/pkg/verticopolis_engine.d.ts"],
+      "@verticopolis/engine/events/gameplayEvents": ["../../wasm/pkg-events/gameplayEvents.d.ts"]
     }
   },
   "include": ["src/**/*.ts"]

@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        For writing that is wrong, unclear or missing: a page on the [engine docs site](https://docs.verticopolis.com), the crate or npm README, `engine-rs/API.md`, or the changelog. For the game's Player's Manual, use [Verticopolis/web](https://github.com/Verticopolis/web/issues/new/choose).
+        For writing that is wrong, unclear or missing: a page on the [engine docs site](https://docs.verticopolis.com), the crate or npm README, `API.md`, or the changelog. For the game's Player's Manual, use [Verticopolis/web](https://github.com/Verticopolis/web/issues/new/choose).
   - type: input
     id: location
     attributes:

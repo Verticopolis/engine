@@ -86,7 +86,7 @@ describe("compileEngineBinary", () => {
 
 // The browser build `npm run wasm:build` writes: Engine packages runs this
 // after its WASM build, and a checkout without that build skips it.
-const PACKAGE_DIR = resolve(import.meta.dirname, "../../../../engine-rs/pkg-web");
+const PACKAGE_DIR = resolve(import.meta.dirname, "../../../../wasm/pkg-web");
 const PACKAGE_BUILD = resolve(PACKAGE_DIR, "BUILD.json");
 
 describe.skipIf(!existsSync(PACKAGE_BUILD))("the built engine binary", () => {

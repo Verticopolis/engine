@@ -3,7 +3,7 @@ import type { EnginePort, PortRecord } from "./enginePort.ts";
 /**
  * The rooms' evaluation and rent tiers, the read the Map's Eval and Pricing
  * views color rooms by (#343 S7). The engine decides every tier
- * (`engine-rs/src/panels/room_tiers.rs`), so this file compares no score and
+ * (`src/panels/room_tiers.rs`), so this file compares no score and
  * no price: it names the slots and the codes of the port's `roomTiers`
  * record, which the port's own `viewLayout()` lists, and reads them in place.
  *

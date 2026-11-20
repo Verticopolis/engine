@@ -36,7 +36,7 @@ impl Picker {
 
 /// A scenario of the lock run up to one of its checkpoints.
 pub(super) fn at(id: &str, label: &str) -> Simulation {
-    let suite = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../conformance");
+    let suite = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("conformance");
     let text = std::fs::read_to_string(suite.join(format!("scenarios/{id}.json"))).unwrap();
     let s = crate::scenario::Scenario::parse(&text).unwrap();
     crate::scenario::run_scenario_until(&s, &suite, label).unwrap()
@@ -44,7 +44,7 @@ pub(super) fn at(id: &str, label: &str) -> Simulation {
 
 /// A fixture of the suite loaded as a save, as a scenario starts from it.
 pub(super) fn fixture(name: &str, mode: Option<&str>) -> Simulation {
-    let suite = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../conformance");
+    let suite = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("conformance");
     let text = std::fs::read_to_string(suite.join(format!("fixtures/{name}.vctower"))).unwrap();
     let mut raw = crate::load::decode_vctower(&text).unwrap();
     if let Some(m) = mode {

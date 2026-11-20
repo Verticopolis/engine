@@ -200,7 +200,7 @@ fn a_classic_tower_loads_with_auto_off() {
 const STARVED_SHAFT: i64 = 25498;
 
 fn split_tower_29() -> Simulation {
-    let bytes = include_bytes!("../../../conformance/fixtures/regression/split-tower-29.vctower");
+    let bytes = include_bytes!("../../conformance/fixtures/regression/split-tower-29.vctower");
     let save = decode_vctower_bytes(bytes).expect("the fixture decodes");
     let sim = deserialize(&save).expect("the fixture loads");
     assert_eq!(sim.tower.mode, GameMode::Modern);

@@ -12,7 +12,7 @@ import type {
  * The 1994 `.TDT` reports' numbers, read off the port's `loadTdt` and
  * `tdtExport` records by the layout's slot names (`records.loadTdt`,
  * `records.tdtExport`), in the order both engines write them
- * (`engine-rs/src/wasm_port_files.rs`, `src/engine/port/files.ts`). The
+ * (`src/wasm_port_files.rs`, `src/engine/port/files.ts`). The
  * sentences stay with `tdtImportReport.ts` and `tdtExportReport.ts`. Read once
  * per file, never per frame.
  */

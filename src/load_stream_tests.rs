@@ -143,7 +143,7 @@ fn streamed_version_is_the_save_version() {
 #[test]
 fn the_version_7_step_is_the_shaft_widening() {
     let table: Value =
-        serde_json::from_str(include_str!("../../conformance/loader-cases.json")).unwrap();
+        serde_json::from_str(include_str!("../conformance/loader-cases.json")).unwrap();
     let mut saves: Vec<Value> = table["cases"]
         .as_array()
         .unwrap()
@@ -228,7 +228,7 @@ fn engine_saves_stream_and_load_the_same() {
 #[test]
 fn loader_cases_load_the_same() {
     let table: Value =
-        serde_json::from_str(include_str!("../../conformance/loader-cases.json")).unwrap();
+        serde_json::from_str(include_str!("../conformance/loader-cases.json")).unwrap();
     let mut took = 0;
     for case in table["cases"].as_array().unwrap() {
         let input = &case["input"];
@@ -247,7 +247,7 @@ fn loader_cases_load_the_same() {
 /// current, and save back byte for byte after a streamed load.
 #[test]
 fn fixture_towers_load_the_same() {
-    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures");
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures");
     let mut paths: Vec<_> = std::fs::read_dir(dir)
         .unwrap()
         .map(|e| e.unwrap().path())

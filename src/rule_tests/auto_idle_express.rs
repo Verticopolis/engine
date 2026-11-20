@@ -16,7 +16,7 @@ use crate::sim::Simulation;
 const EXPRESSES: [i64; 5] = [7648, 9280, 19336, 22508, 24797];
 
 fn split_tower_32() -> Simulation {
-    let bytes = include_bytes!("../../../conformance/fixtures/regression/split-tower-32.vctower");
+    let bytes = include_bytes!("../../conformance/fixtures/regression/split-tower-32.vctower");
     let save = decode_vctower_bytes(bytes).expect("the fixture decodes");
     let sim = deserialize(&save).expect("the fixture loads");
     assert_eq!(sim.tower.mode, GameMode::Modern);

@@ -8,7 +8,7 @@ import { TOOLING_METHODS as TOOLING_METHOD_NAMES } from "./toolingMethods.ts";
 
 /**
  * The WASM binding's surface, as wasm-bindgen declares it from
- * `engine-rs/src/wasm.rs` and `engine-rs/src/wasm/`, read from the tooling
+ * `src/wasm.rs` and `src/wasm/`, read from the tooling
  * build's declaration (`tooling/node/verticopolis_engine.d.ts`), which has
  * the tier 3 ops the player build lacks. The layer is typechecked against the
  * fresh wasm-bindgen output, so a method added or renamed in Rust reaches

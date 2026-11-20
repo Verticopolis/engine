@@ -6,7 +6,7 @@
  *
  *   cargo build --locked --release --features conformance --bin conformance --target wasm32-wasip1
  *   node --no-turbo-fast-api-calls scripts/conformance-wasi.mts \
- *     engine-rs/target/wasm32-wasip1/release/conformance.wasm conformance
+ *     target/wasm32-wasip1/release/conformance.wasm conformance
  *
  * Run Node with `--no-turbo-fast-api-calls`: without it, Node 26 can crash
  * in a garbage collection that starts inside WASI's fd_write fast call.

@@ -20,9 +20,7 @@ fn main() {
     }
     let id = positional[0];
     let label = positional[1];
-    let suite = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("conformance");
+    let suite = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("conformance");
     let path = suite.join("scenarios").join(format!("{id}.json"));
     let scenario = std::fs::read_to_string(&path)
         .map_err(|e| format!("cannot read {}: {e}", path.display()))

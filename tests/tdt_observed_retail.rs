@@ -24,7 +24,7 @@ const RETAIL_TYPES: [i64; 3] = [10, 6, 12];
 
 fn fixture(name: &str) -> Vec<u8> {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../conformance/fixtures/tdt-observed")
+        .join("conformance/fixtures/tdt-observed")
         .join(name);
     std::fs::read(path).expect("fixture")
 }

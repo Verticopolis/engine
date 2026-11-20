@@ -284,11 +284,14 @@ function manifestPaths(text: string, file: string): string[] {
  * CI can key its package cache on it, and a test can tell when the sources
  * moved on without a rebuild. It covers:
  *
- * - every file in the crate (`engine-rs/`) except build output (`target/`,
- *   `pkg/`, at any depth), the separate `consumer/` crate at its top (#1945),
- *   Markdown and local clutter (dotfiles, `~` backups, symlinks), so build
- *   scripts, manifest targets and modules in any layout inside the crate are
- *   in whatever Cargo.toml or the module attributes say;
+ * - every file in the crate except build output (`target/`, `pkg/`, at any
+ *   depth), the separate `consumer/` crate at its top (#1945), Markdown and
+ *   local clutter (dotfiles, `~` backups, symlinks), so build scripts,
+ *   manifest targets and modules in any layout inside the crate are in
+ *   whatever Cargo.toml or the module attributes say. When the manifest has
+ *   an `include` list, the crate's top holds only what it names (the
+ *   engine's crate is the repository root, beside the npm package and the
+ *   docs);
  * - every file a `.rs` source names in a literal `include_str!` or
  *   `include_bytes!`, wherever it lives;
  * - every module a `#[path = "…"]` attribute (or a `cfg_attr` path) names,
@@ -310,7 +313,7 @@ function manifestPaths(text: string, file: string): string[] {
  * Not modeled: files a build script reads from outside the crate (the engine
  * has no build script). A change that adds one should widen this hash. The
  * caches keyed on it serve CI's test runs and Vercel previews
- * (src/build/engineCache.ts); a production deploy builds the package from
+ * (tools/engineCache.ts); a production deploy builds the package from
  * source, so a miss here could stale a test run or a preview, never a
  * release.
  *
@@ -319,6 +322,29 @@ function manifestPaths(text: string, file: string): string[] {
  *
  * Node only (the build script, CI and the test); never imported by the app.
  */
+/**
+ * The top-level names a crate's `include` list keeps (`src` for `src/**`),
+ * or null when its manifest has none. The crate can share its folder with
+ * other projects (the engine's is the repository root), and `include` is
+ * what Cargo itself treats as the crate.
+ */
+function includedTop(manifest: string): Set<string> | null {
+  if (!existsSync(manifest)) return null;
+  const list = /^[ \t]*include[ \t]*=[ \t]*\[([^\]]*)\]/m.exec(readFileSync(manifest, "utf8"));
+  if (!list) return null;
+  const top = new Set<string>();
+  for (const m of list[1].matchAll(/"([^"]*)"/g)) {
+    const first = m[1].replace(/^\//, "").split("/")[0];
+    if (/[*?[\]{}!]/.test(first)) {
+      throw new Error(
+        `${manifest} has an include pattern the engine source hash cannot follow (${m[1]}); extend engineSourceHash in packages/verticopolis-engine/src/host/packageHash.ts`,
+      );
+    }
+    top.add(first);
+  }
+  return top;
+}
+
 export function engineSourceHash(crate: string, view?: SourceView): string {
   const files = new Set<string>();
   const pending: string[] = [];
@@ -330,11 +356,13 @@ export function engineSourceHash(crate: string, view?: SourceView): string {
   const walked = new Set<string>();
   /** Files the walk itself took: their child modules sit in folders it takes too. */
   const walkedFiles = new Set<string>();
+  const kept = includedTop(join(resolve(crate), "Cargo.toml"));
   const walk = (dir: string, top: boolean) => {
     if (walked.has(dir)) return;
     walked.add(dir);
     for (const name of readdirSync(dir).sort()) {
       if (name.startsWith(".") || name.endsWith("~")) continue;
+      if (top && kept && !kept.has(name)) continue;
       const p = join(dir, name);
       const st = lstatSync(p);
       if (st.isDirectory()) {

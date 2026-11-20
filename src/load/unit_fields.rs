@@ -97,7 +97,7 @@ mod tests {
             serde_json::from_str(r#"{"kind":"office","floor":2,"floor":9}"#).unwrap();
         assert_eq!(UnitFields::of(&repeated).floor, Some(&json!(9)));
         agrees(&repeated);
-        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures");
+        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures");
         let mut towers = 0;
         for entry in std::fs::read_dir(dir).unwrap() {
             let path = entry.unwrap().path();

@@ -54,7 +54,7 @@ fn played(mode: GameMode) -> Simulation {
 }
 
 fn fixtures() -> Vec<(String, String)> {
-    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures");
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures");
     let mut paths: Vec<_> = std::fs::read_dir(dir)
         .unwrap()
         .map(|e| e.unwrap().path())
@@ -114,7 +114,7 @@ fn fixture_towers_write_the_trees_bytes() {
 
 #[test]
 fn every_loader_case_writes_the_trees_bytes_or_message() {
-    let table: Value = serde_json::from_str(include_str!("../../conformance/loader-cases.json"))
+    let table: Value = serde_json::from_str(include_str!("../conformance/loader-cases.json"))
         .expect("loader-cases.json parses");
     let cases = table["cases"].as_array().unwrap();
     assert!(!cases.is_empty());

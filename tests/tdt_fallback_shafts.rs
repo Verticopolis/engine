@@ -24,7 +24,6 @@ const SAVES: [&str; 8] = [
 
 fn fixture(name: &str) -> Vec<u8> {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
         .join("conformance")
         .join("fixtures")
         .join("tdt-reddit")

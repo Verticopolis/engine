@@ -88,7 +88,7 @@ export interface AutoTuneDay {
   readonly curve: readonly number[] | null;
 }
 
-/** What `autoTuneProposal` answers (engine-rs `schedule_authoring.rs`).
+/** What `autoTuneProposal` answers (the engine's `schedule_authoring.rs`).
  *  `proposal` is present only for `available`. A day type that is not warm
  *  keeps the draft's own row (null when the draft has none). */
 export interface AutoTuneProposal {
@@ -115,7 +115,7 @@ export type AssistedPreset = Exclude<SchedulePresetName, "stage-up-tower">;
 export type PresetStatus =
   "available" | "unavailable-in-mode" | "no-cars" | "not-an-elevator" | "missing-shaft" | "unknown-preset";
 
-/** What `schedulePreset` answers (engine-rs `schedule_presets.rs`): the rows and
+/** What `schedulePreset` answers (the engine's `schedule_presets.rs`): the rows and
  *  homes the preset sets. `weekday` and `weekend` are null for the staging-only
  *  play and on every refusal. */
 export interface PresetProposal {
@@ -127,7 +127,7 @@ export interface PresetProposal {
 
 export type ScheduleFactsStatus = "available" | "not-an-elevator" | "missing-shaft" | "invalid-draft";
 
-/** The advice comparison (engine-rs `schedule_facts.rs`). `ready` with empty
+/** The advice comparison (the engine's `schedule_facts.rs`). `ready` with empty
  *  `over` and `short` means the schedule and the measured load line up. */
 export interface ScheduleAdvice {
   /** `no-cars`: the shaft holds none (a loaded save can). `refused`: the query

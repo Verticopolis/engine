@@ -375,7 +375,7 @@ mod tests {
 
     #[test]
     fn the_fixture_towers_list_the_floors_as_before() {
-        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures/");
+        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures/");
         let mut filled = [false; 9];
         let mut seen = |now: [bool; 9]| {
             for (seen, now) in filled.iter_mut().zip(now) {

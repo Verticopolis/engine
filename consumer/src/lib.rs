@@ -1,7 +1,7 @@
 //! A host of the Verticopolis engine with no frontend. It depends on the
 //! engine the way a project outside this repository would (one path
 //! dependency with the `conformance` feature, no Node.js) and drives it
-//! through the surface `engine-rs/API.md` documents: start a game, run
+//! through the surface `API.md` documents: start a game, run
 //! commands, advance time, read state and events, save, load, and replay a
 //! conformance scenario. CI builds and runs it from a checkout that holds no web game
 //! (`.github/workflows/engine-rs.yml`, job `consumer`).

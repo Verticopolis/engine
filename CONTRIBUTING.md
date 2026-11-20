@@ -1,6 +1,7 @@
 # Contributing to the Verticopolis engine
 
-This repository holds the engine crate (`engine-rs/`), its WebAssembly
+This repository holds the engine crate (at the root: `Cargo.toml`, `src/`,
+`tests/`), its WebAssembly
 package, the conformance suite (`conformance/`), the docs site
 (`docs/engine-site/`) and the bench (`engine-bench/`). The game that runs the
 engine lives in [Verticopolis/web](https://github.com/Verticopolis/web); its
@@ -11,7 +12,7 @@ the checks a pull request runs.
 
 The rules came with the engine from the game's repository: American English,
 no em-dashes in prose, a 500-line ceiling per source file, no host access in
-the simulation (`engine-rs/tests/independence.rs`), and a regenerated
+the simulation (`tests/independence.rs`), and a regenerated
 conformance lock in the same PR as any change to how the game plays. Merge
 commits only, never squash. Fill in every heading of the pull request
 template.
@@ -21,13 +22,13 @@ A change to what the crate ships adds a change note under
 tier and its changelog entries for people who build on the engine:
 **major** for a break in saves, the frame or view layout or the binding,
 **minor** for a new API, **patch** for a fix, and `none` for a change that
-ships nothing new (a Rust code change under `engine-rs/src/` takes patch or
+ships nothing new (a Rust code change under `src/` takes patch or
 higher; `none` fits its test files). Notes keep two open pull requests from
 editing the same changelog lines. The **Change notes** check requires one
 when a pull request changes what the crate or the npm package ships (the
 paths are in `.changes/README.md`), and refuses a feature pull request that
 edits the crate version or the changelog's version sections. **Cut release** picks the version from the
-tiers. Only a release PR edits the version or `engine-rs/CHANGELOG.md`.
+tiers. Only a release PR edits the version or `CHANGELOG.md`.
 
 ### What CI runs on a pull request
 
@@ -57,11 +58,11 @@ A release is one merged pull request that raises the crate version.
    (`.github/workflows/cut-release.yml`) from the Actions tab on `main`, as
    the game's repository does. It runs `scripts/cut-release.ts`, which takes
    the highest tier among the change notes in `.changes/`, raises
-   `version` in `engine-rs/Cargo.toml`, the three lockfiles that name the
-   crate (at the root, in `engine-rs/consumer/` and in `engine-bench/`) and
-   `crateVersion` in `engine-rs/src/compat-record.json`, writes the notes'
+   `version` in `Cargo.toml`, the three lockfiles that name the
+   crate (at the root, in `consumer/` and in `engine-bench/`) and
+   `crateVersion` in `src/compat-record.json`, writes the notes'
    entries into a new `## <version> (<date>)` section of
-   `engine-rs/CHANGELOG.md` (each led by its tier, the highest first),
+   `CHANGELOG.md` (each led by its tier, the highest first),
    deletes the notes and moves the quoted version pins in
    `docs/engine-site/guides/`. It commits that to `release/<version>`
    and opens the "Release engine <version>" PR. Leave the version empty for
@@ -86,7 +87,7 @@ A release is one merged pull request that raises the crate version.
    crate and the npm package go up (see "The registries").
 
 If a run fails, fix the cause on `main` and run **Release tags** by hand from
-the Actions tab with the version `engine-rs/Cargo.toml` holds. A tag or
+the Actions tab with the version `Cargo.toml` holds. A tag or
 release that already exists is left alone. To publish a version again after
 a registry failure, run **Publish engine to registries** by hand with the
 version instead.
@@ -120,17 +121,17 @@ job gets a short-lived token through trusted publishing: crates.io and npm
 trust this repository, the workflow file `engine-publish.yml` and the
 `registry` environment, and exchange GitHub's OIDC token for a publish token.
 No registry token is stored anywhere. The crate is published from the
-release tag's `engine-rs/`. npm gets the tarball from the GitHub release, so
+release tag's root. npm gets the tarball from the GitHub release, so
 the bytes on npm are the bytes attached there, with an npm provenance
 statement. A version a registry already holds is left alone there, so a
 re-run is safe.
 
 The npm package requires two-factor authentication and refuses tokens, so a
 leaked token cannot publish it. The crate's `include` list in
-`engine-rs/Cargo.toml` names what crates.io receives, and the `consumer` job
+`Cargo.toml` names what crates.io receives, and the `consumer` job
 in `engine-rs.yml` packages the crate on every engine change and builds the
 consumer crate against the packaged copy, so a file the library needs from
-outside `engine-rs/` fails there. The conformance suite is not in the crate
+outside the crate's `include` list fails there. The conformance suite is not in the crate
 yet ([#47](https://github.com/Verticopolis/engine/issues/47)); it ships in
 the npm package as `@verticopolis/engine/conformance/`.
 

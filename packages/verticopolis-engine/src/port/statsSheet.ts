@@ -8,7 +8,7 @@ import type { PortCodes } from "./portCodes.ts";
 /**
  * The stats screen's report, read off the port's `statsSheet` record: the
  * header `records.statsSheet` names, then the sections its last six slots
- * count, in the order both engines write them (`engine-rs/src/
+ * count, in the order both engines write them (`src/
  * wasm_port_reports.rs`, `src/engine/port/reports.ts`): the HUD strip
  * (`statsStrip`), the housekeeping readout (`crewCoverage`), the ledger
  * averages (`ledgerCats`), the next star (`nextStar`, then its `gateRow`

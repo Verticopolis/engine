@@ -409,7 +409,7 @@ export function noticeProblem(pkg: {
   if (!pkg.version) return `${pkg.name}: its manifest has no version`;
   if (!pkg.license) return `${pkg.name}@${pkg.version}: its manifest declares no license`;
   if (!isAllowedLicense(pkg.license)) {
-    return `${pkg.name}@${pkg.version}: license "${pkg.license}" is not on the allowlist in src/build/thirdPartyNotices.ts; a person decides before it ships`;
+    return `${pkg.name}@${pkg.version}: license "${pkg.license}" is not on the allowlist in tools/thirdPartyNotices.ts; a person decides before it ships`;
   }
   if (pkg.hasLicenseFile === false || !pkg.licenseText || pkg.licenseText.trim() === "") {
     return `${pkg.name}@${pkg.version}: no license file found`;

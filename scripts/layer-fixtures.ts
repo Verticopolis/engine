@@ -19,7 +19,7 @@ const root = resolve(import.meta.dirname, "..");
 const dir = resolve(root, "packages/verticopolis-engine/src/fixtures");
 const check = process.argv.includes("--check");
 
-const engine = createRequire(import.meta.url)(resolve(root, "engine-rs/pkg/verticopolis_engine.js")) as {
+const engine = createRequire(import.meta.url)(resolve(root, "wasm/pkg/verticopolis_engine.js")) as {
   catalog(mode: string): string;
   Engine: { newGame(seed: number, mode: string): { viewLayout(): string; free(): void } };
 };

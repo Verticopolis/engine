@@ -1,6 +1,6 @@
 <!--
 Thanks for contributing to the Verticopolis engine! Fill in the sections below.
-Keep the simulation free of host access (engine-rs/tests/independence.rs), use
+Keep the simulation free of host access (tests/independence.rs), use
 American English, and write no em-dashes.
 Keep every ## heading and write something under each one: "None" or
 "n/a: <reason>" where a section does not apply. The PR template check
@@ -49,13 +49,13 @@ instead of ticking a box.
 - [ ] `cargo clippy --locked --all-targets -- -D warnings`
 - [ ] `cargo test --locked`
 - [ ] `cargo run --release --features conformance --bin conformance` (the referee)
-- [ ] `(cd engine-rs/consumer && cargo test --locked)`
+- [ ] `(cd consumer && cargo test --locked)`
 - [ ] `npm run typecheck`, `npm run lint`, `npm run format:check` and `npm test`, **or** this PR changes no TypeScript, JavaScript or CSS
 
 ## Versioning
 
 <!--
-Only a release PR edits the version or engine-rs/CHANGELOG.md (CONTRIBUTING.md,
+Only a release PR edits the version or CHANGELOG.md (CONTRIBUTING.md,
 "Releasing"). Every other change to the crate adds a change note under
 .changes/ named after its branch, with its crate tier (major / minor / patch,
 or none) and its changelog entries (.changes/README.md). A change to how the
@@ -64,7 +64,7 @@ game plays regenerates the conformance lock in the same PR.
 
 - [ ] Added a change note with its crate tier under `.changes/`, **or** this PR changes nothing the crate ships
 - [ ] Regenerated the conformance lock, **or** this PR does not change how the game plays
-- [ ] Updated the guides on docs.verticopolis.com and the READMEs (`engine-rs/CRATE_README.md`, `packages/verticopolis-engine/README.md`) that went stale, **or** read them and none did
+- [ ] Updated the guides on docs.verticopolis.com and the READMEs (`CRATE_README.md`, `packages/verticopolis-engine/README.md`) that went stale, **or** read them and none did
 
 ## Complexity
 

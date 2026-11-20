@@ -64,9 +64,9 @@ describe("the release", () => {
 describe("the paths the check reads", () => {
   it("counts every path that reaches the crate or the npm package as shipped", () => {
     for (const path of [
-      "engine-rs/src/sim.rs",
-      "engine-rs/Cargo.toml",
-      "src/events/gameplayCatalog.ts",
+      "src/sim.rs",
+      "Cargo.toml",
+      "packages/verticopolis-engine/events/gameplayCatalog.ts",
       "conformance/expected.json",
       "packages/verticopolis-engine/web.d.ts",
       "package.json",
@@ -82,10 +82,10 @@ describe("the paths the check reads", () => {
   it("leaves docs, tests of the tooling, the bench and CI out", () => {
     for (const path of [
       "README.md",
-      "engine-rs/CHANGELOG.md",
-      "engine-rs/tests/independence.rs",
+      "CHANGELOG.md",
+      "tests/independence.rs",
       "engine-bench/src/main.rs",
-      "src/build/releaseCut.ts",
+      "tools/releaseCut.ts",
       "scripts/cut-release.ts",
       "package-lock.json",
       ".github/workflows/engine-rs.yml",
@@ -95,23 +95,23 @@ describe("the paths the check reads", () => {
     }
   });
 
-  it("tells Rust code from the test files under engine-rs/src/", () => {
+  it("tells Rust code from the test files under src/", () => {
     for (const path of [
-      "engine-rs/src/sim.rs",
-      "engine-rs/src/panels/mod.rs",
-      "engine-rs/src/contest.rs",
-      "engine-rs/src/latest.rs",
+      "src/sim.rs",
+      "src/panels/mod.rs",
+      "src/contest.rs",
+      "src/latest.rs",
     ]) {
       expect(isRustCode(path), path).toBe(true);
     }
     for (const path of [
-      "engine-rs/src/catalog/tests.rs",
-      "engine-rs/src/panels/tests_gates.rs",
-      "engine-rs/src/crowd/spawn_tests.rs",
-      "engine-rs/src/rule_tests/attendance.rs",
-      "engine-rs/src/tdt/tests/roundtrip.rs",
-      "engine-rs/tests/independence.rs",
-      "engine-rs/src/catalog/mod.ts",
+      "src/catalog/tests.rs",
+      "src/panels/tests_gates.rs",
+      "src/crowd/spawn_tests.rs",
+      "src/rule_tests/attendance.rs",
+      "src/tdt/tests/roundtrip.rs",
+      "tests/independence.rs",
+      "src/catalog/mod.ts",
     ]) {
       expect(isRustCode(path), path).toBe(false);
     }

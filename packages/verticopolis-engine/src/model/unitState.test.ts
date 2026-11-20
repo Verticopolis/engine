@@ -4,7 +4,7 @@ import { isDormant, isOperational, isPresent, isTenanted } from "./unitState.ts"
 
 /**
  * One row per unit state and what each predicate says of it. The Rust test in
- * `engine-rs/src/tower_query_state.rs` (`UNIT_STATE_ROWS`) holds the same
+ * `src/tower_query_state.rs` (`UNIT_STATE_ROWS`) holds the same
  * table against `Unit::is_operational`, `is_present`, `is_tenanted` and
  * `is_dormant`, so the web's copy cannot drift from the engine's rule. Keep the
  * two tables identical.

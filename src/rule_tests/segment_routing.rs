@@ -82,7 +82,7 @@ const RIGHT_CONDO_X: i64 = 193;
 const GAP: std::ops::RangeInclusive<i64> = 185..=192;
 
 /// The fixture, compiled in from the conformance suite.
-const SPLIT_TOWER: &str = include_str!("../../../conformance/fixtures/split-tower.vctower");
+const SPLIT_TOWER: &str = include_str!("../../conformance/fixtures/split-tower.vctower");
 
 fn split_tower_fixture() -> Simulation {
     deserialize(&decode_vctower(SPLIT_TOWER).unwrap()).unwrap()

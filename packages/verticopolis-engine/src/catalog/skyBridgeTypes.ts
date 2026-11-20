@@ -1,6 +1,6 @@
 /**
  * The Sky Bridge tool's rule in the catalog's `rules` block
- * (`engine-rs/src/catalog/rules.rs`, `SkyBridgeRule`): when the tool opens,
+ * (`src/catalog/rules.rs`, `SkyBridgeRule`): when the tool opens,
  * how far a bridge reaches and what a tile costs. `CatalogRules` in
  * `catalogTypes.ts` extends it. The engine's `quoteSkyBridge` prices a gap.
  */

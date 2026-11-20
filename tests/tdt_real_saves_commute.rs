@@ -34,7 +34,7 @@ const FRAME_MS: f64 = 1000.0 / 60.0;
 
 fn loaded(name: &str) -> Simulation {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../conformance/fixtures/tdt-reddit")
+        .join("conformance/fixtures/tdt-reddit")
         .join(name);
     let parsed = parse_tdt(&std::fs::read(path).expect("fixture"), name).expect("imports");
     deserialize_tdt(&parsed.save).expect("loads")

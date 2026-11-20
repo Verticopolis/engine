@@ -291,7 +291,7 @@ fn num(v: &serde_json::Value) -> f64 {
 
 /// A conformance fixture tower, loaded as a player's file is.
 fn fixture(name: &str) -> Engine {
-    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures/");
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures/");
     let text = std::fs::read_to_string(format!("{dir}{name}")).unwrap();
     Engine::of(crate::load_stream::load_vctower_text(&text, None).unwrap())
 }

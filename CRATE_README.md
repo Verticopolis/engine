@@ -32,7 +32,7 @@ The full guide lives on the engine docs site,
   engine as WebAssembly,
   [`@verticopolis/engine`](https://www.npmjs.com/package/@verticopolis/engine)
   on npm.
-- [Changelog](https://github.com/Verticopolis/engine/blob/main/engine-rs/CHANGELOG.md).
+- [Changelog](https://github.com/Verticopolis/engine/blob/main/CHANGELOG.md).
 
 ## License
 

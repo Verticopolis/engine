@@ -1,4 +1,4 @@
-//! The crate's tests, binaries and consumer read only `engine-rs/` and
+//! The crate's tests, binaries and consumer read only the crate and
 //! `conformance/`. The sparse CI job proves it by running them from a
 //! checkout that holds nothing else; this test names the place in the source
 //! when a path starts to climb elsewhere.
@@ -6,25 +6,19 @@
 mod scan;
 use scan::{crate_dir, parts, rel, rust_files, Part};
 
-/// Where a path literal climbs out of the crate, it is a `..` step on the way
-/// to the conformance suite and nowhere else: `"../conformance/..."`, or a
-/// bare `".."` joined straight onto `"conformance"`. Every Rust file under
+/// Where a path literal climbs, it is a `..` step on the way to the
+/// conformance suite and nowhere else: `"../conformance/..."` from a file
+/// under `src/`. The crate is the repository root, so a bare `".."` always
+/// leaves the repository. Every Rust file under
 /// `src/`, `tests/` and `consumer/src/` counts (`tests/independence.rs`, the
 /// modules under `tests/independence/` and this file aside, whose examples
 /// climb on purpose), so the crate's tests
-/// and the referee read only `engine-rs/` and `conformance/`. A path that
+/// and the referee read only the crate and `conformance/`. A path that
 /// steps up another way (`Path::parent`, `ancestors`, `ParentDir`) is not
 /// read here; the sparse CI job, which runs everything from a checkout that
 /// holds nothing else, is the proof for those.
 fn climbs_outside_the_suite(src: &str) -> Vec<String> {
     let parts = parts(src);
-    let squeezed_after = |at: usize| -> String {
-        src[at..]
-            .chars()
-            .filter(|c| !c.is_whitespace())
-            .take(32)
-            .collect()
-    };
     let mut found = Vec::new();
     let mut i = 0;
     while i < parts.len() {
@@ -50,11 +44,7 @@ fn climbs_outside_the_suite(src: &str) -> Vec<String> {
         let steps: Vec<&str> = body.strip_prefix('/').unwrap_or(body).split('/').collect();
         let ups = steps.iter().take_while(|s| **s == "..").count();
         let rest = &steps[ups..];
-        let ok = match rest.first() {
-            Some(&"conformance") => !rest.contains(&".."),
-            None => squeezed_after(i).starts_with(").join(\"conformance\")"),
-            _ => false,
-        };
+        let ok = rest.first() == Some(&"conformance") && !rest.contains(&"..");
         if !ok {
             found.push(body.to_string());
         }
@@ -96,7 +86,7 @@ fn the_tests_and_the_referee_read_only_the_crate_and_the_suite() {
     }
     assert!(
         found.is_empty(),
-        "a path outside engine-rs/ and conformance/: {found:#?}"
+        "a path outside the crate and conformance/: {found:#?}"
     );
 }
 
@@ -117,6 +107,7 @@ fn the_climb_check_reads_each_spelling() {
     assert_eq!(
         climbs_outside_the_suite(src),
         [
+            "..",
             "..",
             "../../src/tests/fixtures/x.vctower",
             "../conformance/../src",

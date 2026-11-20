@@ -374,7 +374,7 @@ fn entry_lengths(text: &[u8]) -> Vec<usize> {
 /// shortest entry the game writes takes, above the 24 `MIN_UNIT_BYTES` allows.
 #[test]
 fn the_count_is_a_written_saves_units() {
-    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures");
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures");
     let mut texts = vec![
         super::tests::built(GameMode::Classic).to_string(),
         super::tests::built(GameMode::Modern).to_string(),
@@ -400,7 +400,7 @@ fn the_count_is_a_written_saves_units() {
 
 /// The text of a committed player tower written by an older version.
 fn old_tower(name: &str) -> Vec<u8> {
-    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../conformance/fixtures");
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/fixtures");
     let file = std::fs::read_to_string(format!("{dir}/{name}")).unwrap();
     inflate_vctower(&file).unwrap()
 }

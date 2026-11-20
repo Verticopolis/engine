@@ -8,12 +8,12 @@
 #
 #   scripts/engine-package-files.sh DIR VERSION REPO [CHANGELOG]
 #
-# CHANGELOG defaults to engine-rs/CHANGELOG.md. Run from the repository root.
+# CHANGELOG defaults to CHANGELOG.md. Run from the repository root.
 set -eu
 dir="$1"
 version="$2"
 repo="$3"
-changelog="${4:-engine-rs/CHANGELOG.md}"
+changelog="${4:-CHANGELOG.md}"
 
 if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
   echo "::error::Engine version $version is not a plain x.y.z." >&2

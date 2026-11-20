@@ -1,4 +1,4 @@
-//! The quick start in `engine-rs/CRATE_README.md`, kept compiling: the
+//! The quick start in `CRATE_README.md`, kept compiling: the
 //! consumer job's `cargo clippy --all-targets` builds it, and
 //! `src/tests/engineCrateReadme.guard.test.ts` keeps the README's block equal
 //! to this file below these lines.

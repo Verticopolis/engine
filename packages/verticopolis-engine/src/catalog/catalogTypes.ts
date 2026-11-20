@@ -2,7 +2,7 @@
  * The catalog's shape: the types a frontend reads the catalog through, the shape
  * version, and the catalog's own price and policy rules. Type-only imports, so
  * a frontend that reads the WASM binding's catalog bundles no engine tables;
- * `engine-rs/src/catalog.rs` serializes it.
+ * `src/catalog.rs` serializes it.
  */
 import type { CalendarKind } from "../model/engineTypes.ts";
 import type { FacilityCategory, FacilityKind, GameMode } from "../model/types.ts";

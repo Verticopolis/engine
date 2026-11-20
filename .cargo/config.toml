@@ -1,4 +1,0 @@
-# Build into engine-rs/target, where the scripts and workflows look for the
-# engine's builds, rather than the workspace root's target/.
-[build]
-target-dir = "engine-rs/target"

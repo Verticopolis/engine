@@ -1,4 +1,4 @@
-// The engine port's traffic reads for a tap (`engine-rs/src/wasm_port_render.rs`):
+// The engine port's traffic reads for a tap (`src/wasm_port_render.rs`):
 // what one floor's congestion is, which transports set it, and how far one
 // landing's waiting line runs. The first two build the spatial reading, a pass
 // over the rooms, and the third walks the crowd once, so none is a per-frame

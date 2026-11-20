@@ -323,9 +323,9 @@ pub fn at_time(sim: &mut Simulation, day: i64, hour: i64) {
 /// The fixtures are compiled in, so the tests read no file at run time.
 pub fn fixture_save(name: &str) -> serde_json::Value {
     let text = match name {
-        "sixseven_2" => include_str!("../../../conformance/fixtures/sixseven_2.vctower"),
-        "split-tower" => include_str!("../../../conformance/fixtures/split-tower.vctower"),
-        "towerone_6" => include_str!("../../../conformance/fixtures/towerone_6.vctower"),
+        "sixseven_2" => include_str!("../../conformance/fixtures/sixseven_2.vctower"),
+        "split-tower" => include_str!("../../conformance/fixtures/split-tower.vctower"),
+        "towerone_6" => include_str!("../../conformance/fixtures/towerone_6.vctower"),
         _ => panic!("no fixture named {name}"),
     };
     crate::load::decode_vctower(text).expect("the fixture decodes")

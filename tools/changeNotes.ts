@@ -1,7 +1,7 @@
 /**
  * Change notes: one file per pull request under `.changes/`
  * (`.changes/README.md`), so two open pull requests never edit the same
- * lines of `engine-rs/CHANGELOG.md`. A note names the crate tier in its front
+ * lines of `CHANGELOG.md`. A note names the crate tier in its front
  * matter and holds the changelog entries:
  *
  *   ---
@@ -33,9 +33,8 @@ export interface ChangeNote {
 
 /** Paths whose change reaches the crate or the npm package. */
 const SHIPPED_PREFIXES: readonly string[] = [
-  "engine-rs/src/",
-  "engine-rs/Cargo.toml",
-  "src/events/",
+  "src/",
+  "Cargo.toml",
   "conformance/",
   "packages/verticopolis-engine/",
   "package.json",
@@ -48,12 +47,12 @@ export const isShipped = (path: string) =>
   SHIPPED_PREFIXES.some((p) => path === p || (p.endsWith("/") && path.startsWith(p)));
 
 /**
- * Rust code under engine-rs/src/ that is not a test file. A change to it,
+ * Rust code under src/ that is not a test file. A change to it,
  * a deletion included, needs a crate tier of patch or higher.
  */
 const TEST_FILE = /(^|\/)(tests?(_[a-z0-9_]+)?|[a-z0-9_]+_tests)\.rs$|\/(rule_tests|tests)\//;
 export const isRustCode = (path: string) =>
-  path.startsWith("engine-rs/src/") && path.endsWith(".rs") && !TEST_FILE.test(path);
+  path.startsWith("src/") && path.endsWith(".rs") && !TEST_FILE.test(path);
 
 const NOTE_TIERS: readonly NoteTier[] = ["none", "patch", "minor", "major"];
 const TIER_PREFIX = /^- \*\*(major|minor|patch|none)\*\*/;

@@ -35,7 +35,7 @@ const RETAIL_CLASSES: [usize; 3] = [POP_SHOP, POP_FAST_FOOD, POP_RESTAURANT];
 
 fn fixture(name: &str) -> Vec<u8> {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../conformance/fixtures/tdt-observed")
+        .join("conformance/fixtures/tdt-observed")
         .join(name);
     std::fs::read(path).expect("fixture")
 }

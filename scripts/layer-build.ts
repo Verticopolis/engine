@@ -41,8 +41,11 @@ for (const name of readdirSync(fixtures))
 // The event rules are generated TypeScript; the package ships them compiled too.
 const stage = mkdtempSync(join(tmpdir(), "engine-events-"));
 try {
-  copyFileSync(resolve(root, "src/events/gameplayCatalog.ts"), join(stage, "gameplayCatalog.ts"));
-  copyFileSync(resolve(root, "engine-rs/pkg-events/gameplayEventRules.ts"), join(stage, "gameplayEventRules.ts"));
+  copyFileSync(
+    resolve(root, "packages/verticopolis-engine/events/gameplayCatalog.ts"),
+    join(stage, "gameplayCatalog.ts"),
+  );
+  copyFileSync(resolve(root, "wasm/pkg-events/gameplayEventRules.ts"), join(stage, "gameplayEventRules.ts"));
   tsc([
     "--outDir",
     join(dir, "events"),

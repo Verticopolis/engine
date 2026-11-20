@@ -106,7 +106,7 @@ fn a_modern_car_is_full_from_the_rider_who_fills_it_until_one_steps_off() {
 /// stood in a line, in crowd seconds. Housekeepers keep their own longer
 /// patience and are left out.
 fn longest_wait_above_the_lobby() -> f64 {
-    let bytes = include_bytes!("../../../conformance/fixtures/regression/split-tower-26.vctower");
+    let bytes = include_bytes!("../../conformance/fixtures/regression/split-tower-26.vctower");
     let save = crate::load::decode_vctower_bytes(bytes).expect("the fixture decodes");
     let mut sim = crate::load::deserialize(&save).expect("the fixture loads");
     assert_eq!(sim.tower.mode, GameMode::Modern);

@@ -1,7 +1,7 @@
 //! `cargo run` prints one smoke run and replays every scenario of the
 //! conformance suite, those that start from a save fixture included. The
 //! suite's directory is the first argument; without one it is
-//! `../../conformance` from this crate's source directory, a path fixed at
+//! `../conformance` from this crate's source directory, a path fixed at
 //! build time, so pass it when the binary runs anywhere else. Exits 1 on any
 //! failure.
 
@@ -14,7 +14,7 @@ fn main() {
     let conformance = std::env::args()
         .nth(1)
         .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../conformance"));
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../conformance"));
     let mut ok = true;
     match smoke(SEED) {
         Ok(r) => println!(

@@ -112,7 +112,7 @@ shows the host API only; the engine's internals are public for its tests and
 hidden there.
 
 A fuller host, which every CI run builds and runs from outside the engine,
-is [`engine-rs/consumer/`](https://github.com/Verticopolis/engine/tree/main/engine-rs/consumer).
+is [`consumer/`](https://github.com/Verticopolis/engine/tree/main/consumer).
 
 ## How the engine works
 
@@ -149,7 +149,7 @@ is [`engine-rs/consumer/`](https://github.com/Verticopolis/engine/tree/main/engi
 ## The host API
 
 These are the calls a frontend makes, in short. The repository's
-[`engine-rs/API.md`](https://github.com/Verticopolis/engine/blob/main/engine-rs/API.md)
+[`API.md`](https://github.com/Verticopolis/engine/blob/main/API.md)
 gives each one in full; a test there names each of its calls, so a rename
 fails CI until that page and the example host follow.
 
@@ -275,7 +275,7 @@ them from a checkout of the repository at the engine's release tag
 
 `scenario::Scenario::parse` and `scenario::run_scenario(&scenario, suite)`
 replay one scenario against a copy of the suite, which is what
-`engine-rs/consumer/` does for every scenario on every CI run.
+`consumer/` does for every scenario on every CI run.
 
 ## Versioning and stability
 
@@ -288,7 +288,7 @@ replay one scenario against a copy of the suite, which is what
   ([#47](https://github.com/Verticopolis/engine/issues/47)), a minor
   version can change a call's shape or the game's behavior. Pin an exact
   version (`verticopolis-engine = "=<version>"`) and read the
-  [changelog](https://github.com/Verticopolis/engine/blob/main/engine-rs/CHANGELOG.md)
+  [changelog](https://github.com/Verticopolis/engine/blob/main/CHANGELOG.md)
   before you move.
 - **The lock is the contract.** Every change to simulation behavior lands
   with an updated `conformance/expected.json`, and that diff is what you take

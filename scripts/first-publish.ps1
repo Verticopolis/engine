@@ -19,7 +19,7 @@
      `npm publish --dry-run`, then asks before `npm publish`.
   4. It prints the trusted-publisher settings to add on each site.
 
-  Needs git, Rust (the rust-version in engine-rs/Cargo.toml or later) and
+  Needs git, Rust (the rust-version in Cargo.toml or later) and
   Node.js with npm. Run it from anywhere inside a checkout of the repository:
 
     .\scripts\first-publish.ps1 -Version 1.29.1
@@ -115,7 +115,7 @@ try {
   if (Test-Url $crateUrl) {
     Write-Host "$Crate $Version is already on crates.io; skipping the crate."
   } else {
-    Push-Location (Join-Path $work 'engine-rs')
+    Push-Location $work
     try {
       Write-Host "`nDry run: cargo publish --dry-run --locked"
       Invoke-Checked cargo @('publish', '--dry-run', '--locked')

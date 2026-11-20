@@ -8,7 +8,7 @@ use serde_json::Value;
 /// loaded state the retired TypeScript `deserialize` hashed. The table is
 /// fixed data now (#1875): a change that moves a digest is a change to how a
 /// save loads, reviewed against the case's input.
-const TABLE: &str = include_str!("../../../conformance/loader-cases.json");
+const TABLE: &str = include_str!("../../conformance/loader-cases.json");
 
 #[test]
 fn forged_saves_load_to_their_recorded_digests() {
@@ -63,7 +63,7 @@ fn forged_saves_load_to_their_recorded_digests() {
                 );
             }
             misses.push(format!(
-                "{id}: {got} vs {expected} (Rust view written to engine-rs/target/loader-case-{id}.rs.json)"
+                "{id}: {got} vs {expected} (Rust view written to target/loader-case-{id}.rs.json)"
             ));
         }
     }

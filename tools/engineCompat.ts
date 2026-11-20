@@ -1,6 +1,6 @@
 /**
  * The engine crate's compatibility record (#963, release plan section 7.4).
- * `engine-rs/src/compat-record.json` pins the crate version beside what must
+ * `src/compat-record.json` pins the crate version beside what must
  * move it: the conformance lock (the scenario, catalog, loader and `.TDT`
  * tables and the gameplay event catalog), the save version it writes and the
  * oldest it loads, the frame layout, view layout, catalog and identity record
@@ -9,7 +9,7 @@
  * comments and spacing aside).
  * `src/tests/engineCompat.guard.test.ts` recomputes all of it from the tree and
  * fails when a pin moved and the record did not. After a deliberate change,
- * bump `version` in `engine-rs/Cargo.toml` (and the two `Cargo.lock` files)
+ * bump `version` in `Cargo.toml` (and the two `Cargo.lock` files)
  * and run `npm run engine:compat`, which rewrites the record from the tree and
  * refuses when a pin differs from `origin/main`'s record under the same crate
  * version (`unbumpedPins`), when the version is not a later `x.y.z`
@@ -29,7 +29,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 /** Where the record lives, inside the crate so the package ships it. */
-export const COMPAT_RECORD_PATH = "engine-rs/src/compat-record.json";
+export const COMPAT_RECORD_PATH = "src/compat-record.json";
 
 /**
  * The lock files, by the name the lock digest labels them with, in digest
@@ -49,7 +49,7 @@ export const LOCK_FILES = [
  * `events/catalog.json`, from when it sat under `conformance/`, so moving it
  * did not move the lock digest.
  */
-export const EVENT_CATALOG_PATH = "engine-rs/src/gameplay/catalog.json";
+export const EVENT_CATALOG_PATH = "src/gameplay/catalog.json";
 
 /** Where the lock file `name` lives, relative to the repository root. */
 export function lockFilePath(name: string): string {
@@ -79,32 +79,32 @@ export const VERSION_CONSTANTS: Record<
   { file: string; name: string; type: string }
 > = {
   saveVersion: {
-    file: "engine-rs/src/sim.rs",
+    file: "src/sim.rs",
     name: "SAVE_VERSION",
     type: "i64",
   },
   oldestSaveVersion: {
-    file: "engine-rs/src/load.rs",
+    file: "src/load.rs",
     name: "OLDEST_SAVE_VERSION",
     type: "i64",
   },
   frameLayoutVersion: {
-    file: "engine-rs/src/frame.rs",
+    file: "src/frame.rs",
     name: "FRAME_LAYOUT_VERSION",
     type: "u32",
   },
   viewLayoutVersion: {
-    file: "engine-rs/src/view/layout.rs",
+    file: "src/view/layout.rs",
     name: "VIEW_LAYOUT_VERSION",
     type: "u32",
   },
   catalogVersion: {
-    file: "engine-rs/src/catalog.rs",
+    file: "src/catalog.rs",
     name: "CATALOG_VERSION",
     type: "u32",
   },
   identitySchema: {
-    file: "engine-rs/src/identity.rs",
+    file: "src/identity.rs",
     name: "IDENTITY_SCHEMA",
     type: "u32",
   },
@@ -161,7 +161,7 @@ export function rustConstant(source: string, name: string, type: string): number
   return Number(found[0][1]);
 }
 
-/** The `[package]` name and version of `engine-rs/Cargo.toml`. */
+/** The `[package]` name and version of `Cargo.toml`. */
 export function cargoPackage(cargoToml: string): {
   name: string;
   version: string;
@@ -170,12 +170,12 @@ export function cargoPackage(cargoToml: string): {
   const field = (key: string) => new RegExp(`^${key}\\s*=\\s*"([^"]+)"`, "m").exec(pkg)?.[1];
   const name = field("name");
   const version = field("version");
-  if (!name) throw new Error("engine-rs/Cargo.toml has no [package] name");
-  if (!version) throw new Error("engine-rs/Cargo.toml has no [package] version");
+  if (!name) throw new Error("Cargo.toml has no [package] name");
+  if (!version) throw new Error("Cargo.toml has no [package] version");
   return { name, version };
 }
 
-/** The crate version `engine-rs/Cargo.toml` declares in its `[package]` table. */
+/** The crate version `Cargo.toml` declares in its `[package]` table. */
 export function cargoVersion(cargoToml: string): string {
   return cargoPackage(cargoToml).version;
 }
@@ -183,7 +183,7 @@ export function cargoVersion(cargoToml: string): string {
 /** Every file `computeCompat` reads, relative to the repository root. */
 export function compatInputs(): string[] {
   return [
-    "engine-rs/Cargo.toml",
+    "Cargo.toml",
     ...new Set(Object.values(VERSION_CONSTANTS).map((c) => c.file)),
     "src/engineBinding/engine.d.ts",
     ...LOCK_FILES.map(lockFilePath),
@@ -198,7 +198,7 @@ export function computeCompat(root: string): CompatRecord {
     return rustConstant(read(c.file), c.name, c.type);
   };
   return {
-    crateVersion: cargoVersion(read("engine-rs/Cargo.toml")),
+    crateVersion: cargoVersion(read("Cargo.toml")),
     lockDigest: lockDigest(root),
     saveVersion: constant("saveVersion"),
     oldestSaveVersion: constant("oldestSaveVersion"),

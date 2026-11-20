@@ -60,7 +60,6 @@ jobs:
         run: |
           cargo build --locked --release --features conformance --bin fuzz
           cargo build --locked --release --features conformance --bin fuzz --target wasm32-wasip1
-        working-directory: engine-rs
       - name: Fuzz
         env:
           SEEDS: ${{ github.event.inputs.seeds || '20' }}
@@ -111,9 +110,9 @@ jobs:
           # with the runner image version (ImageVersion), which the key cannot see: a
           # window ledger reads a change of image between two nights from it.
           key=$( {
-            git ls-tree -r HEAD -- engine-rs/src Cargo.toml .nvmrc scripts/fuzz scripts/fuzz-wasi.mts scripts/fuzz-compare.mts .github/workflows/engine-fuzz.yml | grep -v "$(printf '\t')engine-rs/src/compat-record\.json\$"
-            awk '!/"crateVersion"/' engine-rs/src/compat-record.json
-            awk '!done && /^version = / { done = 1; next } 1' engine-rs/Cargo.toml
+            git ls-tree -r HEAD -- src Cargo.toml .nvmrc scripts/fuzz scripts/fuzz-wasi.mts scripts/fuzz-compare.mts .github/workflows/engine-fuzz.yml | grep -v "$(printf '\t')src/compat-record\.json\$"
+            awk '!/"crateVersion"/' src/compat-record.json
+            awk '!done && /^version = / { done = 1; next } 1' Cargo.toml
             awk 'skip { skip = 0; if (/^version = /) next } /^name = "verticopolis-engine"$/ { skip = 1 } 1' Cargo.lock
           } | sha256sum | cut -c1-64) || key="unavailable"
           { [ "${#key}" -eq 64 ] && printf '%s' "$key" | grep -Eq '^[0-9a-f]+$'; } || key="unavailable"
@@ -146,7 +145,7 @@ jobs:
             if [ $(( SECONDS - started )) -gt "$budget" ]; then unrun="$unrun $seed"; continue; fi
             echo "seed $seed"
             code=0
-            timeout 300 engine-rs/target/release/fuzz "$seed" fuzz-out 40 || code=$?
+            timeout 300 target/release/fuzz "$seed" fuzz-out 40 || code=$?
             # 101 is a Rust panic (the engine refused a scenario it grew, or the
             # fuzzer crashed); anything else is the harness.
             case "$code" in 0) ;; 101) engine="$engine $seed"; continue ;; 124) timedout="$timedout $seed"; continue ;; *) harness="$harness $seed"; continue ;; esac
@@ -156,7 +155,7 @@ jobs:
             # the two runs' records (6 a divergence, anything else the harness).
             # Neither script uses 1, the code Node exits with when one crashes.
             code=0; t0=$SECONDS
-            timeout 300 node --no-turbo-fast-api-calls --no-warnings scripts/fuzz-wasi.mts engine-rs/target/wasm32-wasip1/release/fuzz.wasm "fuzz-out/fuzz-$seed.json" fuzz-out/wasm conformance || code=$?
+            timeout 300 node --no-turbo-fast-api-calls --no-warnings scripts/fuzz-wasi.mts target/wasm32-wasip1/release/fuzz.wasm "fuzz-out/fuzz-$seed.json" fuzz-out/wasm conformance || code=$?
             case "$code" in
               0) timeout 60 node scripts/fuzz-compare.mts fuzz-out fuzz-out/wasm "fuzz-$seed" || code=$?
                  case "$code" in 0) ;; 6) wasmdiv="$wasmdiv $seed" ;; 124) timedout="$timedout $seed" ;; *) harness="$harness $seed" ;; esac ;;
@@ -167,7 +166,7 @@ jobs:
             esac
             wasm_secs=$(( wasm_secs + SECONDS - t0 ))
           done
-          echo "replay one seed with: workflow_dispatch seed=<number>, or locally (after both builds above): engine-rs/target/release/fuzz <number> out 40 && node --no-turbo-fast-api-calls scripts/fuzz-wasi.mts engine-rs/target/wasm32-wasip1/release/fuzz.wasm out/fuzz-<number>.json out/wasm && node scripts/fuzz-compare.mts out out/wasm fuzz-<number>"
+          echo "replay one seed with: workflow_dispatch seed=<number>, or locally (after both builds above): target/release/fuzz <number> out 40 && node --no-turbo-fast-api-calls scripts/fuzz-wasi.mts target/wasm32-wasip1/release/fuzz.wasm out/fuzz-<number>.json out/wasm && node scripts/fuzz-compare.mts out out/wasm fuzz-<number>"
           [ -z "$wasmdiv$wasmtrap$engine$timedout$unrun$harness" ]
       - name: Keep the scenarios of this run
         if: always()

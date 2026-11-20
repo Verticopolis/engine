@@ -25,7 +25,6 @@ const SAVES: [(&str, usize, usize); 9] = [
 #[test]
 fn the_real_1997_saves_bring_over_their_own_elevators_and_stairways() {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
         .join("conformance")
         .join("fixtures")
         .join("tdt-reddit");
@@ -72,7 +71,6 @@ const RESIDENTS: [(&str, i64, i64); 8] = [
 #[test]
 fn offices_and_condos_arrive_with_the_people_the_file_counts() {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
         .join("conformance")
         .join("fixtures")
         .join("tdt-reddit");
@@ -112,7 +110,6 @@ const GUEST_ROOMS: [(&str, i64, i64, i64); 9] = [
 #[test]
 fn hotel_rooms_arrive_with_guests_exactly_where_the_file_counts_them() {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
         .join("conformance")
         .join("fixtures")
         .join("tdt-reddit");
@@ -182,7 +179,6 @@ fn parking_row(save: &serde_json::Value, floor: i64) -> (Vec<i64>, Vec<i64>) {
 
 fn import_save(name: &str) -> serde_json::Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
         .join("conformance")
         .join("fixtures")
         .join("tdt-reddit")

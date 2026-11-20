@@ -126,7 +126,7 @@ fn gameplay_event_matches_the_catalog() {
     assert_eq!(EmergencyKind::parse("ransom"), None);
     // The floor bounds are the grid's. (The TypeScript ring this one was
     // checked against went with the TypeScript engine, #1875; this crate's
-    // tests read nothing outside engine-rs/ and conformance/.)
+    // tests read nothing outside the crate and conformance/.)
     let floor = &cat["events"][1]["payload"]["floor"];
     assert_eq!(
         (floor["min"].as_i64(), floor["max"].as_i64()),
@@ -259,7 +259,7 @@ fn a_new_game_founds_once_and_a_load_emits_nothing() {
     // A real four-star save, with its milestones, stars, shafts and prices.
     let text = std::fs::read_to_string(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../conformance/fixtures/towerone-star4.vctower"
+        "/conformance/fixtures/towerone-star4.vctower"
     ))
     .expect("fixture");
     let raw = crate::load::decode_vctower(&text).expect("decodes");

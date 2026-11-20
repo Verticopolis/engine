@@ -11,7 +11,7 @@ use crate::load::deserialize;
 use crate::snapshot::state_view;
 use serde_json::Value;
 
-const TABLE: &str = include_str!("../../../conformance/loader-cases.json");
+const TABLE: &str = include_str!("../../conformance/loader-cases.json");
 
 /// The Rust loader's hash of the case named `id`; a missing id or a save
 /// that does not load fails, since either would make two hashes agree.

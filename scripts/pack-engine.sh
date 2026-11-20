@@ -32,7 +32,7 @@ if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)
   echo "::error::Engine version $version is not x.y.z or x.y.z-pre." >&2
   exit 1
 fi
-for dir in engine-rs/pkg-player engine-rs/pkg-web engine-rs/pkg engine-rs/pkg-web-tooling engine-rs/pkg-events; do
+for dir in wasm/pkg-player wasm/pkg-web wasm/pkg wasm/pkg-web-tooling wasm/pkg-events; do
   if [ ! -d "$dir" ]; then
     echo "::error::$dir is missing; run npm run wasm:build first." >&2
     exit 1
@@ -55,11 +55,11 @@ pack() {
 # changelog and license, and the browser builds' declarations.
 mkdir -p "$work/player/node" "$work/player/web" "$work/player/events" \
   "$work/player/tooling/node" "$work/player/tooling/web" "$work/player/conformance"
-cp -R engine-rs/pkg-player/. "$work/player/node/"
-cp -R engine-rs/pkg-web/. "$work/player/web/"
-cp -R engine-rs/pkg-events/. "$work/player/events/"
-cp -R engine-rs/pkg/. "$work/player/tooling/node/"
-cp -R engine-rs/pkg-web-tooling/. "$work/player/tooling/web/"
+cp -R wasm/pkg-player/. "$work/player/node/"
+cp -R wasm/pkg-web/. "$work/player/web/"
+cp -R wasm/pkg-events/. "$work/player/events/"
+cp -R wasm/pkg/. "$work/player/tooling/node/"
+cp -R wasm/pkg-web-tooling/. "$work/player/tooling/web/"
 cp -R conformance/. "$work/player/conformance/"
 node scripts/layer-build.ts "$work/player"
 sh scripts/engine-package-files.sh "$work/player" "${version%%-*}" "$repo" > /dev/null

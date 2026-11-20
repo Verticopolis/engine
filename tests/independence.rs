@@ -3,7 +3,7 @@
 //! from the JavaScript binding outside `src/wasm.rs` and `src/wasm/`, and
 //! nothing compiled in from the web game's tree. A native host, the WASM
 //! binding and the referee all link the same code, so a dependency on any of
-//! these would tie every frontend to one host. `engine-rs/API.md` states the
+//! these would tie every frontend to one host. `API.md` states the
 //! rule; this test holds it.
 //!
 //! Test code (`#[cfg(test)]` items and the files they pull in with `#[path]`)
@@ -173,13 +173,13 @@ fn the_harness_is_an_optional_feature() {
 fn compiled_in_data_comes_from_the_crate_or_the_conformance_suite() {
     let mut found = Vec::new();
     let krate = normalize(&crate_dir());
-    let suite = normalize(&crate_dir().join("../conformance"));
+    let suite = normalize(&crate_dir().join("conformance"));
     for (name, lib) in library_sources() {
         for inc in included(&lib) {
             match inc {
                 Ok(path) => {
                     let file = normalize(&crate_dir().join(&name).parent().unwrap().join(&path));
-                    if !(file.starts_with(&krate) || file.starts_with(&suite)) {
+                    if !(file.starts_with(krate.join("src")) || file.starts_with(&suite)) {
                         found.push(format!("{name}: {path}"));
                     }
                 }
@@ -211,7 +211,7 @@ fn compiled_in_data_comes_from_the_crate_or_the_conformance_suite() {
     }
     assert!(
         found.is_empty(),
-        "the library compiles in code or data from where it may not (data from engine-rs/ or conformance/, code from src/): {found:?}"
+        "the library compiles in code or data from where it may not (data from src/ or conformance/, code from src/): {found:?}"
     );
 }
 
@@ -277,7 +277,7 @@ fn every_locked_crate_is_reviewed() {
     // with) and the consumer's, which resolves newer patch versions the way
     // a host outside this repository would.
     let mut unlisted = Vec::new();
-    for lock in ["../Cargo.lock", "consumer/Cargo.lock"] {
+    for lock in ["Cargo.lock", "consumer/Cargo.lock"] {
         let text = std::fs::read_to_string(crate_dir().join(lock)).expect("a lock file");
         unlisted.extend(
             text.lines()
@@ -286,7 +286,7 @@ fn every_locked_crate_is_reviewed() {
                 .filter(|n| {
                     n != "verticopolis-engine-consumer"
                         && !ALLOWED_CRATES.contains(&n.as_str())
-                        && !(lock == "../Cargo.lock" && TEST_ONLY_CRATES.contains(&n.as_str()))
+                        && !(lock == "Cargo.lock" && TEST_ONLY_CRATES.contains(&n.as_str()))
                 })
                 .map(|n| format!("{lock}: {n}")),
         );

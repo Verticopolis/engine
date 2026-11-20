@@ -121,7 +121,7 @@ fn a_hostile_log_is_hardened_on_load() {
 
 #[test]
 fn the_pre_log_fixture_loads_with_only_the_classic_pricing_snap_bulletin() {
-    let text = include_str!("../../../conformance/fixtures/towerone_6.vctower");
+    let text = include_str!("../../conformance/fixtures/towerone_6.vctower");
     let data = decode_vctower(text).expect("decodes");
     assert!(data.get("log").is_none());
     // The fixture's Classic rents snap onto the 1994 rate levels once.

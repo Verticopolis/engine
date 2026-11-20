@@ -1,14 +1,14 @@
 name: Engine WASM package
 description: >-
   Put the Rust engine's WASM packages in the workspace: the player build
-  (engine-rs/pkg-web/ for the browser, engine-rs/pkg-player/ for Node) and
-  the tooling build with the binding's tier 3 ops (engine-rs/pkg/ for Node,
-  engine-rs/pkg-web-tooling/ for the browser, Verticopolis/web#1057), and the gameplay event types (engine-rs/pkg-events/). The package is build output and is not checked in. It is
+  (wasm/pkg-web/ for the browser, wasm/pkg-player/ for Node) and
+  the tooling build with the binding's tier 3 ops (wasm/pkg/ for Node,
+  wasm/pkg-web-tooling/ for the browser, Verticopolis/web#1057), and the gameplay event types (wasm/pkg-events/). The package is build output and is not checked in. It is
   restored from the Actions cache, keyed on the hash of the Rust sources it is
   built from, and built (then cached) on a miss, so an engine change is
   compiled once and every later job and workflow reuses it. With
-  artifact-name set, the two browser packages (engine-rs/pkg-web/ and
-  engine-rs/pkg-web-tooling/) are also uploaded as a run artifact for the jobs in a container (the pinned
+  artifact-name set, the two browser packages (wasm/pkg-web/ and
+  wasm/pkg-web-tooling/) are also uploaded as a run artifact for the jobs in a container (the pinned
   Playwright image has no Rust toolchain or C linker), which download it with
   .github/actions/engine-wasm-download. The Node packages stay out of the
   artifact: with it present, npm test would also run the
@@ -30,14 +30,14 @@ runs:
     # catalog and every file the sources include (engineSourceHash, the same
     # hash BUILD.json records; see its comment for what it does not model),
     # plus the scripts that build it and every module they import
-    # (ENGINE_BUILD_FILES in src/build/engineCache.ts, which the Vercel preview
+    # (ENGINE_BUILD_FILES in tools/engineCache.ts, which the Vercel preview
     # cache shares), the npm script that runs them and this action (a change
     # to what it caches).
     - id: key
       shell: bash
       run: |
-        src=$(node --input-type=module -e 'import { engineSourceHash } from "./packages/verticopolis-engine/src/host/packageHash.ts"; process.stdout.write(engineSourceHash("engine-rs"))')
-        key=$(SOURCES="$src" node --input-type=module -e 'import { engineCacheKey } from "./src/build/engineCache.ts"; process.stdout.write(engineCacheKey(".", process.env.SOURCES, "engine-wasm-v1", [".github/actions/engine-wasm/action.yml"]))')
+        src=$(node --input-type=module -e 'import { engineSourceHash } from "./packages/verticopolis-engine/src/host/packageHash.ts"; process.stdout.write(engineSourceHash("."))')
+        key=$(SOURCES="$src" node --input-type=module -e 'import { engineCacheKey } from "./tools/engineCache.ts"; process.stdout.write(engineCacheKey(".", process.env.SOURCES, "engine-wasm-v1", [".github/actions/engine-wasm/action.yml"]))')
         echo "sources=$src" >> "$GITHUB_OUTPUT"
         echo "key=$key" >> "$GITHUB_OUTPUT"
 
@@ -45,11 +45,11 @@ runs:
       uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       with:
         path: |
-          engine-rs/pkg-web
-          engine-rs/pkg
-          engine-rs/pkg-player
-          engine-rs/pkg-web-tooling
-          engine-rs/pkg-events
+          wasm/pkg-web
+          wasm/pkg
+          wasm/pkg-player
+          wasm/pkg-web-tooling
+          wasm/pkg-events
         key: ${{ steps.key.outputs.key }}
 
     - name: Build the package (cache miss)
@@ -64,17 +64,17 @@ runs:
       env:
         SOURCES: ${{ steps.key.outputs.sources }}
       run: |
-        built=$(node -p 'require("./engine-rs/pkg-web/BUILD.json").sources')
+        built=$(node -p 'require("./wasm/pkg-web/BUILD.json").sources')
         if [ "$built" != "$SOURCES" ]; then
-          echo "::error::engine-rs/pkg-web/BUILD.json names sources $built, but the tree's Rust sources hash to $SOURCES"
+          echo "::error::wasm/pkg-web/BUILD.json names sources $built, but the tree's Rust sources hash to $SOURCES"
           exit 1
         fi
-        for f in engine-rs/pkg-web/verticopolis_engine.js engine-rs/pkg-web/verticopolis_engine_bg.wasm engine-rs/pkg-web/THIRD-PARTY.json engine-rs/pkg-events/gameplayEvents.d.ts engine-rs/pkg-events/gameplayEventRules.ts engine-rs/pkg-web-tooling/verticopolis_engine.js engine-rs/pkg-web-tooling/verticopolis_engine_bg.wasm engine-rs/pkg-web-tooling/BUILD.json engine-rs/pkg/verticopolis_engine.js engine-rs/pkg/verticopolis_engine_bg.wasm engine-rs/pkg/package.json engine-rs/pkg-player/verticopolis_engine.js engine-rs/pkg-player/verticopolis_engine_bg.wasm engine-rs/pkg-player/package.json; do
+        for f in wasm/pkg-web/verticopolis_engine.js wasm/pkg-web/verticopolis_engine_bg.wasm wasm/pkg-web/THIRD-PARTY.json wasm/pkg-events/gameplayEvents.d.ts wasm/pkg-events/gameplayEventRules.ts wasm/pkg-web-tooling/verticopolis_engine.js wasm/pkg-web-tooling/verticopolis_engine_bg.wasm wasm/pkg-web-tooling/BUILD.json wasm/pkg/verticopolis_engine.js wasm/pkg/verticopolis_engine_bg.wasm wasm/pkg/package.json wasm/pkg-player/verticopolis_engine.js wasm/pkg-player/verticopolis_engine_bg.wasm wasm/pkg-player/package.json; do
           test -f "$f" || { echo "::error::$f is missing from the engine package"; exit 1; }
         done
-        tooling=$(node -p 'require("./engine-rs/pkg-web-tooling/BUILD.json").sources')
+        tooling=$(node -p 'require("./wasm/pkg-web-tooling/BUILD.json").sources')
         if [ "$tooling" != "$SOURCES" ]; then
-          echo "::error::engine-rs/pkg-web-tooling/BUILD.json names sources $tooling, but the tree's Rust sources hash to $SOURCES"
+          echo "::error::wasm/pkg-web-tooling/BUILD.json names sources $tooling, but the tree's Rust sources hash to $SOURCES"
           exit 1
         fi
 
@@ -83,11 +83,11 @@ runs:
       uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       with:
         path: |
-          engine-rs/pkg-web
-          engine-rs/pkg
-          engine-rs/pkg-player
-          engine-rs/pkg-web-tooling
-          engine-rs/pkg-events
+          wasm/pkg-web
+          wasm/pkg
+          wasm/pkg-player
+          wasm/pkg-web-tooling
+          wasm/pkg-events
         key: ${{ steps.key.outputs.key }}
 
     - name: Upload the package for this run's container jobs
@@ -98,8 +98,8 @@ runs:
         # Two paths keep their places under the workspace root in the
         # artifact, so the download action unpacks it at the root.
         path: |
-          engine-rs/pkg-web/
-          engine-rs/pkg-web-tooling/
+          wasm/pkg-web/
+          wasm/pkg-web-tooling/
         if-no-files-found: error
         # A re-run of the uploading job replaces the artifact instead of
         # failing on the name; a week covers re-running a downstream job alone.

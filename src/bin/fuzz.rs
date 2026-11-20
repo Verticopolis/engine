@@ -102,9 +102,7 @@ fn replay(args: &[String]) {
         [file, out] => (
             file,
             out,
-            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("..")
-                .join("conformance"),
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("conformance"),
         ),
         [file, out, suite] => (file, out, PathBuf::from(suite)),
         _ => {
@@ -155,9 +153,7 @@ fn main() {
             std::process::exit(2);
         }),
     };
-    let suite = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("conformance");
+    let suite = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("conformance");
     // The generator's stream is separate from the game's own seed, so the
     // command sequence does not replay the simulation's random draws.
     let mut rng = Rng::new(seed ^ 0x9e37_79b9);

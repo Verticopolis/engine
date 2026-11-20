@@ -1,17 +1,17 @@
 /**
  * Build a Rust crate's WASM binding. With no argument it builds the engine
- * twice. The player build (the `wasm` feature) goes to engine-rs/pkg-web/ for
- * the browser and engine-rs/pkg-player/ for Node; the tooling build (`wasm`
+ * twice. The player build (the `wasm` feature) goes to wasm/pkg-web/ for
+ * the browser and wasm/pkg-player/ for Node; the tooling build (`wasm`
  * and `tooling`, which adds the tier 3 ops the tests and harnesses use) goes to
- * engine-rs/pkg/ for Node and engine-rs/pkg-web-tooling/ for the browser.
+ * wasm/pkg/ for Node and wasm/pkg-web-tooling/ for the browser.
  * scripts/pack-engine.sh packs them into the npm package (the tooling build
  * under tooling/).
  * Each is `cargo rustc` for wasm32 as a cdylib, `wasm-bindgen`
  * for the JavaScript glue, and a package.json marking the output CommonJS (the
  * repository is ESM, and wasm-bindgen's Node target emits `require`). For the
  * engine, the build also writes the gameplay event types and the bridge's
- * rules (engine-rs/pkg-events/gameplayEvents.d.ts and gameplayEventRules.ts)
- * from engine-rs/src/gameplay/catalog.json, for the packages to carry.
+ * rules (wasm/pkg-events/gameplayEvents.d.ts and gameplayEventRules.ts)
+ * from src/gameplay/catalog.json, for the packages to carry.
  * Each browser target lands with a BUILD.json naming the
  * sources it came from (see packages/verticopolis-engine/src/host/packageHash.ts) and the digests of
  * its glue and binary (packages/verticopolis-engine/src/host/enginePackageRecord.ts) and a
@@ -35,7 +35,7 @@ import {
   parseBuildMetadata,
   stampBuildSection,
 } from "../packages/verticopolis-engine/src/host/buildSection.ts";
-import { cargoPackage } from "../src/build/engineCompat.ts";
+import { cargoPackage } from "../tools/engineCompat.ts";
 import {
   ENGINE_BUILD_RECORD,
   ENGINE_GLUE,
@@ -43,10 +43,14 @@ import {
   ENGINE_WASM,
 } from "../packages/verticopolis-engine/src/host/engineAssets.ts";
 import { ENGINE_THIRD_PARTY, checkToolchain, engineThirdParty } from "./engine-third-party.ts";
-import { checkCatalog, renderGameplayEventRules, renderGameplayEventsDts } from "../src/events/gameplayCatalog.ts";
+import {
+  checkCatalog,
+  renderGameplayEventRules,
+  renderGameplayEventsDts,
+} from "../packages/verticopolis-engine/events/gameplayCatalog.ts";
 
 const CRATES: Record<string, { dir: string; lib: string }> = {
-  engine: { dir: "engine-rs", lib: "verticopolis_engine" },
+  engine: { dir: ".", lib: "verticopolis_engine" },
 };
 // `--player-only` builds the engine's player package alone and skips the
 // tooling build, for a build that never ships the tooling package, where
@@ -62,6 +66,8 @@ const known = Object.hasOwn(CRATES, which) ? CRATES[which] : undefined;
 if (!known) throw new Error(`unknown crate ${which}; expected one of ${Object.keys(CRATES).join(", ")}`);
 const target = known;
 const crate = resolve(dirname(fileURLToPath(import.meta.url)), "..", target.dir);
+/** Where the packages land: wasm/ at the repository root, beside the crate's sources. */
+const out = resolve(crate, "wasm");
 
 /** The exact wasm-bindgen version Cargo.toml pins, found on the dependency's
  *  line whatever the spacing, or in a `[dependencies.wasm-bindgen]` table. */
@@ -74,7 +80,7 @@ function pinnedWasmBindgen(cargoToml: string): string | undefined {
 }
 
 const pinned = pinnedWasmBindgen(readFileSync(resolve(crate, "Cargo.toml"), "utf8"));
-if (!pinned) throw new Error(`${target.dir}/Cargo.toml does not pin wasm-bindgen with an exact version`);
+if (!pinned) throw new Error(`Cargo.toml does not pin wasm-bindgen with an exact version`);
 const install = `install it with: cargo install wasm-bindgen-cli --locked --version ${pinned}`;
 let probe: string;
 try {
@@ -95,15 +101,15 @@ if (cli !== pinned) throw new Error(`wasm-bindgen CLI ${cli} does not match the 
 // toolchain is checked before the compile rather than after it.
 if (which === "engine") {
   const rustVersion = /^rust-version\s*=\s*"([0-9.]+)"/m.exec(readFileSync(resolve(crate, "Cargo.toml"), "utf8"))?.[1];
-  if (!rustVersion) throw new Error(`${target.dir}/Cargo.toml declares no rust-version`);
+  if (!rustVersion) throw new Error(`Cargo.toml declares no rust-version`);
   checkToolchain(crate, rustVersion);
 }
 // The engine is built twice (Verticopolis/web#1057). The player build (`wasm`)
-// is what ships: engine-rs/pkg-web/ for the browser and engine-rs/pkg-player/
+// is what ships: wasm/pkg-web/ for the browser and wasm/pkg-player/
 // for the npm package's Node tree. The tooling build (`tooling`, which adds the
 // binding's tier 3 ops) is what a frontend's test suites and its screenshot and
-// e2e harnesses drive: engine-rs/pkg/ for Node and engine-rs/pkg-web-tooling/
-// for the browser. The other crates have one build, into pkg/.
+// e2e harnesses drive: wasm/pkg/ for Node and wasm/pkg-web-tooling/
+// for the browser. The other crates have one build, into wasm/pkg/.
 const PLAYER_FEATURES = "wasm";
 const TOOLING_FEATURES = "wasm,tooling";
 const run = (cmd: string, args: string[], env?: NodeJS.ProcessEnv) =>
@@ -134,7 +140,7 @@ function remapFlags(): string[] {
     : (process.env.RUSTFLAGS ?? "").split(/\s+/).filter((f) => f !== "");
   return [
     ...own,
-    `--remap-path-prefix=${resolve(crate, "..")}=/verticopolis`,
+    `--remap-path-prefix=${crate}=/verticopolis`,
     `--remap-path-prefix=${cargoHome}=/cargo`,
     `--remap-path-prefix=${sysroot}=/rust-toolchain`,
   ];
@@ -173,16 +179,16 @@ function stamp(file: string): void {
   if (back.state !== "ok" || back.sourceHash !== sources)
     throw new Error(`${file} does not carry the ${BUILD_SECTION} section after stamping`);
 }
-/** The Node target into `dir` (relative to the crate), marked CommonJS (the
+/** The Node target into `dir` (under wasm/), marked CommonJS (the
  *  repository is ESM, and wasm-bindgen's Node target emits `require`). */
 function nodePackage(dir: string): void {
-  rmSync(resolve(crate, dir), { recursive: true, force: true });
-  run("wasm-bindgen", ["--target", "nodejs", "--out-dir", dir, wasm]);
-  writeFileSync(resolve(crate, dir, "package.json"), '{ "type": "commonjs" }\n');
+  rmSync(resolve(out, dir), { recursive: true, force: true });
+  run("wasm-bindgen", ["--target", "nodejs", "--out-dir", resolve(out, dir), wasm]);
+  writeFileSync(resolve(out, dir, "package.json"), '{ "type": "commonjs" }\n');
   for (const f of [`${target.lib}.js`, `${target.lib}_bg.wasm`]) {
-    if (!existsSync(resolve(crate, dir, f))) throw new Error(`wasm-bindgen did not write ${target.dir}/${dir}/${f}`);
+    if (!existsSync(resolve(out, dir, f))) throw new Error(`wasm-bindgen did not write wasm/${dir}/${f}`);
   }
-  if (which === "engine") stamp(resolve(crate, dir, `${target.lib}_bg.wasm`));
+  if (which === "engine") stamp(resolve(out, dir, `${target.lib}_bg.wasm`));
 }
 /**
  * The browser target into `web`, with the BUILD.json and THIRD-PARTY.json
@@ -256,14 +262,14 @@ if (which === "engine") {
   // The old packages go first, so a failed run leaves no stale package behind
   // for the suite to replay.
   for (const dir of ["pkg", "pkg-player", "pkg-web", "pkg-web-tooling", "pkg-events"])
-    rmSync(resolve(crate, dir), { recursive: true, force: true });
+    rmSync(resolve(out, dir), { recursive: true, force: true });
   compile(PLAYER_FEATURES);
-  webPackage(resolve(crate, "pkg-web"), `${target.dir}/pkg-web`, playerRecord);
+  webPackage(resolve(out, "pkg-web"), "wasm/pkg-web", playerRecord);
   nodePackage("pkg-player");
   if (toolingRecord) {
     compile(TOOLING_FEATURES);
     nodePackage("pkg");
-    webPackage(resolve(crate, "pkg-web-tooling"), `${target.dir}/pkg-web-tooling`, toolingRecord);
+    webPackage(resolve(out, "pkg-web-tooling"), "wasm/pkg-web-tooling", toolingRecord);
     // The tooling Node build's declaration (pkg/verticopolis_engine.d.ts) is
     // the one a frontend's binding types against, since it names the tier 3
     // ops the player build leaves out. The package carries it under tooling/.
@@ -272,21 +278,21 @@ if (which === "engine") {
   // catalog both engines are held to, so they are refreshed with the
   // binding's own declaration.
   const catalog = checkCatalog(JSON.parse(readFileSync(resolve(crate, "src/gameplay/catalog.json"), "utf8")));
-  mkdirSync(resolve(crate, "pkg-events"), { recursive: true });
-  writeFileSync(resolve(crate, "pkg-events/gameplayEvents.d.ts"), renderGameplayEventsDts(catalog));
-  writeFileSync(resolve(crate, "pkg-events/gameplayEventRules.ts"), renderGameplayEventRules(catalog));
+  mkdirSync(resolve(out, "pkg-events"), { recursive: true });
+  writeFileSync(resolve(out, "pkg-events/gameplayEvents.d.ts"), renderGameplayEventsDts(catalog));
+  writeFileSync(resolve(out, "pkg-events/gameplayEventRules.ts"), renderGameplayEventRules(catalog));
   if (toolingRecord)
     console.log(
-      "engine-rs/pkg-web and engine-rs/pkg-player (player build), engine-rs/pkg and engine-rs/pkg-web-tooling (tooling build), engine-rs/pkg-events: built",
+      "wasm/pkg-web and wasm/pkg-player (player build), wasm/pkg and wasm/pkg-web-tooling (tooling build), wasm/pkg-events: built",
     );
   else
     console.log(
-      "engine-rs/pkg-web and engine-rs/pkg-player (player build), engine-rs/pkg-events: built, tooling build skipped (--player-only)",
+      "wasm/pkg-web and wasm/pkg-player (player build), wasm/pkg-events: built, tooling build skipped (--player-only)",
     );
 } else {
   // The old package goes first here too, so a failed compile leaves none.
-  rmSync(resolve(crate, "pkg"), { recursive: true, force: true });
+  rmSync(resolve(out, "pkg"), { recursive: true, force: true });
   compile(PLAYER_FEATURES);
   nodePackage("pkg");
-  console.log(`${target.dir}/pkg: built`);
+  console.log("wasm/pkg: built");
 }

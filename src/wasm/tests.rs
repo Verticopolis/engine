@@ -35,7 +35,7 @@ fn the_vctower_binding_stamps_and_writes_what_the_crate_writes() {
 fn the_tdt_binding_answers_from_the_lock() {
     use crate::canonical::digest;
     use crate::tdt::referee::{inflate, read_lock, sha256_hex};
-    let suite = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../conformance");
+    let suite = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("conformance");
     let lock = read_lock(&suite.join("tdt-cases.json")).expect("lock");
     let mut parsed = 0;
     for case in lock.import.iter().filter(|c| c.expected.is_some()) {
@@ -228,7 +228,7 @@ fn the_frame_view_carries_the_header_and_one_record_per_person_unit_and_car() {
     // A real tower, so the view carries people, every unit kind and cars.
     let text = std::fs::read_to_string(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../conformance/fixtures/towerone-star4.vctower"
+        "/conformance/fixtures/towerone-star4.vctower"
     ))
     .expect("fixture");
     let raw = crate::load::decode_vctower(&text).expect("decodes");

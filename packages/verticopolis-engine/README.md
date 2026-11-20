@@ -53,8 +53,8 @@ The full guide lives on the engine docs site,
   proves it runs the real simulation.
 - [Changelog](./CHANGELOG.md), one section per engine version.
 
-The source is in
-[`engine-rs/`](https://github.com/Verticopolis/engine/tree/main/engine-rs)
+The Rust source is in
+[`src/`](https://github.com/Verticopolis/engine/tree/main/src)
 of the [Verticopolis engine repository](https://github.com/Verticopolis/engine).
 
 ## License

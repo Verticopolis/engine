@@ -8,7 +8,7 @@ use verticopolis_engine::scenario::Start;
 fn conformance_dir() -> PathBuf {
     std::env::var_os("VC_CONFORMANCE")
         .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../conformance"))
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../conformance"))
 }
 
 #[test]

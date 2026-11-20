@@ -11,7 +11,7 @@ use crate::load::{decode_vctower_bytes, deserialize};
 use crate::sim::Simulation;
 
 fn split_tower_31() -> Simulation {
-    let bytes = include_bytes!("../../../conformance/fixtures/regression/split-tower-31.vctower");
+    let bytes = include_bytes!("../../conformance/fixtures/regression/split-tower-31.vctower");
     let save = decode_vctower_bytes(bytes).expect("the fixture decodes");
     let sim = deserialize(&save).expect("the fixture loads");
     assert_eq!(sim.tower.mode, GameMode::Modern);
