@@ -60,6 +60,7 @@ mod game_events;
 mod gap_flight_walkers;
 mod golden_master;
 mod heatmap;
+mod heatmap_shades;
 mod home_commute;
 mod home_parking;
 mod hotel_guests;
