@@ -1,214 +1,151 @@
-# Project Context: Verticopolis (AI agent rules)
+# Project Context: Verticopolis engine (AI agent rules)
 
-Foundational context every BMAD agent (bmm / cis / **gds game agents**) must carry.
-Concise on purpose. Only the non-obvious rules an LLM needs reminding of. For the
-full spec see the PRD under `_bmad-output/planning-artifacts/prds/`.
+Foundational context every BMAD agent (bmm / cis / **gds game agents**) must carry
+when working in Verticopolis/engine. Concise on purpose: only the non-obvious
+rules an LLM needs reminding of. [CLAUDE.md](../CLAUDE.md),
+[CONTRIBUTING.md](../CONTRIBUTING.md) and [ARCHITECTURE.md](../ARCHITECTURE.md)
+hold the full rules; [docs/parity.md](../docs/parity.md) says how a Classic tower
+matches the 1994 game.
 
 ## What this is
-- **Verticopolis**: a from-scratch, browser-native clone of **SimTower (1994, Maxis/OPeNBooK)**.
-- **The single source of truth is SimTower 1994**, specifically the GameFAQs/Kiwizoid
-  FAQ (summarized with attribution under `_bmad-output/planning-artifacts/reviews/faq-parity-2026-06-30/faq-canon.md`).
-  For **Classic**, the bar is **gameplay parity**, not reinvention: Classic is
-  parity-locked to 1994 and new mechanics are out of scope there.
+- The **Verticopolis engine**: the one simulation every Verticopolis frontend runs.
+  The Rust crate `verticopolis-engine` sits at this repository's root (`Cargo.toml`,
+  `src/`, `tests/`); the WebAssembly build and the npm package
+  `@verticopolis/engine` (TypeScript layer in `packages/verticopolis-engine/`), the
+  conformance suite (`conformance/`), the docs site and the bench live here too.
+- Verticopolis is a from-scratch, clean-room homage to **SimTower (1994,
+  Maxis/OPeNBooK)**. **The single source of truth for Classic is SimTower 1994**,
+  specifically the GameFAQs/Kiwizoid FAQ (summarized with attribution in
+  `_bmad-output/planning-artifacts/reviews/faq-parity-2026-06-30/faq-canon.md`).
+  For **Classic**, the bar is **gameplay parity**, not reinvention.
+- Frontends (the free web game and other consumers) may differ. Simulations may
+  not: a frontend never adds, copies or patches a rule. A rule change lands here,
+  with a regenerated conformance lock in the same PR, and the engine asks only for
+  what any frontend could use.
 
 ## Scope: Classic parity-locked, Modern is a curated sandbox (2026-07-22)
-- **Classic** stays pixel-and-rule-faithful to SimTower 1994. No new mechanics,
-  no new content. Its golden masters must stay byte-stable.
+- **Classic** stays rule-faithful to SimTower 1994. No new mechanics, no new
+  content. Its golden masters must stay byte-stable.
 - **Modern** is the sanctioned home for **post-1994 additions**: new room types,
   new economy behaviors, and freeform build controls the original could not do.
-  These are **added deliberately** through the design process (party ratification
-  → design doc / spec → `/gds-code-review`), never ad hoc. A Modern addition must
-  leave Classic byte-identical.
-- **No TDT for Modern.** The 1994 `.TDT` format (`src/storage/tdt*`, save
-  round-trip) is **Classic-only**. No Modern-only feature adds TDT handling (no
-  new ordinals, no format-version bump for Modern content); Modern persists
-  through the native save format only. Round-tripping post-1994 content through a
-  1994 format is lossy by definition.
-- **Connected / multi-tower** ideas remain an **owner-gated epic** (the 375-wide
-  single-lot `LOT_WIDTH` and save format make it a rewrite, not a Modern toggle),
-  not part of the standing Modern-sandbox sanction.
+  These are **added deliberately** through the design process (party ratification,
+  then a design doc or spec, then `/gds-code-review`), never ad hoc. A Modern
+  addition must leave Classic byte-identical.
+- **Any gameplay or building-rule change needs the owner's explicit OK before
+  merge.** A party or roundtable verdict is not that OK.
+- **No TDT for Modern.** The 1994 `.TDT` format is **Classic-only**. No
+  Modern-only feature adds TDT handling (no new ordinals, no format-version bump
+  for Modern content); Modern persists through the native save format only.
 - The living plan for Modern additions is
   `_bmad-output/planning-artifacts/gdds/gdd-modern-expansion-2026-07-22.md`.
 
-## Stack: NOT a Unity/Unreal/Godot game
-- **TypeScript** on the **Excalibur.js** game engine, built with **Vite**. Runs in any
-  browser; can export to a single self-contained HTML file. There is **no game-engine
-  editor, no C#/C++/GDScript, no scene files**. Do not assume Unity/Unreal/Godot
-  workflows. (The gds module's `primary_platform` is pinned to `web` in
-  `_bmad/custom/config.toml`; the installer's `unity/unreal/godot/other` default is wrong.)
-- All art and audio are **generated in code** (no ripped/imported assets), a clean-room homage. The one
-  exception is the crowd's two voice seeds (`src/public/audio/voice-talk.mp3` and `voice-laughs.mp3`),
-  original recordings by the owner, licensed in `ASSETS-LICENSE.md`.
-- The simulation is deterministic and **headless-testable** (seeded `rng.ts`); tests are Vitest.
-
-## Distribution targets (packaging only, game scope unchanged)
-- The web game at https://verticopolis.com is browser and PWA only, and the single
-  source of truth. The Android TWA loads that same live site (marked by `?src=twa`),
-  so it is a browser surface too; `src/public/.well-known/assetlinks.json` and the
-  Android application ID it names stay public for it (PRD N2).
-- **Wrapper builds are retired (2026-10-14, #991).** There is no Electron
-  (`--mode desktop`) or Capacitor (`--mode native`) build mode, no `src/platform/`
-  injection seam, no host-command bridge, no shell save store, no desktop consent
-  flow and no `/api/ingest/desktop` route. Do not reintroduce a build mode or a
-  wrapper-detection branch: other frontends consume the Rust engine
-  (`engine-rs/` in Verticopolis/engine, the `verticopolis-engine` crate) directly rather than wrapping
-  this web build. Historical planning documents that describe the wrapper epics
-  stay as records.
-- Store configs, CI signing, and anything monetization-shaped never live here.
-  This does not loosen the parity scope: no new mechanics, `primary_platform`
-  stays `web`.
-
-## Where the truth lives (engine)
-- **The Rust engine (`engine-rs/` in [Verticopolis/engine](https://github.com/Verticopolis/engine);
-  every `engine-rs/` path in this file is in that repository) is the source of truth for gameplay rules, caps and
-  tuning**: `engine-rs/src/facilities.rs` (lot 375 wide, floors −9…100, per-facility
-  cost/width/minStar/population, build caps), `engine-rs/src/star.rs` (`STAR_THRESHOLDS`,
-  `TOWER_POPULATION`) and `engine-rs/src/rules.rs` with its `rules/` submodules (the Classic and Modern rule values).
-  The web UI reads them through the engine's catalog. Quote numbers from there, never
-  hard-code duplicates.
-- The TypeScript reference engine (`src/engine/`) was deleted in #1875; every rule and
-  its tests live in `engine-rs/` in Verticopolis/engine. Where things are:
-  - `engine-rs/src/sim.rs`, `sim_loop.rs`, `clock.rs`, `fixed_step.rs`: the clock, the step
+## Where the truth lives
+- **This crate is the source of truth for gameplay rules, caps and tuning**:
+  `src/facilities.rs` (lot 375 wide, floors −9…100, per-facility
+  cost/width/minStar/population, build caps, `POOLED_CAPS`, `Kind::max_cars`,
+  `Kind::max_span`), `src/star.rs` (`STAR_THRESHOLDS`, `TOWER_POPULATION`) and
+  `src/rules.rs` with its `rules/` submodules (the Classic and Modern rule values).
+  Caps are enforced in one place, `Tower::cap_reason` (`src/tower.rs`).
+  Frontends read all of it through the catalog (`src/catalog.rs`);
+  `conformance/catalog-digests.json` is written from it, so a changed cap moves
+  that digest in the PR that changes it.
+- Where things are:
+  - `src/sim.rs`, `sim_loop.rs`, `clock.rs`, `fixed_step.rs`: the clock, the step
     loop and pacing; `star.rs`: star evaluation; `events*.rs`: VIP, fire, bomb, thief.
-  - `engine-rs/src/tower.rs` and `tower/`: placement and geometry (`is_supported`),
-    removal (`removal_reason`), served-floor reachability; `tower_query.rs`: staff
+  - `src/tower.rs` and `tower/`: placement and geometry (`is_supported`), removal
+    (`removal_reason`), served-floor reachability; `tower_query.rs`: staff
     connectivity (`staff_connected`).
-  - `engine-rs/src/economy.rs`, `econ.rs`, `rent.rs`, `housekeeping*.rs`, `crowd/`: money,
+  - `src/economy.rs`, `econ.rs`, `rent.rs`, `housekeeping*.rs`, `crowd/`: money,
     rent, housekeeping and routing.
-  - `engine-rs/src/dispatch*.rs`: the elevator car controller (`ElevatorDispatch`).
-    Transport-kind predicates (`is_staff_only_transport` and the rest) are on `Kind` in
-    `engine-rs/src/facilities/predicates.rs`.
+  - `src/dispatch*.rs`: the elevator car controller (`ElevatorDispatch`).
+    Transport-kind predicates (`is_staff_only_transport` and the rest) are on
+    `Kind` in `src/facilities/predicates.rs`.
+- The TypeScript reference engine was deleted (Verticopolis/web#1875). Never add
+  a TypeScript copy of a rule, here or in a frontend.
 
 ## Canon rules that are easy to get wrong
 - **Star ladder** (population + gates): 2★ 300 · 3★ 1,000 (Security) · 4★ 5,000
   (Medical + Recycling + >1 Suite + a favorable VIP) · 5★ 10,000 (Metro). **TOWER = 15,000.**
 - **Rating census** counts office workers + condo residents + commercial venue
-  customers. Commercial counts LIVE customers (`Unit.customersIn`, whoever is
-  eating right now, often 0); the catalog values (fast food 25 / restaurant 35 /
-  shop 20, chosen per footprint) are what TDT export writes, not a flat census
-  add. `Unit::census_count` (`engine-rs/src/tower_query_state.rs`) owns the rule.
-  **Hotel guests count while climbing up through 4★, then drop out**
-  (`rating_population`, `engine-rs/src/star.rs`).
-- **Two-ride rule:** a trip uses at most **two** transport rides (one sky-lobby transfer);
-  floors reachable only via 3+ rides draw no commuters. Sky lobbies go every ~15 floors.
-- **Parking** has a **Ramp** + **Spaces**; a space only functions when chained (contiguous
-  spaces) back to a ramp. Unconnected spaces are dead ("red X").
-- **Office noise** caps adjacent hotel/condo satisfaction (≤0.6). In **Classic** that is all it does (canon: caps but never evicts). In **Modern** it also erodes below the cap and can eventually evict (`noise_erosion_scale` in `engine-rs/src/rules/satisfaction.rs` gates this; Classic returns 0).
-- **Cinemas** book an average (~$150k) or **blockbuster** (~$300k, bigger crowd) film monthly.
-- Emergencies (fire-rescue / bomb-ransom) are **player choices** via a modal that **pauses** the sim.
-- **Service elevators are staff-only**: tenants never route through or board them, and they
-  do **not** count toward served-floor reachability. Staff (housekeepers) route over the staff
-  network (service elevators + stairs + escalators) and **service elevators win route ties**
-  (build order must not decide). Staff-only shafts answer **only real staff calls**, never the
-  statistical tenant-demand estimate.
-- **Housekeeping never cleans instantly**: a room stays `dirty` (distinct art) until a
-  housekeeper physically arrives over the staff network. Capacity is finite (~20 rooms/crew/day);
-  over-capacity and can't-reach conditions each have their own player advisory. Don't collapse
-  them, and don't let the cockroach event be the only symptom.
-- **Stairs/escalators are fixed two-floor flights**: one-tap placement (no drag-to-size), a
-  span cap enforced on **every** path including resize/extend, and stacking allowed only with an
-  exact-footprint match (same x/width) sharing the landing floor.
-- **Structure needs support both ways**: a floor above the ground story requires the story
-  below fully built beneath it, and bulldozing is refused when it would leave the story above
-  hanging (`Tower.isSupported` / `removalReason`).
+  customers. Commercial counts LIVE customers (whoever is eating right now, often
+  0); the catalog values (fast food 25 / restaurant 35 / shop 20, chosen per
+  footprint) are what TDT export writes, not a flat census add.
+  `Unit::census_count` (`src/tower_query_state.rs`) owns the rule. **Hotel guests
+  count while climbing up through 4★, then drop out** (`rating_population`,
+  `src/star.rs`).
+- **Two-ride rule:** a trip uses at most **two** transport rides (one sky-lobby
+  transfer); floors reachable only via 3+ rides draw no commuters. Sky lobbies go
+  every ~15 floors.
+- **Transport pooling matches the original and is deliberate:** all three elevator
+  kinds (standard, service, express) share **one 24-shaft pool** in Classic, with
+  express inside it; Modern widens that one pool to **48 shafts**
+  (`MODERN_ELEVATOR_SHAFT_CAP`). Stairs and escalators share a separate 64-link
+  pool in Classic; Modern sets no limit on them, only the lot's room. 8 cars per
+  shaft for every elevator kind. Do not "fix" express out of the elevator pool.
+- **Elevators may stand in front of rooms.** Never reintroduce a rule that keeps a
+  shaft off a room (Verticopolis/web#2454 was reverted).
+- **Parking** has a **Ramp** + **Spaces**; a space only functions when chained
+  (contiguous spaces) back to a ramp. Unconnected spaces are dead ("red X").
+- **Office noise** caps adjacent hotel/condo satisfaction (≤0.6). In **Classic**
+  that is all it does (canon: caps but never evicts). In **Modern** it also erodes
+  below the cap and can eventually evict (`noise_erosion_scale` in
+  `src/rules/satisfaction.rs` gates this; Classic returns 0).
+- **Cinemas** book an average (~$150k) or **blockbuster** (~$300k, bigger crowd)
+  film monthly.
+- Emergencies (fire rescue, bomb ransom) are **player choices** that **pause** the
+  sim. Fires have no evacuation.
+- **Service elevators are staff-only**: tenants never route through or board them,
+  and they do **not** count toward served-floor reachability. Staff route over the
+  staff network (service elevators + stairs + escalators) and **service elevators
+  win route ties** (build order must not decide). Staff-only shafts answer **only
+  real staff calls**, never the statistical tenant-demand estimate.
+- **Housekeeping never cleans instantly**: a room stays dirty until a housekeeper
+  physically arrives over the staff network. Capacity is finite (~20 rooms per
+  crew per day); over-capacity and can't-reach conditions are separate states.
+- **Stairs and escalators are fixed two-floor flights**, with a span cap enforced
+  on **every** path including resize and extend, and stacking allowed only with an
+  exact-footprint match sharing the landing floor.
+- **Structure needs support both ways**: a floor above the ground story requires
+  the story below fully built beneath it, and bulldozing is refused when it would
+  leave the story above hanging (`is_supported` / `removal_reason`).
+- No people warp and none get stuck.
 
 ## Ratified divergences from canon (intentional: do NOT "fix")
-- **Wedding Hall** on floor 100 stands in for the original **Cathedral** (religion-neutral clean-room choice); mechanics are identical.
-- Canon-non-removable structures are **kept removable** (partial-refund bulldoze) as a QoL choice.
-- Both are owner-ratified and documented in the PRD addendum / decision log.
+- **Wedding Hall** on floor 100 stands in for the original **Cathedral**
+  (religion-neutral clean-room choice); mechanics are identical.
+- Canon-non-removable structures are **kept removable** (partial-refund bulldoze)
+  as a QoL choice.
 
 ## Artifacts & working conventions
-- BMAD output lives under `_bmad-output/` (`planning-artifacts/prds`, `.../reviews`).
-- **Shift-left + regression testing** (full rule in `AGENTS.md` -> Testing
-  discipline): every bug fix ships a regression test pinning the failure,
-  including the shift into and out of the failing condition; pin each invariant
-  with a unit-level guard at the cheapest tier, never only a heavy integration
-  run; test fixtures must assert every construction step the claim depends on
-  (`expect(r.ok)`), because a silently degraded fixture tests a different tower
-  than the one described.
-- **Unit tests mock the engine; every test asserts what it names** (full rule
-  in `CONTRIBUTING.md` -> What every test must do): a unit test mocks the
-  engine port with `vi.fn` spies and canned JSON answers and asserts the calls
-  and what the code did with them; real-engine checks are integration or Rust
-  tests; never replay recorded engine answers (PR #1923). Guard:
-  `src/tests/testHonesty.guard.test.ts`.
-- **No em-dashes in prose** (player-facing copy, docs, comments, commit and PR
-  text) in anything new you write. Use commas, colons, parentheses, or separate
-  sentences instead. Two standing exceptions: en-dashes in numeric ranges
-  (`2–5`, floors `30–60`), and the standalone "—" empty-value placeholder glyphs
-  in the stats/editor panels. Existing `src/` code comments are grandfathered;
-  don't sweep them, but don't add new em-dashes either. Skip the "X, not Y"
-  emphatic-restatement pattern and AI marketing vocabulary (leverage, seamless,
-  robust, comprehensive, elevate, streamline, and the like). Keep copy plain,
-  human, and grammatically correct.
-  The Rust engine (`engine-rs/` in Verticopolis/engine) follows these rules with no grandfathered
-  comments, plus the 500-line file ceiling (see CONTRIBUTING "Conventions").
-- **Merge commits only** to `main` (never squash). Commit/push only when asked.
-- **Version tier in a change note:** a PR never edits a version. It adds
-  `.changes/<branch-slug>.md` with `app:` by player impact (see CONTRIBUTING.md
-  "Versioning" for major, minor, patch and none) and `crate:` for the engine
-  crate, and the release PR (`npm run release`) raises the versions. A
-  player-facing change with `app: none`, or a missing note, is a review finding.
-  See `.changes/README.md`.
-- **Deep adversarial review is MANDATORY and runs in the SAME session that writes the
-  code, and it means actually invoking `/gds-code-review` (gameplay/engine) or
-  `/bmad-code-review` (everything else, incl. storage/persistence/tooling/UI plumbing).
-  TDT / save round-trip work (`src/storage/tdt*`, save import/export) routes to
-  `/gds-code-review` despite being storage-mechanism: its correctness is
-  engine-data fidelity (population census, elevator/transport behavior,
-  floor/lobby/view mapping); run both if it also carries a big tooling/UI surface.**
-  Its parallel layers (Blind Hunter → Edge Case Hunter → Acceptance Auditor → triage)
-  ARE the deep review; a self-read or a generic `/code-review` does not count. Run it
-  before pushing, or immediately after opening/updating the PR. Never defer to "before
-  merge" (sessions end and it gets forgotten). Fix every `patch` finding; record every
-  `defer` finding in `_bmad-output/implementation-artifacts/backlog.md`. A change
-  isn't done until confirmed findings are fixed and re-verified on the branch. Resolve
-  Copilot/Codex PR threads.
-- **Backlog rows mirror to GitHub issues (standing rule, 2026-07-15).** Every
-  unresolved curated row in `_bmad-output/implementation-artifacts/backlog.md`
-  carries its issue number in the `GH` column. Create the matching issue when a
-  row lands (a plain title, a type label and a `P1`-`P3` label, row notes as
-  the body) and close it when the row finishes. The row's `Priority` owns the
-  P label: `backlog-priority-labels.yml` re-syncs it whenever a push to `main`
-  changes the backlog, and weekly. The full rule lives in the
-  backlog's "How items flow" section; `src/tests/backlogIssueMirror.test.ts`
-  enforces the row half of the invariant (row shape, status vocabulary, refs
-  present on unresolved rows, cleared on finished rows, and unique).
-- Screenshots regenerate in the pinned Playwright image only: approve the drift check's
-  `commit-on-approval` job, or run `npm run screenshots` inside that image (CONTRIBUTING.md
-  → Screenshots). A host browser renders different pixels. The demo camera reads the live
-  `GRID.width`.
-
-## UI design system
-- `docs/design-system.md` in Verticopolis/components is the contract for all UI/CSS work: tokens +
-  components (`.btn`/`.win`/`.win-title`/`.well`/`.field`/`.kv`) in its `src/styles.css` and the parts
-  it imports (`src/styles/`, `src/styles/game/`), organized as ONE
-  generation of CSS. **No skin on IDs; edit rules, never out-specify them; press-only button
-  feedback; one primary per dialog; the splash is box art and stays un-unified.** The game's own
-  rules for building windows in code are `docs/ui/windows-in-code.md`.
-
-## Performance & platform gotchas
-- **Hot paths get a complexity review, and it is a review gate.** The tick loop
-  (`Simulation.tick` → `Crowd`, `ElevatorDispatch`, `EconomySystem`), the hosts and the render/UI
-  refresh run over the whole tower every step or frame, and towers reach tens of thousands of units
-  (most of them floor tiles), up to 110 floors and thousands of people (the page's section 2 has
-  the measured reference sizes and their date). Look up
-  entities by id (`Tower.getUnit` / `getTransport`, `get_unit` / `get_transport`), hoist
-  tower-wide facts out of per-unit and per-person loops, keep counters instead of re-scanning, and
-  memoize per-`revision` work (see `Tower.stopsOf`). The checklist,
-  `docs/performance/hot-path-review.md` (HP-1 to HP-12), applies to Rust and TypeScript alike, to
-  ported, rewritten, moved and inherited code, and to scans hidden in helpers. The deep review flags a
-  whole-collection scan under any HP-2 multiplier and resolves it under that page's section 7:
-  fixed, or deferred with evidence and an issue, never dismissed as pre-existing. The review
-  skills load the page through `_bmad/custom/gds-code-review.toml` and
-  `_bmad/custom/bmad-code-review.toml`.
-- **Excalibur physics is deliberately disabled** (nothing uses it; enabled, it froze phones on
-  big towers at high speed). Do not re-enable it.
-- **Never draw one oversized surface**: tall shafts and the ground plane are tiled into
-  texture-size-safe bands or mobile GPUs render them as black rectangles. Keep new large
-  visuals banded the same way.
-- **WebGL context loss auto-recovers in place**. Don't add "refresh the page" dead-ends; a
-  frame-exception guard already keeps one bad frame from freezing the game.
-- Dispatch must be fed the live crowd: pass `crowd.elevatorCalls(tower)` into
-  `ElevatorDispatch` (`accumulate` once per outer step, `moveCars` per sub-step) or visible
-  waiters get stranded when statistical demand rounds to zero.
+- BMAD output lives under `_bmad-output/` in this repository: the backlog in
+  `implementation-artifacts/backlog.md`, specs and stories beside it, plans in
+  `planning-artifacts/`, party findings and room memory in `party-mode/`. Records
+  dated before 2026-11-20 came over from Verticopolis/web with their history; the
+  paths they name (`engine-rs/...`, `src/storage/...`) are the paths of that time.
+- **Deep adversarial review is mandatory, in the same session that writes the
+  code:** `/gds-code-review` for simulation, binding, frame and save work,
+  `/bmad-code-review` for CI, packaging and tooling. Its layers are the review; a
+  self-read or a generic `/code-review` does not count. Fix every `patch` finding,
+  record every `defer` in `_bmad-output/implementation-artifacts/backlog.md`. An
+  independent GO from a separate thread or person comes before every merge.
+- **Hot paths get the complexity checklist**,
+  `docs/performance/hot-path-review.md` in Verticopolis/web, which governs this
+  repository too. The tick loop, dispatch, the crowd and the binding run over the
+  whole tower every step: look entities up by id, hoist tower-wide facts out of
+  per-unit and per-person loops, keep counters instead of re-scanning, and memoize
+  per-revision work. Nothing ever gets slower.
+- **Backlog rows mirror to GitHub issues in this repository** (see the backlog's
+  "How items flow").
+- **Tests:** shift-left and regression (every fix ships a test that pins the
+  failure); every test asserts what its name promises; no guard tests (never a
+  test that reads source, workflow or configuration files); no host access in the
+  simulation (`tests/independence.rs`).
+- **Change notes, never a version edit:** `.changes/<branch-slug>.md` with its
+  `crate:` tier (see `.changes/README.md`). A bug fix is patch; minor only for new
+  features or API.
+- **Saves:** no lost saves. A format change proves an identical game on real old
+  saves and both maxed towers.
+- **Prose:** American English, no em-dashes, no "X, not Y" emphatic pattern, no
+  marketing vocabulary. A 500-line ceiling per source file (tests and generated
+  files exempt).
+- **Merge commits only** to `main`, never a squash.
