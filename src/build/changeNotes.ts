@@ -93,7 +93,7 @@ export function highestTier(notes: readonly ChangeNote[]): Tier | undefined {
 export function sectionBody(notes: readonly ChangeNote[]): string {
   const ordered = [...notes]
     .filter((n) => n.tier !== "none")
-    .sort((a, b) => NOTE_TIERS.indexOf(b.tier) - NOTE_TIERS.indexOf(a.tier) || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    .sort((a, b) => NOTE_TIERS.indexOf(b.tier) - NOTE_TIERS.indexOf(a.tier) || a.name.localeCompare(b.name, "en"));
   const entries = ordered.flatMap((n) => n.entries.map((e) => `- **${n.tier}**: ${e.slice(2)}`));
   return entries.join("\n");
 }
