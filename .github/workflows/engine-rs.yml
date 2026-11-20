@@ -6,6 +6,13 @@ name: Rust engine
 # main. Format and lint run as hard
 # gates, like the TypeScript lane.
 
+# A pull request that touches none of the engine's inputs (the list is in
+# .github/actions/rust-scope/action.yml) still runs every job below, so the
+# required engine-rs check reports, but each job's steps after the Scope step
+# skip and it finishes in seconds. Every new step in these jobs needs the
+# same `if: steps.scope.outputs.run == 'true'`, or it runs on such a pull
+# request with nothing built.
+
 concurrency:
   # Cancel superseded PR runs; preserve main pushes for cache warming.
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -36,6 +43,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # The merge commit and its base, for the scope step below.
+          fetch-depth: 2
           persist-credentials: false
           sparse-checkout-cone-mode: false
           sparse-checkout: |
@@ -44,12 +53,23 @@ jobs:
             /.cargo/
             /engine-rs/
             /conformance/
+            /.github/actions/rust-scope/
 
+      - name: Scope
+        id: scope
+        uses: ./.github/actions/rust-scope
+
+      # Besides the scope action, which holds no code the build reads.
       - name: Only the engine and the conformance suite are checked out
+        if: steps.scope.outputs.run == 'true'
         run: |
-          top="$(ls -A | grep -vx '.git' | sort | tr '\n' ' ')"
-          if [ "$top" != ".cargo Cargo.lock Cargo.toml conformance engine-rs " ]; then
+          top="$(ls -A | grep -vx '.git' | LC_ALL=C sort | tr '\n' ' ')"
+          if [ "$top" != ".cargo .github Cargo.lock Cargo.toml conformance engine-rs " ]; then
             echo "the checkout holds: $top"; exit 1
+          fi
+          github="$(find .github -type f)"
+          if [ "$github" != ".github/actions/rust-scope/action.yml" ]; then
+            echo ".github holds: $github"; exit 1
           fi
           test -f engine-rs/Cargo.toml
           test -f conformance/expected.json
@@ -57,6 +77,7 @@ jobs:
       # The Actions runner mounts its own Node.js under /__e for JavaScript
       # actions such as checkout; it is not on PATH, and the image has none.
       - name: Node.js is unreachable
+        if: steps.scope.outputs.run == 'true'
         run: |
           for n in node nodejs npm npx corepack yarn pnpm bun; do
             if command -v "$n"; then echo "$n is on PATH"; exit 1; fi
@@ -66,6 +87,7 @@ jobs:
           fi
 
       - name: Rust toolchain
+        if: steps.scope.outputs.run == 'true'
         run: |
           rustup show active-toolchain | grep -q '^1\.97\.0'
           rustup component add rustfmt clippy
@@ -76,6 +98,7 @@ jobs:
       # its own. Old dependency builds are kept across lockfile bumps; bump
       # prefix-key to start the cache over when it grows.
       - name: Cargo cache
+        if: steps.scope.outputs.run == 'true'
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           prefix-key: v1-rust
@@ -87,6 +110,7 @@ jobs:
       # Default features: no binding and no conformance harness, the
       # library a host that only plays the game links.
       - name: The engine library builds alone
+        if: steps.scope.outputs.run == 'true'
         working-directory: engine-rs
         run: cargo build --locked --lib
 
@@ -103,6 +127,7 @@ jobs:
       # check would read, and a copy with no repository around it proves
       # the same thing a registry download does.
       - name: The crate packages on its own
+        if: steps.scope.outputs.run == 'true'
         run: |
           crate="$RUNNER_TEMP/crate"
           rm -rf "$crate"
@@ -117,6 +142,7 @@ jobs:
           echo "VC_PACKAGED=$crate/target/package/verticopolis-engine-$version" >> "$GITHUB_ENV"
 
       - name: The consumer, in place
+        if: steps.scope.outputs.run == 'true'
         working-directory: engine-rs/consumer
         run: |
           cargo fmt --check
@@ -132,6 +158,7 @@ jobs:
           fi
 
       - name: The consumer, as a crate outside the checkout
+        if: steps.scope.outputs.run == 'true'
         run: |
           host="$RUNNER_TEMP/host"
           mkdir -p "$host"
@@ -166,12 +193,20 @@ jobs:
         working-directory: engine-rs
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The merge commit and its base, for the scope step below.
+          fetch-depth: 2
+
+      - name: Scope
+        id: scope
+        uses: ./.github/actions/rust-scope
 
       # ubuntu-latest ships a stable toolchain through rustup; pin the channel
       # the crate was written against rather than whatever the image happens
       # to carry. Every cargo step runs --locked so a stale Cargo.lock fails
       # the run instead of being rewritten on the runner.
       - name: Rust toolchain
+        if: steps.scope.outputs.run == 'true'
         run: |
           rustup toolchain install 1.97.0 --profile minimal --component rustfmt,clippy
           rustup default 1.97.0
@@ -186,6 +221,7 @@ jobs:
       # saves, so a pull request reads main's cache and never writes one of
       # its own. Bump prefix-key to start the cache over when it grows.
       - name: Cargo cache
+        if: steps.scope.outputs.run == 'true'
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           prefix-key: v1-rust
@@ -193,9 +229,11 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Format
+        if: steps.scope.outputs.run == 'true'
         run: cargo fmt --check
 
       - name: Lint
+        if: steps.scope.outputs.run == 'true'
         run: |
           cargo clippy --locked --all-targets -- -D warnings
           cargo clippy --locked --all-targets --features conformance -- -D warnings
@@ -219,12 +257,20 @@ jobs:
         working-directory: engine-rs
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The merge commit and its base, for the scope step below.
+          fetch-depth: 2
+
+      - name: Scope
+        id: scope
+        uses: ./.github/actions/rust-scope
 
       # ubuntu-latest ships a stable toolchain through rustup; pin the channel
       # the crate was written against rather than whatever the image happens
       # to carry. Every cargo step runs --locked so a stale Cargo.lock fails
       # the run instead of being rewritten on the runner.
       - name: Rust toolchain
+        if: steps.scope.outputs.run == 'true'
         run: |
           rustup toolchain install 1.97.0 --profile minimal --component rustfmt,clippy
           rustup default 1.97.0
@@ -239,6 +285,7 @@ jobs:
       # saves, so a pull request reads main's cache and never writes one of
       # its own. Bump prefix-key to start the cache over when it grows.
       - name: Cargo cache
+        if: steps.scope.outputs.run == 'true'
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           prefix-key: v1-rust
@@ -246,6 +293,7 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Unit tests
+        if: steps.scope.outputs.run == 'true'
         # Run native/default and WASM-feature variants. The tooling feature
         # (the binding's tier 3 ops, #1057) turns wasm on as well, so its run
         # covers every binding test the wasm feature alone would; the player
@@ -261,6 +309,7 @@ jobs:
           cargo test --locked --features tooling
 
       - name: Conformance
+        if: steps.scope.outputs.run == 'true'
         run: cargo run --locked --release --features conformance --bin conformance
 
       # A cancelled run can skip every step above and still leave the job
@@ -290,9 +339,16 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # The merge commit and its base, for the scope step below.
+          fetch-depth: 2
           persist-credentials: false
 
+      - name: Scope
+        id: scope
+        uses: ./.github/actions/rust-scope
+
       - name: Rust toolchain
+        if: steps.scope.outputs.run == 'true'
         run: |
           rustup toolchain install 1.97.0 --profile minimal --component clippy
           rustup default 1.97.0
@@ -300,6 +356,7 @@ jobs:
           rustup toolchain uninstall stable || true
 
       - name: Cargo cache
+        if: steps.scope.outputs.run == 'true'
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           prefix-key: v1-wasm-referee
@@ -307,27 +364,33 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.scope.outputs.run == 'true'
         with:
           node-version-file: ".nvmrc"
 
       - name: Lint the referee and the fuzzer for wasm32-wasip1
+        if: steps.scope.outputs.run == 'true'
         working-directory: engine-rs
         run: cargo clippy --locked --features conformance --bin conformance --bin fuzz --target wasm32-wasip1 -- -D warnings
 
       - name: Build the referee for wasm32-wasip1
+        if: steps.scope.outputs.run == 'true'
         working-directory: engine-rs
         run: cargo build --locked --release --features conformance --bin conformance --target wasm32-wasip1
 
       - name: Conformance under WASI
+        if: steps.scope.outputs.run == 'true'
         run: node --no-turbo-fast-api-calls scripts/conformance-wasi.mts engine-rs/target/wasm32-wasip1/release/conformance.wasm conformance
 
       - name: Build the fuzzer natively and for wasm32-wasip1
+        if: steps.scope.outputs.run == 'true'
         working-directory: engine-rs
         run: |
           cargo build --locked --release --features conformance --bin fuzz
           cargo build --locked --release --features conformance --bin fuzz --target wasm32-wasip1
 
       - name: Replay the fuzz corpus on both builds
+        if: steps.scope.outputs.run == 'true'
         run: node scripts/fuzz-corpus.mts --budget 240
 
       - name: Fail a cancelled run
@@ -356,12 +419,20 @@ jobs:
         working-directory: engine-rs
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The merge commit and its base, for the scope step below.
+          fetch-depth: 2
+
+      - name: Scope
+        id: scope
+        uses: ./.github/actions/rust-scope
 
       # ubuntu-latest ships a stable toolchain through rustup; pin the channel
       # the crate was written against rather than whatever the image happens
       # to carry. Every cargo step runs --locked so a stale Cargo.lock fails
       # the run instead of being rewritten on the runner.
       - name: Rust toolchain
+        if: steps.scope.outputs.run == 'true'
         run: |
           rustup toolchain install 1.97.0 --profile minimal
           rustup default 1.97.0
@@ -375,6 +446,7 @@ jobs:
       # saves, so a pull request reads main's cache and never writes one of
       # its own. Bump prefix-key to start the cache over when it grows.
       - name: Cargo cache
+        if: steps.scope.outputs.run == 'true'
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           prefix-key: v1-rust
@@ -386,6 +458,7 @@ jobs:
       # no fallback, a version the manifest lacks fails the step instead of
       # installing another way.
       - name: cargo-llvm-cov
+        if: steps.scope.outputs.run == 'true'
         uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
         with:
           tool: cargo-llvm-cov@0.9.1
@@ -400,6 +473,7 @@ jobs:
       # job's opt-level 1) here to merge coverage; the release replay in the
       # rust job is the parity gate.
       - name: Coverage
+        if: steps.scope.outputs.run == 'true'
         run: |
           rustup component add llvm-tools-preview
           cargo llvm-cov --version | grep -qw '0\.9\.1'
