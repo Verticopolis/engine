@@ -3,7 +3,7 @@ description: >-
   Decide whether a Rust engine job has work to do. A pull request that
   touches none of the engine's inputs (below) answers run=false, so the jobs
   in engine-rs.yml skip their steps and finish green in seconds instead of
-  holding a runner for minutes; the required engine-rs check still reports.
+  holding a runner for minutes; the required checks still report.
   A push to main, a merge group, a manual run, or any doubt (the diff cannot
   be read, or it lists no files) answers run=true. Needs a checkout with
   fetch-depth 2, so the pull request's merge commit has its base parent.
