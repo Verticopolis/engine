@@ -17,10 +17,11 @@ commits only, never squash. Fill in every heading of the pull request
 template.
 
 A change to what the crate ships adds a line under `## Unreleased` at the
-top of `engine-rs/CHANGELOG.md`, for people who build on the engine, and
-names its tier: **major** for a break in saves, the frame or view layout or
-the binding, **minor** for a new API, **patch** for a fix. Only a release PR
-edits the version.
+top of `engine-rs/CHANGELOG.md`, for people who build on the engine, led by
+its tier (`- **minor**: ...`): **major** for a break in saves, the frame or
+view layout or the binding, **minor** for a new API, **patch** for a fix.
+**Cut release** picks the version from those tiers. Only a release PR edits
+the version.
 
 Until the web game builds from this repository's packages, engine changes are
 on hold (README, "Contributing"). Fixes to the docs, the workflows and the
@@ -30,14 +31,26 @@ packaging are fine.
 
 A release is one merged pull request that raises the crate version.
 
-1. **The release PR.** Raise `version` in `engine-rs/Cargo.toml`, refresh
-   the lockfiles that name the crate (`cargo update --workspace --offline` at
-   the root and in `engine-rs/consumer/` and `engine-bench/`) and rename
-   `## Unreleased` in `engine-rs/CHANGELOG.md` to `## <version> (<date>)`.
-   The highest tier among its lines picks the version. The engine's guides
-   (`docs/engine-site/guides/`) and the registry READMEs describe the engine
-   as `main` has it, so a release that changes what a host sees updates them
-   in the same PR.
+1. **Cut the release PR.** Run **Cut release**
+   (`.github/workflows/cut-release.yml`) from the Actions tab on `main`, as
+   the game's repository does. It runs `scripts/cut-release.ts`, which takes
+   the highest tier among the `## Unreleased` entries of
+   `engine-rs/CHANGELOG.md` (every entry must lead with one), raises
+   `version` in `engine-rs/Cargo.toml`, the three lockfiles that name the
+   crate (at the root, in `engine-rs/consumer/` and in `engine-bench/`) and
+   `crateVersion` in `engine-rs/src/compat-record.json`, renames
+   `## Unreleased` to `## <version> (<date>)` and moves the quoted version
+   pins in `docs/engine-site/guides/`. It commits that to `release/<version>`
+   and opens the "Release engine <version>" PR. Leave the version empty for
+   the tier the entries ask for, or name a later one. It refuses while
+   another release PR is open. The PR comes from the workflow token, which
+   starts no checks, so start them with the run button on the PR, or close
+   and reopen it. The workflow needs "Allow GitHub Actions to create and
+   approve pull requests" (Settings, Actions, General). The engine's guides
+   and the registry READMEs describe the engine as `main` has it, so a
+   release that changes what a host sees also updates their prose in the
+   release PR. To cut one by hand instead, run `node scripts/cut-release.ts`
+   on a clean `release/<version>` branch off `main`.
 2. **Merge it.** The push to `main` that changes the crate version starts
    **Release tags** (`.github/workflows/release-tag.yml`). It builds the
    engine, packs the npm tarball with `scripts/pack-engine.sh`, tags
