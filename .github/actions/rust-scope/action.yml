@@ -29,7 +29,7 @@ runs:
         # outside the crate but the conformance suite
         # (engine-rs/tests/read_boundary.rs), and TypeScript files are never
         # Rust inputs.
-        elsewhere='^(docs/|\.changes/|history/|packages/|tools/|engine-bench/|scripts/|\.github/|src/(build|wasmhost|events)/.*\.(ts|mts)$|(README|CONTRIBUTING|API|CHANGELOG)\.md$|engine-rs/(README|API|CHANGELOG)\.md$|LICENSE$|\.gitignore$|\.git-blame-ignore-revs$|package(-lock)?\.json$|tsconfig[^/]*\.json$|\.prettier[^/]*$|eslint\.config\.[^/]+$)'
+        elsewhere='^(docs/|\.changes/|history/|packages/|tools/|engine-bench/|scripts/|\.github/|src/(build|wasmhost|events)/.*\.(ts|mts)$|(README|CONTRIBUTING|API|CHANGELOG|AGENTS|CLAUDE)\.md$|engine-rs/(README|API|CHANGELOG)\.md$|LICENSE$|\.gitignore$|\.git-blame-ignore-revs$|package(-lock)?\.json$|tsconfig[^/]*\.json$|\.prettier[^/]*$|eslint\.config\.[^/]+$)'
         inputs='^(scripts/conformance-wasi\.mts$|scripts/fuzz|\.github/workflows/engine-rs\.yml$|\.github/actions/rust-scope/)'
         run=true
         if [ "$EVENT" = pull_request ]; then
