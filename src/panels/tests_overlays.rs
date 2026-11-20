@@ -250,3 +250,59 @@ fn the_onboarding_floor_fact_follows_a_build_and_a_sale() {
     sim.tower.memo.borrow_mut().floor_above_lobby = None;
     assert_eq!(floor(&sim), json!(false));
 }
+
+/// Satisfaction tints each present room by its own score, so one miserable
+/// condo on notice reads red beside content neighbors instead of being
+/// averaged away, and a floor whose only room is empty gets no satisfaction
+/// tint while occupancy still flags it. Moved here from the game's overlay
+/// check.
+#[test]
+fn satisfaction_tints_each_present_room_on_its_own() {
+    let mut sim = founded(GameMode::Classic, 3);
+    shaft(&mut sim, Kind::ElevatorStandard, 152, 1, 3);
+    let xs = [160, 176, 192, 208];
+    for x in xs {
+        put(&mut sim, Kind::Condo, 2, x);
+        let u = sim.tower.get_unit_mut(id_at(&sim, 2, x)).unwrap();
+        u.state = UnitState::Occupied;
+        u.satisfaction = 1.0;
+    }
+    let sad = sim.tower.get_unit_mut(id_at(&sim, 2, xs[0])).unwrap();
+    sad.state = UnitState::Vacating;
+    sad.satisfaction = 0.0;
+    put(&mut sim, Kind::Office, 3, 160);
+    let sat = heat(&sim, HeatmapMode::Satisfaction);
+    let at = |x: i64| {
+        sat.as_array()
+            .unwrap()
+            .iter()
+            .find(|c| {
+                c["floor"] == 2 && c["minX"].as_i64() <= Some(x) && c["maxX"].as_i64() >= Some(x)
+            })
+            .map(|c| c["severity"].clone())
+    };
+    assert_eq!(
+        at(xs[0]),
+        Some(json!(1.0)),
+        "the condo on notice is fully red"
+    );
+    for x in &xs[1..] {
+        assert_eq!(
+            at(*x),
+            Some(json!(0.0)),
+            "a content neighbor at {x} stays green"
+        );
+    }
+    assert!(
+        sat.as_array().unwrap().iter().all(|c| c["floor"] != 3),
+        "nobody is present on the office floor to judge it"
+    );
+    let occ = heat(&sim, HeatmapMode::Occupancy);
+    let floor3 = occ
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["floor"] == 3)
+        .unwrap();
+    assert_eq!(floor3["severity"], 1.0, "occupancy flags the empty office");
+}

@@ -9,6 +9,7 @@ use serde_json::{json, Value};
 use super::heatmap::HeatmapMode;
 use crate::clock::GameMode;
 use crate::facilities::Kind;
+use crate::gameplay::RemovalMethod;
 use crate::sim::Simulation;
 use crate::tower::UnitState;
 
@@ -487,4 +488,35 @@ fn transport_detail_lists_stops_and_the_telemetry_slice() {
         "the stairs are not an elevator"
     );
     assert_eq!(list[0]["capacity"], 21.0);
+}
+
+/// The passenger report lists elevators busiest first, leaves the
+/// staff-only service elevator out, and drops a removed shaft once the next
+/// hourly sample prunes its reading. Moved here from the game's stats check.
+#[test]
+fn the_elevator_report_ranks_passenger_shafts_and_forgets_a_removed_one() {
+    let mut sim = founded(GameMode::Classic, 6);
+    shaft(&mut sim, Kind::ElevatorStandard, 160, 1, 6);
+    shaft(&mut sim, Kind::ElevatorStandard, 180, 1, 6);
+    shaft(&mut sim, Kind::ElevatorService, 200, 1, 6);
+    let [quiet, busy, service] = [0, 1, 2].map(|i| sim.tower.transports[i].id);
+    sim.telemetry.util.insert(quiet, 0.2);
+    sim.telemetry.util.insert(busy, 0.7);
+    let ids = |sim: &Simulation| -> Vec<i64> { sim.elevator_rows().iter().map(|r| r.id).collect() };
+    assert_eq!(
+        ids(&sim),
+        [busy, quiet],
+        "busiest first, the service shaft left out"
+    );
+    let rows = sim.elevator_rows();
+    assert_eq!((rows[0].utilization, rows[1].utilization), (0.7, 0.2));
+    assert!(!ids(&sim).contains(&service));
+    assert!(sim.remove_facility(busy, RemovalMethod::Bulldoze).ok);
+    settle(&mut sim, 1);
+    assert_eq!(ids(&sim), [quiet]);
+    assert_eq!(
+        sim.telemetry.util.get(&busy),
+        None,
+        "the dead shaft's reading is pruned"
+    );
 }

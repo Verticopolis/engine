@@ -11,6 +11,7 @@ use serde_json::Value;
 use crate::clock::GameMode;
 use crate::econ::rent_of;
 use crate::facilities::{Kind, LOT_WIDTH};
+use crate::gameplay::RemovalMethod;
 use crate::load::deserialize;
 use crate::sim::Simulation;
 use crate::tower::{Unit, UnitState};
@@ -327,4 +328,41 @@ fn an_out_of_band_price_snaps_in_classic_and_clamps_only_unsold_in_modern() {
         assert_eq!(rent(unit(&loaded, a)), 200_000.0, "{mode:?} unsold");
         assert_eq!(rent(unit(&loaded, b)), sold_after, "{mode:?} sold");
     }
+}
+
+/// The sale writes its asking price on the unit, so a later buy-back does
+/// not depend on the kind's default. An unpriced condo (only a hand-edited
+/// unit is one, since a load snaps Classic prices onto the ladder) sells at
+/// the economy's band default, $160,000, and that is what is stamped. Moved
+/// here from the game's condo check.
+#[test]
+fn a_sale_stamps_the_asking_price_on_an_unpriced_condo() {
+    let (mut sim, id) = served_condo(3, GameMode::Classic, |sim, id| {
+        sim.tower.get_unit_mut(id).unwrap().rent = None;
+    });
+    assert_eq!(unit(&sim, id).rent, None);
+    assert!(tick_until(&mut sim, |s| unit(s, id).ever_occupied));
+    assert_eq!(unit(&sim, id).rent, Some(160_000.0));
+}
+
+/// An owner who sold above today's band (a legacy $240,000) is bought back at
+/// that price when service is cut, and the condo returns to the market on the
+/// ladder's top rung. Moved here from the game's condo check.
+#[test]
+fn a_legacy_price_is_bought_back_in_full_and_re_listed_in_the_band() {
+    let (mut sim, id) = sold_condo(5, GameMode::Classic);
+    sim.tower.get_unit_mut(id).unwrap().rent = Some(240_000.0);
+    let shafts: Vec<i64> = sim.tower.transports.iter().map(|t| t.id).collect();
+    for shaft in shafts {
+        assert!(sim.remove_facility(shaft, RemovalMethod::Bulldoze).ok);
+    }
+    sim.money = 1e9;
+    let before = sim.money;
+    assert!(tick_until(&mut sim, |s| !unit(s, id).ever_occupied));
+    assert_eq!(
+        before - sim.money,
+        240_000.0,
+        "the buy-back pays what it sold for"
+    );
+    assert_eq!(unit(&sim, id).rent, Some(200_000.0), "the High rung");
 }

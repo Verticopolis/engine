@@ -429,3 +429,79 @@ fn kind_facts_follow_the_engine_predicates() {
     assert_eq!(json_entry(&v, "shop")["commercial"], Value::Bool(true));
     assert_eq!(json_entry(&v, "clinic")["leaseAmenity"], Value::Bool(true));
 }
+
+/// The 1994 values the catalog publishes that the save format or the FAQ
+/// fixes: car capacities from the Windows Help file, the floor range and lot
+/// of the TDT floor map, tenant populations, the founding money, and the
+/// retail subtype lists in the save's ordinal order (`docs/tdt/`, sections
+/// 2, 4, 6 and 7). Moved here from the game's canon check.
+#[test]
+fn the_catalog_publishes_the_1994_values() {
+    let c = catalog(GameMode::Classic);
+    for (key, cap) in [
+        ("elevatorExpress", 42.0),
+        ("elevatorStandard", 21.0),
+        ("elevatorService", 17.0),
+    ] {
+        assert_eq!(entry(&c, key).car_capacity, Some(cap), "{key}");
+    }
+    assert_eq!(
+        (c.world.min_floor, c.world.max_floor, c.world.lot_width),
+        (-9, 100, 375)
+    );
+    for (key, people) in [
+        ("office", 6),
+        ("condo", 3),
+        ("shop", 20),
+        ("fastFood", 25),
+        ("restaurant", 35),
+    ] {
+        assert_eq!(entry(&c, key).population, people, "{key}");
+    }
+    assert_eq!(c.economy.starting_money, 2_000_000.0);
+    // The save writes a subtype as an ordinal byte, so the order is part of
+    // the format: a reordered list would rename every legacy save's rooms.
+    for (key, names) in [
+        (
+            "restaurant",
+            &[
+                "English Pub",
+                "French",
+                "Chinese",
+                "Sushi Bar",
+                "Steak House",
+            ][..],
+        ),
+        (
+            "fastFood",
+            &[
+                "Japanese Soba",
+                "Chinese Cafe",
+                "Hamburger Stand",
+                "Ice Cream",
+                "Coffee Shop",
+            ][..],
+        ),
+        (
+            "shop",
+            &[
+                "Men's Clothing",
+                "Pet Store",
+                "Flower Shop",
+                "Book Store",
+                "Drug Store",
+                "Boutique",
+                "Electronics",
+                "Bank",
+                "Hair Salon",
+                "Post Office",
+                "Sports Gear",
+            ][..],
+        ),
+    ] {
+        let e = entry(&c, key);
+        assert_eq!(e.subtypes.as_deref(), Some(names), "{key}");
+        // The venue card turns income into customers through this spend.
+        assert!(e.spend_per_customer.is_some_and(|s| s > 0.0), "{key}");
+    }
+}
