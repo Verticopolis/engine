@@ -1,7 +1,8 @@
 // Runs in a scratch project that installed the packed @verticopolis/engine
 // tarball and nothing else (scripts/package-consumer.sh), so it sees the
 // package the way a game that downloads it does.
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
@@ -42,4 +43,38 @@ for (const dir of ["web", "tooling/web"]) {
 const expected = JSON.parse(readFileSync(require.resolve("@verticopolis/engine/conformance/expected.json"), "utf8"));
 if (!expected.scenarios || Object.keys(expected.scenarios).length === 0) fail("conformance/expected.json has no scenarios");
 
+// The engine stands alone (engine#89): it names no components package in any
+// dependency list, and this project installed nothing else, so a layer module
+// that reached for one would fail to import below.
+const pkg = JSON.parse(readFileSync(require.resolve("@verticopolis/engine/package.json"), "utf8"));
+for (const list of ["dependencies", "peerDependencies", "optionalDependencies", "devDependencies"]) {
+  for (const name of Object.keys(pkg[list] ?? {})) if (name.startsWith("@verticopolis/components")) fail(`package.json lists ${name} in ${list}`);
+}
+// node/ and tooling/node/ are wasm-bindgen's CommonJS under an ESM package.
+const root = dirname(require.resolve("@verticopolis/engine/package.json"));
+for (const dir of ["node", "tooling/node"]) {
+  if (JSON.parse(readFileSync(join(root, dir, "package.json"), "utf8")).type !== "commonjs") fail(`${dir}/package.json does not mark it CommonJS`);
+}
+
+// The TypeScript layer: every compiled module imports by its subpath.
+let layer = 0;
+for (const dir of ["model", "catalog", "binding", "port", "host", "testing", "events"]) {
+  for (const file of readdirSync(join(root, dir)).filter((f) => f.endsWith(".js"))) {
+    await import(`@verticopolis/engine/${dir}/${file.slice(0, -3)}`);
+    layer++;
+  }
+}
+// The frame reader reads a real engine's frame with nothing but the engine.
+const { ViewReader } = await import("@verticopolis/engine/port/viewReader");
+const { FrameReader } = await import("@verticopolis/engine/port/frameReader");
+const port = tooling.Engine.newGame(1, "classic");
+const view = new ViewReader(port, () => 1);
+view.update();
+const frame = new FrameReader(port, view);
+if (frame.mode !== "classic" || typeof frame.clock.hour !== "number" || !(frame.tower.lobbyHeights() instanceof Float64Array)) fail("the frame reader does not read a fresh engine");
+// The test helpers find the fixtures the package carries.
+const { catalogFor } = await import("@verticopolis/engine/testing/catalogFixture");
+if (catalogFor("modern").mode !== "modern") fail("testing/catalogFixture does not read the shipped fixtures");
+
+console.log(`package consumer: ${layer} layer modules import, the frame reader reads an engine`);
 console.log(`package consumer: ${require("@verticopolis/engine/package.json").version} loads from Node, ESM, the browser builds and the tooling build`);

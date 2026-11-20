@@ -29,6 +29,15 @@ conformance suite's files. A game that imports neither bundles nothing from
 them. See
 [Test builds and the conformance suite](https://docs.verticopolis.com/javascript/#test-builds-and-the-conformance-suite).
 
+## The TypeScript layer
+
+The package also carries the TypeScript a frontend builds on, as ES modules
+with declarations, one subpath per module: `model/*`, `catalog/*`,
+`binding/*`, `port/*` (with `port/frameReader`, which reads a frame from the
+engine alone), `host/*`, `testing/*` (`mockPort(vi, answers)` and the catalog
+fixtures) and `events/*`. None of them imports anything but the engine. See
+[The TypeScript layer](https://docs.verticopolis.com/javascript/#the-typescript-layer).
+
 ## Documentation
 
 The full guide lives on the engine docs site,

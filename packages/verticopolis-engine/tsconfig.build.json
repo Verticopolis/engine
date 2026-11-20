@@ -1,0 +1,16 @@
+{
+  // Compiles the layer into the package (scripts/layer-build.ts passes
+  // --outDir): ESM JavaScript beside .d.ts files, with each relative `.ts`
+  // import rewritten to `.js`. Tests and their fixtures stay out.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": true,
+    "declaration": true,
+    "rootDir": "src",
+    "sourceMap": false
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.fixture.ts"]
+}

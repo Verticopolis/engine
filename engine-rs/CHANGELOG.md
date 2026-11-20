@@ -20,6 +20,20 @@ existed as a step inside a stacked branch.
 
 ## Unreleased
 
+- **minor**: the npm package carries the engine's TypeScript layer, moved
+  here with its history from the game and the components (engine#89):
+  `model/*`, `catalog/*`, `binding/*`, `port/*`, `host/*` and `testing/*`
+  as compiled ES modules with declarations, the JSON fixtures under
+  `fixtures/`, and `events/gameplayCatalog` and `events/gameplayEventRules`
+  compiled beside the generated `.ts`. The package is now `"type": "module"`
+  with an exports map (the `node/` and `tooling/node/` builds stay CommonJS,
+  and every path a game loaded before still resolves). `port/frameReader`
+  (`FrameReader`) reads a frame from the port with nothing but the engine;
+  `testing/mockPort` takes the test runner's spy factory
+  (`mockPort(vi, answers)`); `host/loadEngineModule` always checks the
+  expected package identity, and `loadEngineUnchecked` is the explicit
+  development path. No rule, save, layout or catalog changes.
+
 - **patch**: the npm package's `events/gameplayEventRules.ts` declares its
   own `GameplayEventRules` type and exports it. It imported that type from
   `./gameplayCatalog`, a file the package never carried, so TypeScript

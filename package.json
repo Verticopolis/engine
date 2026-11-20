@@ -2,6 +2,7 @@
   "name": "@verticopolis/engine",
   "version": "0.0.0",
   "description": "The Verticopolis simulation engine as WebAssembly: node/ for Node, web/ for the browser.",
+  "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -22,12 +23,82 @@
   ],
   "main": "node/verticopolis_engine.js",
   "types": "node/verticopolis_engine.d.ts",
+  "exports": {
+    ".": {
+      "types": "./node/verticopolis_engine.d.ts",
+      "default": "./node/verticopolis_engine.js"
+    },
+    "./package.json": "./package.json",
+    "./node": {
+      "types": "./node/verticopolis_engine.d.ts",
+      "default": "./node/verticopolis_engine.js"
+    },
+    "./tooling": {
+      "types": "./tooling/node/verticopolis_engine.d.ts",
+      "default": "./tooling/node/verticopolis_engine.js"
+    },
+    "./tooling/node/verticopolis_engine": {
+      "types": "./tooling/node/verticopolis_engine.d.ts",
+      "default": "./tooling/node/verticopolis_engine.js"
+    },
+    "./tooling/node/verticopolis_engine.js": {
+      "types": "./tooling/node/verticopolis_engine.d.ts",
+      "default": "./tooling/node/verticopolis_engine.js"
+    },
+    "./tooling/node/*": "./tooling/node/*",
+    "./tooling/web/*": "./tooling/web/*",
+    "./web/verticopolis_engine.js": {
+      "types": "./web/verticopolis_engine.d.ts",
+      "default": "./web/verticopolis_engine.js"
+    },
+    "./web/*": "./web/*",
+    "./events/gameplayEvents": {
+      "types": "./events/gameplayEvents.d.ts"
+    },
+    "./events/*": {
+      "types": "./events/*.d.ts",
+      "default": "./events/*.js"
+    },
+    "./conformance/*": "./conformance/*",
+    "./model/*": {
+      "types": "./model/*.d.ts",
+      "default": "./model/*.js"
+    },
+    "./catalog/*": {
+      "types": "./catalog/*.d.ts",
+      "default": "./catalog/*.js"
+    },
+    "./binding/*": {
+      "types": "./binding/*.d.ts",
+      "default": "./binding/*.js"
+    },
+    "./port/*": {
+      "types": "./port/*.d.ts",
+      "default": "./port/*.js"
+    },
+    "./host/*": {
+      "types": "./host/*.d.ts",
+      "default": "./host/*.js"
+    },
+    "./testing/*": {
+      "types": "./testing/*.d.ts",
+      "default": "./testing/*.js"
+    },
+    "./fixtures/*": "./fixtures/*"
+  },
   "files": [
     "node",
     "web",
     "events",
     "tooling",
     "conformance",
+    "model",
+    "catalog",
+    "binding",
+    "port",
+    "host",
+    "testing",
+    "fixtures",
     "CHANGELOG.md"
   ],
   "publishConfig": {
@@ -41,8 +112,12 @@
   "scripts": {
     "wasm:build": "node scripts/wasm-build.ts",
     "pack": "sh scripts/pack-engine.sh",
-    "test": "vitest run src",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "test": "vitest run --dir src",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "layer:typecheck": "tsc -p packages/verticopolis-engine/tsconfig.json",
+    "layer:test": "vitest run --dir packages/verticopolis-engine/src",
+    "layer:fixtures": "node scripts/layer-fixtures.ts",
+    "layer:build": "node scripts/layer-build.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
