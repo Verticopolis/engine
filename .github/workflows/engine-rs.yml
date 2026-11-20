@@ -310,9 +310,9 @@ jobs:
         with:
           node-version-file: ".nvmrc"
 
-      - name: Lint the referee for wasm32-wasip1
+      - name: Lint the referee and the fuzzer for wasm32-wasip1
         working-directory: engine-rs
-        run: cargo clippy --locked --features conformance --bin conformance --target wasm32-wasip1 -- -D warnings
+        run: cargo clippy --locked --features conformance --bin conformance --bin fuzz --target wasm32-wasip1 -- -D warnings
 
       - name: Build the referee for wasm32-wasip1
         working-directory: engine-rs
