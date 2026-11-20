@@ -1,29 +1,30 @@
 name: CodeQL
 
 # Code scanning, moved from GitHub's default setup to this file so a pull
-# request that changes only prose skips it. The languages, the default query
-# suite, the build mode and the weekly schedule match what the default setup
-# ran, and every analysis keeps its category (/language:<name>), so existing
-# alerts carry over.
+# request that changes only prose skips the analysis. The languages, the
+# default query suite, the build mode, dependency caching and the weekly
+# schedule match what the default setup ran, and every analysis keeps its
+# category (/language:<name>), so existing alerts carry over.
 #
-# - A push to main always runs, so main has an analysis for every commit and
-#   a pull request is compared against it.
-# - A pull request runs unless every file it changes matches paths-ignore
-#   below. CodeQL is not a required check, so a skipped run blocks nothing.
+# - A push to main always analyzes, so main has an analysis for every commit
+#   and a pull request is compared against it.
+# - Every pull request runs each Analyze job, so the checks always report and
+#   can be required. When every changed file is prose
+#   (.github/actions/docs-only lists it), the steps after Scope skip and the
+#   job finishes green without an analysis. A new step here needs the same
+#   `if`.
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-    paths-ignore:
-      - "**/*.md"
-      - LICENSE
   schedule:
     - cron: "17 6 * * 1"
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # The event keeps a scheduled run from superseding a pending push to main.
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
@@ -47,10 +48,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+          # The scope check diffs the merge commit against its base parent.
+          fetch-depth: 2
+      - name: Scope
+        id: scope
+        uses: ./.github/actions/docs-only
+      - if: steps.scope.outputs.run == 'true'
+        uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           languages: ${{ matrix.language }}
           build-mode: none
-      - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+          dependency-caching: true
+      - if: steps.scope.outputs.run == 'true'
+        uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           category: /language:${{ matrix.language }}
