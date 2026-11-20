@@ -101,7 +101,7 @@ function main(): number {
       if (rust.code === 1) return { kind: "refused", message: `the native build refuses it: ${rustMessage(rust.stderr)}` };
       if (rust.code !== 0) return { kind: "harness", message: `the native replay failed (${rust.code}): ${rustMessage(rust.stderr)}` };
       const wasm = wasmReplay(path, wasmDir);
-      if (wasm.code === 1) return { kind: "diverged", signature: "refused" };
+      if (wasm.code === 6) return { kind: "diverged", signature: "refused" };
       if (wasm.code === 4) return { kind: "diverged", signature: "trap" };
       if (wasm.code !== 0) return { kind: "harness", message: `the WebAssembly replay failed (${wasm.code}): ${rustMessage(wasm.stderr)}` };
       const a = readRecord(nativeDir, id);

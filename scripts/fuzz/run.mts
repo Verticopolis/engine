@@ -18,8 +18,10 @@ export const FUZZ_BIN = process.env.VC_FUZZ_BIN ?? resolve(REPO_ROOT, "engine-rs
 export const FUZZ_WASM = process.env.VC_FUZZ_WASM ?? resolve(REPO_ROOT, "engine-rs/target/wasm32-wasip1/release/fuzz.wasm");
 
 export interface Replay {
-  /** 0 ran; 1 the engine refused the scenario; 2 bad input; 3 timed out;
-   *  4 the WebAssembly build trapped; 101 a native Rust panic. */
+  /** The native fuzzer: 0 ran, 1 the engine refused the scenario, 2 bad
+   *  input, 101 a Rust panic. The WebAssembly runner (`fuzz-wasi.mts`): 0 ran,
+   *  6 the engine refused it, 4 a trap, 5 (or any other code, such as Node's
+   *  1 for a crash) the harness. Either: 3 timed out. */
   code: number;
   stderr: string;
 }

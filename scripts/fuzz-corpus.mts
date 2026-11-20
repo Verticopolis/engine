@@ -112,9 +112,9 @@ try {
     }
     const wasm = wasmReplay(file, wasmDir, Math.min(120_000, Math.max(1, remaining())));
     if (wasm.code !== 0) {
-      const what = wasm.code === 1 ? "refused what the native build ran" : wasm.code === 4 ? "trapped" : wasm.code === 3 ? "timed out" : `failed (${wasm.code})`;
-      console.log(`${name}: the WebAssembly build ${what}: ${rustMessage(wasm.stderr)}`);
-      if ([1, 3, 4].includes(wasm.code)) failed.push(name);
+      const what = wasm.code === 6 ? "refused what the native build ran" : wasm.code === 4 ? "trapped" : wasm.code === 3 ? "timed out" : `run failed (${wasm.code})`;
+      console.log(`${name}: the WebAssembly ${what}: ${rustMessage(wasm.stderr)}`);
+      if ([3, 4, 6].includes(wasm.code)) failed.push(name);
       else harness = true;
       continue;
     }
