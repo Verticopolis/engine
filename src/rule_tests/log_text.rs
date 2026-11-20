@@ -12,6 +12,9 @@ use crate::vctower_import::import_vctower;
 const DAY: f64 = 1440.0;
 const HOUR: f64 = 60.0;
 
+/// Every `.vctower` at the top of `conformance/fixtures/`. Keep the list in
+/// step with that folder: a fixture left off it is not checked here, in
+/// `telemetry_rings` or in the save reopen check.
 pub(super) const FIXTURES: [(&str, &str); 9] = [
     (
         "late-game-classic",

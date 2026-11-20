@@ -110,10 +110,11 @@ fn only_a_founders_tower_writes_the_mark_and_a_load_alone_never_grants_it() {
 /// opened in a new engine saves the same save again.
 #[test]
 fn a_fixture_played_a_day_reopens_unchanged() {
-    for (name, text) in super::log_text::FIXTURES
-        .iter()
-        .filter(|(name, _)| ["towerone_6", "split-tower"].contains(name))
-    {
+    for name in ["towerone_6", "split-tower"] {
+        let (_, text) = super::log_text::FIXTURES
+            .iter()
+            .find(|(n, _)| *n == name)
+            .unwrap_or_else(|| panic!("{name} is a conformance fixture"));
         let mut sim = crate::vctower_import::import_vctower(text).unwrap();
         for _ in 0..24 * 60 {
             sim.tick(1.0);
