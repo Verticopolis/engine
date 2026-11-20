@@ -5,7 +5,8 @@
 //! cosmetic and survives a save while a forged or missing one loads as
 //! none, the founding seed outlives the live stream, and a venue's
 //! patronage and profit build through the day, roll over at midnight, stay
-//! unset on an idle venue and on every other kind, and load hardened.
+//! unset on an idle venue and on every other kind, load hardened, and move
+//! no money: a week with every tally cleared each hour earns the same.
 use serde_json::{json, Value};
 
 use crate::clock::GameMode;
@@ -271,4 +272,49 @@ fn tallies_survive_a_save_and_load_hardened() {
     let id = forged.tower.unit_at(2, X0).unwrap().id;
     let [today, _, _, profit] = tallies(&forged, id);
     assert_eq!((today, profit), (Some(0.0), Some(0.0)));
+}
+
+/// Unsets every unit's four retail tallies, the way the binding's tooling
+/// `clearRetailTallies` does.
+fn clear_tallies(sim: &mut Simulation) {
+    for u in sim.tower.units.iter_mut() {
+        let e = u.extras();
+        if e.patronage_today.is_some()
+            || e.patronage_yest.is_some()
+            || e.profit_today.is_some()
+            || e.profit_yest.is_some()
+        {
+            let mut tally = u.extras_mut();
+            tally.patronage_today = None;
+            tally.patronage_yest = None;
+            tally.profit_today = None;
+            tally.profit_yest = None;
+        }
+    }
+}
+
+#[test]
+fn the_tallies_are_read_by_nothing_that_moves_money() {
+    // Two seed-identical weeks, one with every tally cleared each hour. If any
+    // economy path read a tally, the money or a pending income would drift.
+    let week = |clear: bool| {
+        let (mut sim, shop) = venue(Kind::Shop, true);
+        let start = sim.money;
+        for _ in 0..24 * 7 {
+            hours(&mut sim, 1);
+            if clear {
+                clear_tallies(&mut sim);
+                assert_eq!(tallies(&sim, shop), [None; 4], "a clear leaves none");
+            }
+        }
+        let yest = tallies(&sim, shop)[1];
+        let pending: Vec<f64> = sim.tower.units.iter().map(|u| u.pending_income).collect();
+        (sim.money, sim.money - start, yest, pending)
+    };
+    let (money, earned, yest, pending) = week(false);
+    assert!(earned > 0.0, "the tower earned over the week");
+    assert!(yest.unwrap_or(0.0) > 0.0, "the shop tallied a day");
+    let (cleared_money, _, _, cleared_pending) = week(true);
+    assert_eq!(cleared_money, money);
+    assert_eq!(cleared_pending, pending);
 }
