@@ -5,8 +5,9 @@ use crate::services::GARBAGE_COLLECT_HOUR;
 use crate::sim::Simulation;
 use serde_json::Value;
 
-/// `conformance/catalog-digests.json`, which the WASM suite writes from this
-/// catalog (`conformanceWasm.integration.test.ts`).
+/// `conformance/catalog-digests.json`, the lock this catalog is held to
+/// here, by the native referee and through the binding
+/// (`packages/verticopolis-engine/glue/conformanceWasm.test.ts`).
 const LOCK: &str = include_str!("../../conformance/catalog-digests.json");
 
 const MODES: [GameMode; 2] = [GameMode::Classic, GameMode::Modern];

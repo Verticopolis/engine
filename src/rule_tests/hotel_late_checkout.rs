@@ -5,9 +5,8 @@
 //! checkout (so a held room destroyed before 14:00 still paid), dirties the held rooms in a 14:00 to 17:00 window without
 //! re-running the morning's housekeeping latch, sends their guests to lunch,
 //! lifts the midday census by exactly those rooms without moving the star,
-//! and a maid turns the late rooms over like any others. The no-maid half
-//! stays in `hotelLateCheckoutEngine.integration.test.ts` on the Rust engine,
-//! and the nightly price is
+//! and a maid turns the late rooms over like any others, while without one
+//! they stay dirty and unlet. The nightly price is
 //! `catalog::charge_tests::each_rent_cadence_collects_the_quoted_price`.
 use std::collections::HashSet;
 

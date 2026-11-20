@@ -1,7 +1,8 @@
 //! Native tests for the panel getters on scripted towers: each getter's
-//! refusals and edge cases. The differential test against the TypeScript
-//! functions (`src/tests/integration/panelGettersWasm.integration.test.ts`)
-//! covers the conformance corpus. The overlay, household and read-only tests
+//! refusals and edge cases. The glue lane's
+//! `packages/verticopolis-engine/glue/panelGettersWasm.test.ts` reads every
+//! getter through the binding on the conformance corpus, and the bench
+//! (`engine-bench/`) times each one. The overlay, household and read-only tests
 //! are in `tests_overlays.rs`.
 
 use serde_json::{json, Value};
