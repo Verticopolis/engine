@@ -7,48 +7,10 @@ mod tdt_kit;
 
 use serde_json::Value;
 use tdt_kit::builder::{build, floor, sample, tenant, Floor, Spec, Tenant};
+use tdt_kit::reading::{i, notes, of_kind, parse, refusal, rooms, with_floors};
 use tdt_kit::{case_bytes, units};
 use verticopolis_engine::tdt::format::{parse_tdt_binary, TDT_HEADER_SIZE, TDT_MAX_FILE_BYTES};
-use verticopolis_engine::tdt::parse::{parse_tdt, ParsedLegacyTower};
-
-fn parse(spec: &Spec) -> ParsedLegacyTower {
-    parse_tdt(&build(spec), "TOWER.TDT").unwrap_or_else(|e| panic!("refused: {}", e.0))
-}
-
-fn refusal(spec: &Spec) -> String {
-    match parse_tdt(&build(spec), "TOWER.TDT") {
-        Ok(_) => panic!("the file was read"),
-        Err(e) => e.0,
-    }
-}
-
-fn with_floors(floors: Vec<Floor>) -> Spec {
-    Spec {
-        floors,
-        ..Spec::default()
-    }
-}
-
-fn of_kind<'a>(save: &'a Value, kind: &str) -> Vec<&'a Value> {
-    units(save).iter().filter(|u| u["kind"] == kind).collect()
-}
-
-fn rooms(save: &Value) -> Vec<&Value> {
-    units(save)
-        .iter()
-        .filter(|u| u["kind"] != "floor" && u["kind"] != "lobby")
-        .collect()
-}
-
-fn notes(parsed: &ParsedLegacyTower) -> String {
-    [&parsed.header_notes[..], &parsed.warnings[..]]
-        .concat()
-        .join(" ")
-}
-
-fn i(v: &Value) -> i64 {
-    v.as_i64().unwrap_or_else(|| panic!("not an integer: {v}"))
-}
+use verticopolis_engine::tdt::parse::parse_tdt;
 
 /// Floors of a tenant's type on one row, `.TDT` index `index`.
 fn one(index: i64, left: i64, right: i64, type_id: i64) -> Spec {

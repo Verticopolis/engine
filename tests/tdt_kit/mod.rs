@@ -5,6 +5,7 @@
 #![allow(dead_code)]
 
 pub mod builder;
+pub mod reading;
 
 use std::io::Read;
 use std::path::PathBuf;
