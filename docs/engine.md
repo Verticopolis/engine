@@ -1,5 +1,9 @@
 # Verticopolis engine in Rust
 
+[ARCHITECTURE.md](../ARCHITECTURE.md) has the diagrams: the boundary, the
+subsystems, a step of time, undo, saves and the conformance lock. This page
+is the module map and the reference for the tools.
+
 The crate at the repository root (`Cargo.toml`, `src/`, `tests/`) is the
 game's simulation, written in Rust and compiled to
 WebAssembly for the web game, where it is the only engine that runs. It began
@@ -320,45 +324,19 @@ charge the same constants the catalog quotes: the
 transport per-floor cost, and the lobby and floor tile prices from the
 facility table.
 
-## The web host
+## Hosts
 
-Every build of the web game runs this engine, and only this engine. The game
-holds the WASM `Engine` as its `EnginePort` and calls it directly; there is no
-TypeScript read model or fallback. The browser package is served from
-`src/public/engine/` with a `BUILD.json` naming the Rust sources' hash. It is
-build output and is not checked in: the Vercel build
-(`scripts/vercel-build.sh`) builds it on every deploy, and CI restores it from
-the Actions cache keyed on that hash, building it only when the engine changed
-(`.github/actions/engine-wasm`; jobs in the Playwright container download it as
-a run artifact). Every build, on Vercel or on a CI cache miss, installs the
-pinned toolchain through `scripts/build-engine-wasm.sh`. A unit test fails when
-a local package is stale.
+How a frontend loads the package, steps it each frame and checks it is
+that frontend's own documentation. The web game's is
+[`docs/architecture/engine-host.md`](https://github.com/Verticopolis/web/blob/main/docs/architecture/engine-host.md)
+in Verticopolis/web, which also covers the frame-day and port-edit goldens
+its tests pin the engine with. Gameplay events (`src/gameplay/catalog.json`,
+`src/gameplay.rs`) come from the engine: `Engine.drainGameplayEvents()`
+returns and clears the batch as JSON, and `Engine.gameplayEventsPending()`
+says how many it holds. The TypeScript layer's typed drain is
+`port/portEvents.ts` in `packages/verticopolis-engine/src/`.
 
-Gameplay events (`src/gameplay/catalog.json`, `src/gameplay.rs`) come
-from the engine: `Engine.drainGameplayEvents()` returns and clears the batch as
-JSON, and `Engine.gameplayEventsPending()` says how many it holds. The
-host's typed drain is `src/simport/portEvents.ts`.
-
-## The goldens
-
-Two goldens pin what the engine does when the web game drives it, and
-`npm run test:wasm` checks both:
-
-- **The frame-day golden** (`src/tests/goldens/frame-days.json`): the engine
-  plays each case through its own `advance`, as the game's frame loop calls it,
-  and must reproduce every checkpoint (the start, the first frame, each hour
-  and the end of the day). `VC_FRAME_DAYS_UPDATE=1` rewrites it from this
-  engine. To find the field behind a moved hash,
-  `VC_FRAME_DAYS_DUMP=<dir> VC_FRAME_DAYS_CASE=<case id>` writes the case's
-  canonical views at each checkpoint under `<dir>/rust/`, to diff against a run
-  of the build before the change.
-- **The port-edit golden** (`src/tests/goldens/port-edits.json`): each case
-  sends the player's edits as the game's port commands and pins every answer,
-  with the view hashes and events after each step and at every hour of play
-  between them (`conformanceWasmPortEdits`). It also steps the undo trail and
-  restores an earlier save. `VC_PORT_EDITS_UPDATE=1` rewrites it, and
-  `VC_PORT_EDITS_DUMP=<dir> VC_PORT_EDITS_CASE=<case id>` dumps a case's views
-  at each line the same way.
+## The referee's output
 
 The referee prints one line per scenario: `ok`, the first divergent
 checkpoint with both hashes, or the first command the port cannot run. It
