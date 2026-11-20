@@ -274,10 +274,19 @@ jobs:
   # way a browser runs it. Scenarios replay one after another there (no
   # threads). The flag works around a Node crash in WASI's fast write path
   # (scripts/conformance-wasi.mts).
+  #
+  # The same job holds the seeded differential's corpus
+  # (conformance/fuzz-corpus/): scenarios the nightly fuzz once diverged on,
+  # shrunk by scripts/fuzz-shrink.mts, plus smoke entries so it never runs on
+  # nothing. Each is replayed by the fuzzer built natively, which must
+  # reproduce the entry's pinned golden (conformance/fuzz-corpus/goldens/), and
+  # by the fuzzer built for wasm32-wasip1 under Node's WASI, which must agree
+  # with the native run at every checkpoint (scripts/fuzz-corpus.mts, with a
+  # 240 s budget of its own).
   wasm-referee:
 
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -311,6 +320,15 @@ jobs:
 
       - name: Conformance under WASI
         run: node --no-turbo-fast-api-calls scripts/conformance-wasi.mts engine-rs/target/wasm32-wasip1/release/conformance.wasm conformance
+
+      - name: Build the fuzzer natively and for wasm32-wasip1
+        working-directory: engine-rs
+        run: |
+          cargo build --locked --release --features conformance --bin fuzz
+          cargo build --locked --release --features conformance --bin fuzz --target wasm32-wasip1
+
+      - name: Replay the fuzz corpus on both builds
+        run: node scripts/fuzz-corpus.mts --budget 240
 
       - name: Fail a cancelled run
         if: ${{ cancelled() }}

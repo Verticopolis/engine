@@ -48,8 +48,8 @@ game's undo and redo, with every answer and the same hashes after each step
 #1875 the TypeScript reference engine was held to the lock and the goldens too.
 
 The fuzz corpus's goldens move the same way: when a change moves an entry on
-purpose, pin the new records with `npx tsx scripts/fuzz-corpus.ts --update`
-(the fuzzer and the WASM package built) and commit them with the change. They
+purpose, pin the new records with `node scripts/fuzz-corpus.mts --update`
+(the fuzzer built natively and for wasm32-wasip1) and commit them with the change. They
 are not lock files and do not move the crate version.
 
 ## When a hash moves
@@ -308,43 +308,47 @@ the scenario format above, but they are not part of the lock: each entry's
 golden pins the native Rust run's own records, refreshed on purpose without a
 crate version move. The file name is the scenario
 `id`. Three entries (`fx-thief-uncaught`, `fx-thief-caught`, `fx-treasure-cap`)
-reach cosmetic fx sites the locked scenarios do not; `fxSequences.integration.test.ts`
-pins their end values. `pool-caps-tall` is the generator's burst for a tall seed with its two
+reach cosmetic fx sites the locked scenarios do not; the game's
+`fxSequences.integration.test.ts` (Verticopolis/web) pins their end values.
+`pool-caps-tall` is the generator's burst for a tall seed with its two
 cap refusals pinned by reason, so a change that stops either pool from filling fails the
-guard in `fuzzCorpusEntries.test.ts`.
+game's `fuzzCorpusEntries.test.ts`.
 
-A pull request that touches the engine replays every entry natively and
-through the shipped WASM build, and fails if the native run leaves the
-entry's golden (`goldens/<id>.rs.json` and `goldens/<id>.rs.detail.json`) or
-the WASM run leaves the native one at any checkpoint (`scripts/fuzz-corpus.ts`,
-the `fuzz-corpus` job of `engine-rs.yml`, with a 240 s budget of its own):
+Every pull request replays every entry on the fuzzer built natively and on
+the same fuzzer built for wasm32-wasip1 under Node's WASI
+(`scripts/fuzz-wasi.mts`), and fails if the native run leaves the entry's
+golden (`goldens/<id>.rs.json` and `goldens/<id>.rs.detail.json`) or the
+WebAssembly run leaves the native one at any checkpoint
+(`scripts/fuzz-corpus.mts`, in the `wasm-referee` job of `engine-rs.yml`,
+with a 240 s budget of its own):
 
 ```sh
-(cd engine-rs && cargo build --release --features conformance --bin fuzz)
-npm run wasm:build
-npx tsx scripts/fuzz-corpus.ts            # check
-npx tsx scripts/fuzz-corpus.ts --update   # pin the goldens on purpose
+(cd engine-rs && cargo build --release --features conformance --bin fuzz \
+  && cargo build --release --features conformance --bin fuzz --target wasm32-wasip1)
+node scripts/fuzz-corpus.mts            # check
+node scripts/fuzz-corpus.mts --update   # pin the goldens on purpose
 ```
 
-`npm run test:wasm` holds the WASM run to the same goldens without the fuzzer
-binary (`fuzzWasmLeg.integration.test.ts`).
+The game's `npm run test:wasm` holds its wasm-bindgen build, through its
+binding, to the same goldens (`fuzzWasmLeg.integration.test.ts` in
+Verticopolis/web).
 
 When a night diverges, shrink its scenario and add the result in the fix pull
 request:
 
 ```sh
-npx tsx scripts/fuzz-shrink.ts fuzz-out/fuzz-<seed>.json <entry-name> [--max-tests 4000]
+node scripts/fuzz-shrink.mts fuzz-out/fuzz-<seed>.json <entry-name> [--max-tests 4000]
 ```
 
 The shrinker drops commands until none can go, keeping a candidate only when
-the native Rust engine runs it cleanly and the shipped WASM build in Node
-shows the same kind of divergence (a trap included), then writes
+the native build runs it cleanly and the WebAssembly build shows the same
+kind of divergence (a refusal or a trap included), then writes
 `fuzz-corpus/<entry-name>.json`. Before the fix the entry fails the corpus
 job; after it, pin its golden with `fuzz-corpus --update`, and the entry
 passes and stays as a regression. A tall night needs about 1300 tests, so the default limit is 4000;
 a run that reaches `--max-tests` says so, and its list may not be minimal.
-`fuzz --replay <scenario.json> <out-dir>` is the Rust half: it runs any
-scenario and writes the records `scripts/fuzz-compare.ts` reads
+`fuzz --replay <scenario.json> <out-dir> [conformance-dir]` runs any
+scenario on either build and writes the records `scripts/fuzz-compare.mts` reads
 (`<id>.rs.json` and `<id>.rs.detail.json`). Write them somewhere other than
 `fuzz-corpus/`; git ignores them there and the corpus job does not read them as
 entries, but a stray copy is still clutter.
