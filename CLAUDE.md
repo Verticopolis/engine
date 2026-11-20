@@ -27,21 +27,28 @@ session, and run its review skill on every non-trivial change here:
 - **Change notes, never a version edit.** A PR that changes what the crate
   or the npm package ships adds `.changes/<branch-slug>.md` with its `crate:`
   tier (major, minor, patch or none). Any change to Rust code under
-  `engine-rs/src/` takes patch or higher. Only the release PR raises the
+  `engine-rs/src/` other than its test files takes patch or higher; a
+  test-only change may use `crate: none`. Only the release PR raises the
   version and writes `engine-rs/CHANGELOG.md`.
 - **Quality gates before pushing:** `cargo fmt --all -- --check`,
   `cargo clippy --locked --all-targets -- -D warnings`, `cargo test --locked`,
   the conformance referee, and for the TypeScript `npm run typecheck`,
   `npm run lint`, `npm run format:check` and `npm test`. Prettier owns the
   TypeScript layout; run `npm run format` before committing.
-- **No guard tests.** Never add a test that reads source, workflow or
-  configuration files. Check workflows with actionlint and real CI runs.
-- **No host access in the simulation** (`engine-rs/tests/independence.rs`),
-  and a 500-line ceiling per source file.
+- **No guard tests.** Never add a test that reads source, CSS, workflow
+  or configuration files. Check workflows with actionlint and real CI runs.
+- **No host access in the simulation** (`engine-rs/tests/independence.rs`).
+- **A 500-line ceiling per source file.** Test files and generated files
+  are exempt. Nothing checks it yet, and some files are already over: don't
+  make one longer, and split it when you change it.
 - **American English everywhere. No em-dashes in prose** (docs, comments,
   commit and PR text); use commas, colons, parentheses or separate
   sentences. Skip the "X, not Y" emphatic pattern and marketing vocabulary.
-- **Merge commits only** to `main`, never a squash. Keep a branch's own
+- **An independent GO before every merge.** The review comes from a
+  separate thread or person, never the PR's author, on the PR's head
+  commit, with every review thread resolved.
+- **Merge commits only** to `main`, never a squash, and never force-push
+  `main`. Force-pushing your own PR branch is fine. Keep a branch's own
   history readable before it merges.
 - **PR descriptions follow `.github/PULL_REQUEST_TEMPLATE.md`:** keep every
   `## ` heading and fill each one.
