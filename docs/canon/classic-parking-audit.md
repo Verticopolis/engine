@@ -1,6 +1,6 @@
 # Classic parking and hotel suite audit (Rust engine)
 
-Snapshot of 2026-10-30, revised the same day after the owner's review. This is a dated research record, not live status. The live record is the engine (`engine-rs/src/services.rs`, `engine-rs/src/tower_query.rs`, `engine-rs/src/tower.rs`) and issue #1524. Nothing here changes a rule, and no gameplay change is authorized. The goal is exact Classic fidelity that keeps existing saves working, so every claim below is graded and every proposal waits for an experiment on the original.
+Snapshot of 2026-10-30, revised the same day after the owner's review. This is a dated research record, not live status. The live record is the engine (`src/services.rs`, `src/tower_query.rs`, `src/tower.rs`) and issue #1524. Nothing here changes a rule, and no gameplay change is authorized. The goal is exact Classic fidelity that keeps existing saves working, so every claim below is graded and every proposal waits for an experiment on the original.
 
 Windows SimTower 1.1B is the canonical game. Macintosh claims are labeled and kept apart. Sources are named, not copied: the Windows Help file (HELP), the Maxis manual (MAN), the GameFAQs guides by kiwizoid (KZ) and MentalMan (MM), the SimTower wiki (WIKI), the Relentless Optimizer reference (RO) and the Macintosh FAQ by BStuart (BS, Mac). The project files hold the working copies under `release-3.0/simtower-final-reference-2026-10-30/`. The measurements on real saves use the nine fixtures in `conformance/fixtures/tdt-reddit/`.
 
@@ -89,7 +89,7 @@ Guide-reported: KZ's three-star walkthrough says suites take parking spaces, so 
 
 Probe, Rust engine, Classic, 3 stars, seed 7 (scratch test, not committed): lobby on floor 1, three suites on floor 3, a standard elevator on floors 1 to 4, one ramp on B2 with six stalls. Floor reachability of B2 is false, working stalls 6, no shortage, suites check in on day 0 and the VIP is favorable that evening. The same layout with the elevator on B2 to 4 gives the identical result. Connectivity of the stall floors is invisible to the suite, the VIP and the star gate.
 
-**The unserved parking floors in real saves are a loader artifact.** An earlier version of this audit read TOWER7 (five of nine parking floors without a route), MYTOWER (one) and TOWER1 (eight) as a sign the original might not need service on every parking floor. That reading was wrong. The cause is `Tower::coerce_express_stops` (`engine-rs/src/tower.rs`), which on every load re-skips each non-lobby floor strictly inside an express shaft's span, basements included. The imported JSON still carries the file's own stops. After load, TOWER7's two express shafts stop on no basement floor except their bottom. MAN says an express stops on every floor that can hold a lobby and on all underground floors, and the file agrees: its express floor entries cover every basement floor.
+**The unserved parking floors in real saves are a loader artifact.** An earlier version of this audit read TOWER7 (five of nine parking floors without a route), MYTOWER (one) and TOWER1 (eight) as a sign the original might not need service on every parking floor. That reading was wrong. The cause is `Tower::coerce_express_stops` (`src/tower.rs`), which on every load re-skips each non-lobby floor strictly inside an express shaft's span, basements included. The imported JSON still carries the file's own stops. After load, TOWER7's two express shafts stop on no basement floor except their bottom. MAN says an express stops on every floor that can hold a lobby and on all underground floors, and the file agrees: its express floor entries cover every basement floor.
 
 Counterfactual, same scratch test with the file's own express stops restored after load:
 
@@ -112,7 +112,7 @@ TOWER6 is a 5-star save with 115 suites, 81 stalls and only 27 suites asleep at 
 
 WIKI and KZ both tie office parking to evaluation, and the wiki lists hotels and offices as wanting parking nearby. Ours reduces new move-ins only.
 
-The 24-workers-per-space figure (`PARKING_WORKERS_PER_SPACE`, `engine-rs/src/services.rs`, first written in the retired TypeScript engine) was set on 2026-07-06 by the internal parity design note (`gdd-simtower-parity-2026-07-06.md`, section 6.1), which says the original asks for one space per four offices and an office holds 6 workers. The note cites no source, and the final reference set has no row that says "one space per four offices". Treat the constant as unconfirmed until experiment E6 finds the threshold in the original.
+The 24-workers-per-space figure (`PARKING_WORKERS_PER_SPACE`, `src/services.rs`, first written in the retired TypeScript engine) was set on 2026-07-06 by the internal parity design note (`gdd-simtower-parity-2026-07-06.md`, section 6.1), which says the original asks for one space per four offices and an office holds 6 workers. The note cites no source, and the final reference set has no row that says "one space per four offices". Treat the constant as unconfirmed until experiment E6 finds the threshold in the original.
 
 ### P6: the per-stall data
 

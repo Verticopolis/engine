@@ -6,7 +6,7 @@
 > line of the build log); the commands under [Reproduce](#reproduce) redo this
 > measurement. These are **sizes and a desktop compile time, not load time on
 > the reference device**: that run needs the owner's PC under the benchmark
-> protocol (`benchmark-protocol.md`) and is still open.
+> protocol ([`benchmark-protocol.md`](https://github.com/Verticopolis/web/blob/main/docs/performance/benchmark-protocol.md) in Verticopolis/web) and is still open.
 
 ## Result
 

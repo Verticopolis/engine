@@ -19,7 +19,7 @@ Evidence means a kept screenshot or saved `.TDT` from the original game. Updated
 
 ## What the harness can and cannot do (learned 2026-10-29)
 
-Works: load a `.TDT` headlessly under Wine in Docker, screenshot it, run it for a while, File > Save from a script (the Windows output path needs a backslash variable, see `tools/simtower/README.md`), read the saved bytes, and drive a live container with `docker exec` and `xdotool`.
+Works: load a `.TDT` headlessly under Wine in Docker, screenshot it, run it for a while, File > Save from a script (the Windows output path needs a backslash variable, see [`tools/simtower/README.md`](https://github.com/Verticopolis/web/blob/main/tools/simtower/README.md) in Verticopolis/web), read the saved bytes, and drive a live container with `docker exec` and `xdotool`.
 
 Does not work reliably: placing buildings by scripted clicks (the toolbar and map windows change focus), and starting a new game without a save (the title screen stays up). So a run that needs a tower with a given layout must either build that tower in code and export it, or have a person place it with `./run.sh`.
 

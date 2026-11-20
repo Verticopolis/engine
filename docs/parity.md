@@ -3,15 +3,20 @@
 The developer's checklist of how a **Classic** tower matches the 1994 game,
 one line per mechanic. Players read the same story in the manual:
 **[Differences from the 1994 game](https://help.verticopolis.com/differences/)**.
-The rules themselves live in the Rust engine (`engine-rs/` in Verticopolis/engine), and its catalog
+The rules themselves live in this crate (`src/`), and its catalog
 publishes the prices, sizes and caps, so this page names mechanics and issues
 rather than copying numbers. Status: ✅ implemented · ◑ a faithful
 abstraction · ⬜ not present.
 
 Every entry under **Deliberate divergences** and **Known parity gaps** links
-the help-page section that explains it to players, and
-`src/tests/parityHelpPage.guard.test.ts` fails when either side lists one the
-other does not.
+the help-page section that explains it to players. When an entry is added,
+moved or removed here, the matching section of the help page (`help-site/`
+in [Verticopolis/web](https://github.com/Verticopolis/web)) changes in a
+pull request there, and the other way around.
+
+Issue numbers (`#N`) on this page are
+[Verticopolis/web](https://github.com/Verticopolis/web/issues)'s, where this
+checklist lived until 2026-11-20, unless they name another repository.
 
 ## Building & structure
 - ✅ Two layers: a floor layer and a room layer; floors appear under a room as it is placed, and nothing overhangs
@@ -59,7 +64,7 @@ other does not.
 
 ## Time, audio, presentation
 - ✅ The 1994 "breathing clock" (presentation only; Steady clock turns it off)
-- ✅ The canon compressed calendar in Classic ([tdt-format.md](https://github.com/Verticopolis/engine/blob/main/docs/tdt/tdt-format.md) §3 in Verticopolis/engine); Modern may pick a real-world length
+- ✅ The canon compressed calendar in Classic ([tdt-format.md](tdt/tdt-format.md) §3); Modern may pick a real-world length
 - ✅ Day and night, lit windows, weather (cosmetic), the crane until floor 100, exterior escape stairs, grand lobbies
 - ✅ Location-aware soundtrack and effects; pan, zoom and pinch
 
@@ -85,13 +90,14 @@ other does not.
 
 The gaps from the 2026-07-15 r/SimTower optimization-thread review have
 shipped (#393, #395 to #401); the review is
-`_bmad-output/planning-artifacts/design/gdd-simtower-optimization-gaps-2026-07-15.md`.
+[`gdd-simtower-optimization-gaps-2026-07-15.md`](https://github.com/Verticopolis/web/blob/main/_bmad-output/planning-artifacts/design/gdd-simtower-optimization-gaps-2026-07-15.md)
+in Verticopolis/web.
 
 ## Verification
-`npm test` runs the web game's unit and integration tests against the pinned
-engine package. The engine's own tests live in
-[Verticopolis/engine](https://github.com/Verticopolis/engine): `cargo test`
-in `engine-rs/` covers placement, economy, rating gates, the events,
+`cargo test` covers placement, economy, rating gates, the events,
 dispatch, crowd routing, save and load, and the TOWER award, and the
 conformance suite replays every scenario in `conformance/scenarios/` and
-checks each checkpoint hash against `conformance/expected.json`.
+checks each checkpoint hash against `conformance/expected.json`
+([ARCHITECTURE.md](../ARCHITECTURE.md#the-conformance-lock)). The web game's
+`npm test` runs its own unit and integration tests against the pinned engine
+package.
