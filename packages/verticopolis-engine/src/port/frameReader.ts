@@ -1,47 +1,59 @@
-import type { ElevatorQueueView, QueueLanding } from "../model/engineTypes";
-import type { HeatCell, HeatmapMode } from "../model/engineTypes";
-import type { GameMode, SerializedView, WeatherKind } from "../model/types";
-import { lobbyHalls, type LobbyHalls } from "../render/lobbyHalls";
-import type { RenderSim, RenderTower } from "../render/renderSim";
-import { ClockReads } from "./clockView";
-import type { EnginePort } from "./enginePort";
-import type { ViewReader } from "./viewReader";
-import type { CrowdView } from "./view";
+import type { ElevatorQueueView, HeatCell, HeatmapMode, QueueLanding } from "../model/engineTypes.ts";
+import type { GameMode, SerializedView, WeatherKind } from "../model/types.ts";
+import { ClockReads } from "./clockView.ts";
+import type { EnginePort, PortRecord } from "./enginePort.ts";
+import type { CrowdView, TowerView } from "./view.ts";
+import type { ViewReader } from "./viewReader.ts";
+
+/** The tower a frame reader hands out: the view reader's tower plus two port
+ *  reads a frontend makes on a scene sync. */
+export interface FrameTower extends TowerView {
+  /** Working garage spaces by unit id, decoded on each call. */
+  functionalParkingSet(): ReadonlySet<number>;
+  /** The engine's lobby heights, as the port answers them (`lobbyHeights`):
+   *  the raw record, for a frontend to lay out its tall lobby halls. Read once
+   *  per structure pass, never per frame. */
+  lobbyHeights(): PortRecord;
+}
 
 /**
- * The renderer's `RenderSim` over the port (facade slice 7, PR 5b): the view
- * reads come from the shared `ViewReader`, the rest from the port's render
- * queries, so the renderer draws either engine through one object. The
- * frame loop updates the reader before the renderer reads it.
+ * A frontend's reads of one tower's frame, over the port: the view reads come
+ * from the shared `ViewReader`, the rest from the port's render queries. The
+ * frame loop updates the reader before a frontend reads it. It is typed with
+ * the engine's own shapes and knows nothing of any renderer, so a renderer
+ * that declares its own input types takes it as it is, with no copy.
  *
- * Costs match the TypeScript engine's: the queue projection is decoded once
- * per tower, game minute and revision (the crowd moves only on a step, and a
- * step moves the clock), so a frame between steps reads the kept one without
- * asking the port; the scene sync's parking set is decoded per call, once
- * per sync.
+ * The queue projection is decoded once per tower, game minute and revision
+ * (the crowd moves only on a step, and a step moves the clock), so a frame
+ * between steps reads the kept one without asking the port. The parking set is
+ * decoded per call, once per scene sync. The clock is one reused `ClockReads`.
  */
-export class PortRenderSim implements RenderSim {
+export class FrameReader {
   private readonly clockReads = new ClockReads();
-  readonly tower: RenderTower;
-  readonly crowd: CrowdView & { queueView(tower: RenderTower): ElevatorQueueView };
+  readonly tower: FrameTower;
+  /** The crowd, plus the elevator queue projection. `queueView` takes no
+   *  argument: the reader answers for its own tower. */
+  readonly crowd: CrowdView & { readonly queueView: () => ElevatorQueueView };
   private readonly heatModes: readonly HeatmapMode[];
   private readonly heatTints: readonly string[];
   private queueKey = { gen: NaN, minutes: NaN, revision: NaN };
   private queue: ElevatorQueueView = { landings: new Map(), boarded: new Map() };
 
+  private readonly port: EnginePort;
+  private readonly reader: ViewReader;
+
   constructor(
-    private readonly port: EnginePort,
-    private readonly reader: ViewReader,
+    port: EnginePort,
+    reader: ViewReader,
   ) {
+    this.port = port;
+    this.reader = reader;
     const l = JSON.parse(port.viewLayout()) as { heatModes: HeatmapMode[]; heatTints: string[] };
     this.heatModes = l.heatModes;
     this.heatTints = l.heatTints;
-    const tower = Object.create(reader.tower) as RenderTower & {
-      functionalParkingSet: () => ReadonlySet<number>;
-      tallLobbies: () => LobbyHalls;
-    };
+    const tower = Object.create(reader.tower) as FrameTower;
     tower.functionalParkingSet = () => new Set(port.parkingSet().subarray(1));
-    tower.tallLobbies = () => lobbyHalls(port.lobbyHeights());
+    tower.lobbyHeights = () => port.lobbyHeights();
     this.tower = tower;
     this.crowd = { people: reader.crowd.people, queueView: () => this.queueView() };
   }

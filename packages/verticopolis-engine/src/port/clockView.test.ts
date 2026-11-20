@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { RenderClock } from "../render/renderSim";
-import { ClockReads } from "./clockView";
+import { ClockReads } from "./clockView.ts";
 
 /** The clock windows as the engine defines them: morning 07:00 to 09:59,
  *  evening 17:00 to 20:59, night 21:00 to 05:59. */
@@ -29,11 +28,6 @@ function readsOf(reads: ClockReads) {
 }
 
 describe("ClockReads", () => {
-  it("is a RenderClock", () => {
-    const reads: RenderClock = new ClockReads();
-    expect(reads.hour).toBe(0);
-  });
-
   it("pins the window edges", () => {
     const reads = new ClockReads();
     const at = (h: number, m: number) => readsOf(reads.set({ minutes: 1440 + h * 60 + m }));

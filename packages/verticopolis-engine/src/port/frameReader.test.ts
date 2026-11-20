@@ -1,13 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
-import { PortRenderSim } from "./portRenderSim";
-import type { ViewReader } from "./viewReader";
-import { code, mockPort } from "../tests/portKit/mockPort";
+import { FrameReader } from "./frameReader.ts";
+import type { ViewReader } from "./viewReader.ts";
+import { code, mockPort } from "../testing/mockPort.ts";
 
 /**
- * The renderer's reads over a mock port: which port reads each one makes,
- * what it decodes, and when the queue projection is asked for again. The
- * render sim on the Rust engine runs in `portReads.integration.test.ts`.
+ * A frontend's frame reads over a mock port: which port reads each one makes,
+ * what it decodes, and when the queue projection is asked for again.
  */
+
+/** A lobby-heights record, handed through untouched. */
+const LOBBY = Float64Array.of(1, 0, 3, 160, 200);
 
 const FX = {
   santaSeq: 1,
@@ -17,7 +19,7 @@ const FX = {
   treasure: { floor: 7, x: 210, seq: 8 },
 };
 
-/** The reader fields the render sim reads: the header and the tower's lookups. */
+/** The reader fields the frame reader reads: the header and the tower's lookups. */
 function readerOf() {
   const header = { mode: "modern", sceneSeed: 77, camera: { tile: 200, floor: 2, zoom: 1.5 }, weather: "rain", population: 412, minutes: 1440 + 600, revision: 5, fx: FX, bombSearch: null };
   const people = [{ id: 7 }];
@@ -25,13 +27,13 @@ function readerOf() {
   return { header, crowd: { people }, tower } as unknown as ViewReader & { header: typeof header };
 }
 
-function sim(answers: Parameters<typeof mockPort>[0] = {}) {
-  const port = mockPort(answers);
+function sim(answers: Parameters<typeof mockPort>[1] = {}) {
+  const port = mockPort(vi, answers);
   const reader = readerOf();
-  return { port, reader, r: new PortRenderSim(port, reader) };
+  return { port, reader, r: new FrameReader(port, reader) };
 }
 
-describe("PortRenderSim", () => {
+describe("FrameReader", () => {
   it("reads the view through the reader's header, asking the port nothing", () => {
     const { port, reader, r } = sim();
     expect([r.mode, r.rng.initialSeed, r.view, r.weather, r.population, r.bombSearch]).toEqual(["modern", 77, { tile: 200, floor: 2, zoom: 1.5 }, "rain", 412, null]);
@@ -51,10 +53,12 @@ describe("PortRenderSim", () => {
       parkingUsage: (spots) => spots / 10,
       positionReachable: (floor) => floor < 4,
       parkingSet: () => Float64Array.of(2, 41, 42),
+      lobbyHeights: () => LOBBY,
     });
     expect([r.congestion(), r.peakCongestion(), r.recyclingFill(), r.parkingUsage(30)]).toEqual([0.25, 0.75, 0.5, 3]);
     expect([r.positionReachable(3, 200), r.positionReachable(4, 170)]).toEqual([true, false]);
     expect([...r.tower.functionalParkingSet()]).toEqual([41, 42]);
+    expect(r.tower.lobbyHeights()).toBe(port.lobbyHeights());
     expect(vi.mocked(port.parkingUsage).mock.calls).toEqual([[30]]);
     expect(vi.mocked(port.positionReachable).mock.calls).toEqual([
       [3, 200],
@@ -76,17 +80,17 @@ describe("PortRenderSim", () => {
     let gen = 1;
     // One landing (shaft 20, floor 1: 6 waiting, tier 2) and one boarded car (shaft 20, car 0: 4 riders).
     const { port, reader, r } = sim({ generation: () => gen, queueView: () => Float64Array.of(1, 1, 20, 1, 6, 2, 20, 0, 4) });
-    const q = r.crowd.queueView(r.tower);
+    const q = r.crowd.queueView();
     expect([...q.landings.get(20)!]).toEqual([[1, { count: 6, tier: 2 }]]);
     expect([...q.boarded.get(20)!]).toEqual([[0, 4]]);
-    expect(r.crowd.queueView(r.tower)).toBe(q);
+    expect(r.crowd.queueView()).toBe(q);
     expect(port.queueView).toHaveBeenCalledOnce();
     reader.header.minutes++;
-    const second = r.crowd.queueView(r.tower);
+    const second = r.crowd.queueView();
     reader.header.revision++;
-    const third = r.crowd.queueView(r.tower);
+    const third = r.crowd.queueView();
     gen++;
-    const fourth = r.crowd.queueView(r.tower);
+    const fourth = r.crowd.queueView();
     expect([second === q, third === second, fourth === third]).toEqual([false, false, false]);
     expect(port.queueView).toHaveBeenCalledTimes(4);
   });
