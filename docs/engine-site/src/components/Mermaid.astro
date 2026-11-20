@@ -1,0 +1,34 @@
+---
+// Draws the mermaid diagrams a docs page carries (scripts/sync-pages.mjs
+// turns each mermaid block into a <pre class="mermaid">), as the components
+// site draws its own. The mermaid library loads only on a page that has one,
+// and the diagrams are drawn again in the other look when the page's theme
+// changes.
+---
+
+<script>
+  const blocks = [...document.querySelectorAll<HTMLElement>("pre.mermaid")];
+  if (blocks.length > 0) {
+    const { default: mermaid } = await import("mermaid");
+    const sources = blocks.map((block) => block.textContent ?? "");
+    // Measure and draw labels in the page's own face, so no label overflows its box.
+    const fontFamily = getComputedStyle(document.body).fontFamily;
+    let drawnIn = "";
+    const draw = async () => {
+      const theme = document.documentElement.dataset.theme === "dark" ? "dark" : "neutral";
+      if (theme === drawnIn) return;
+      drawnIn = theme;
+      blocks.forEach((block, i) => {
+        block.removeAttribute("data-processed");
+        block.textContent = sources[i];
+      });
+      mermaid.initialize({ startOnLoad: false, theme, fontFamily });
+      await mermaid.run({ nodes: blocks });
+    };
+    await draw();
+    new MutationObserver(() => void draw()).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+  }
+</script>

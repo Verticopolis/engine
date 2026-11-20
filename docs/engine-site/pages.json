@@ -1,5 +1,5 @@
 {
-  "$comment": "The pages the engine docs site builds from files the repository already keeps. scripts/sync-pages.mjs copies each source into src/content/docs/<slug>.md before a build; src/tests/engineDocsSite.guard.test.ts checks every source exists.",
+  "$comment": "The pages the engine docs site builds from files the repository already keeps. scripts/sync-pages.mjs copies each source into src/content/docs/<slug>.md before a build.",
   "aliases": {
     "$comment": "Files the npm package gets copied in when it is packed (scripts/engine-package-files.sh), so a link written as the packaged path goes to the file it is copied from.",
     "packages/verticopolis-engine/CHANGELOG.md": "CHANGELOG.md",
@@ -29,6 +29,66 @@
       "slug": "conformance",
       "title": "Conformance suite",
       "description": "The scripted games and pinned state hashes that prove a host runs the real engine."
+    },
+    {
+      "source": "ARCHITECTURE.md",
+      "slug": "architecture",
+      "title": "Architecture",
+      "description": "How the engine is put together, in diagrams: the host boundary, a step of time, Classic and Modern, commands and undo, saves and the conformance lock."
+    },
+    {
+      "source": "docs/engine.md",
+      "slug": "engine",
+      "title": "Module map",
+      "description": "Every module in the crate, the tools, the codecs and the WebAssembly build."
+    },
+    {
+      "source": "docs/tdt/tdt-format.md",
+      "slug": "tdt-format",
+      "title": "The 1994 .TDT save format",
+      "description": "What is known about the original SimTower save file: its layout, its fields and how sure we are."
+    },
+    {
+      "source": "docs/tdt/tdt-byte-map.md",
+      "slug": "tdt-byte-map",
+      "title": "The .TDT byte map",
+      "description": "Every byte of a SimTower .TDT save, in file order, with what is known and what is not."
+    },
+    {
+      "source": "docs/parity.md",
+      "slug": "parity",
+      "title": "Classic parity checklist",
+      "description": "How a Classic tower matches the 1994 game, one line per mechanic."
+    },
+    {
+      "source": "docs/canon/README.md",
+      "slug": "canon",
+      "title": "Classic canon records",
+      "description": "Dated research into how the 1994 game behaves, and the runs of the original that settle it."
+    },
+    {
+      "source": "docs/canon/classic-shop-audit.md",
+      "slug": "canon-shop-audit",
+      "title": "Shop rules audit",
+      "description": "The shop, restaurant and entertainment rules against the public SimTower references (2026-10-30)."
+    },
+    {
+      "source": "docs/canon/classic-parking-audit.md",
+      "slug": "canon-parking-audit",
+      "title": "Parking and hotel suite audit",
+      "description": "Parking and hotel suites: the claim under test, the sources and the experiments (2026-10-30)."
+    },
+    {
+      "source": "docs/canon/classic-parity-pc-test-spec.md",
+      "slug": "canon-pc-test-spec",
+      "title": "Original-game test spec",
+      "description": "The approved test scenarios for the original game on a PC, batch 1."
+    },
+    {
+      "source": "docs/canon/classic-parity-pc-run-plan.md",
+      "slug": "canon-pc-run-plan",
+      "title": "Original-game run plan",
+      "description": "How the original-game test run is split, and what each scenario showed."
     },
     {
       "source": "CHANGELOG.md",

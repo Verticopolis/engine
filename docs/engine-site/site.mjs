@@ -28,6 +28,21 @@ export const sidebar = [
     items: [{ slug: "javascript" }, { slug: "crate" }, { slug: "api" }, { slug: "conformance" }],
   },
   {
+    label: "How it works",
+    items: [{ slug: "architecture" }, { slug: "engine" }, { slug: "tdt-format" }, { slug: "tdt-byte-map" }],
+  },
+  {
+    label: "Classic canon",
+    items: [
+      { slug: "parity" },
+      { slug: "canon" },
+      { slug: "canon-shop-audit" },
+      { slug: "canon-parking-audit" },
+      { slug: "canon-pc-test-spec" },
+      { slug: "canon-pc-run-plan" },
+    ],
+  },
+  {
     label: "Reference",
     items: [{ label: "Rust API reference", link: RUST_REFERENCE }, { slug: "changelog" }],
   },
