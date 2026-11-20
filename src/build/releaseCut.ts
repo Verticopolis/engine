@@ -1,7 +1,7 @@
 /**
  * The rules behind the Cut release workflow (`.github/workflows/cut-release.yml`,
- * CONTRIBUTING.md "Releasing"): which version the `## Unreleased` lines of
- * `engine-rs/CHANGELOG.md` ask for, and the text edits a release makes.
+ * CONTRIBUTING.md "Releasing"): the next version and the text edits a
+ * release makes. The change notes it reads are in `changeNotes.ts`.
  * `scripts/cut-release.ts` applies them to the tree.
  *
  * Node only, and ERASABLE so plain `node` runs the script that imports it.
@@ -9,36 +9,7 @@
 
 export type Tier = "major" | "minor" | "patch";
 
-const TIER_ORDER: readonly Tier[] = ["patch", "minor", "major"];
-const UNRELEASED = "## Unreleased";
 const SEMVER = /^(\d+)\.(\d+)\.(\d+)$/;
-const TIERED_LINE = /^- \*\*(major|minor|patch)\*\*:/;
-
-/** The lines under `## Unreleased`, up to the next `## ` heading. */
-export function unreleasedLines(changelog: string): string[] {
-  const lines = changelog.split("\n");
-  const start = lines.findIndex((l) => l.trimEnd() === UNRELEASED);
-  if (start < 0) throw new Error(`the changelog has no "${UNRELEASED}" section, so there is nothing to release`);
-  const rest = lines.slice(start + 1);
-  const end = rest.findIndex((l) => l.startsWith("## "));
-  return end < 0 ? rest : rest.slice(0, end);
-}
-
-/**
- * The highest tier the Unreleased entries name. Every entry (a line starting
- * with `- `) must lead with its tier, so a release never guesses one.
- */
-export function unreleasedTier(changelog: string): Tier {
-  const entries = unreleasedLines(changelog).filter((l) => l.startsWith("- "));
-  if (entries.length === 0) throw new Error(`"${UNRELEASED}" has no entries, so there is nothing to release`);
-  let best = -1;
-  for (const entry of entries) {
-    const m = TIERED_LINE.exec(entry);
-    if (!m) throw new Error(`this Unreleased entry names no tier (**major**, **minor** or **patch**): ${entry}`);
-    best = Math.max(best, TIER_ORDER.indexOf(m[1] as Tier));
-  }
-  return TIER_ORDER[best];
-}
 
 function parse(version: string): [number, number, number] {
   const m = SEMVER.exec(version);
@@ -73,14 +44,18 @@ export function nextVersion(current: string, tier: Tier, named?: string): string
   return named;
 }
 
-/** Renames `## Unreleased` to `## <version> (<date>)`. */
-export function renameUnreleased(changelog: string, version: string, date: string): string {
+/**
+ * Adds the `## <version> (<date>)` section with `body` above the newest
+ * version's section, under the changelog's introduction.
+ */
+export function addSection(changelog: string, version: string, date: string, body: string): string {
   const lines = changelog.split("\n");
-  const i = lines.findIndex((l) => l.trimEnd() === UNRELEASED);
-  if (i < 0) throw new Error(`the changelog has no "${UNRELEASED}" section`);
   if (lines.some((l) => l.startsWith(`## ${version} `) || l.trimEnd() === `## ${version}`)) throw new Error(`the changelog already has a ${version} section`);
-  lines[i] = `## ${version} (${date})`;
-  return lines.join("\n");
+  if (lines.some((l) => l.trimEnd() === "## Unreleased")) throw new Error(`the changelog still has a "## Unreleased" section; move its entries to .changes/ notes`);
+  const first = lines.findIndex((l) => l.startsWith("## "));
+  const section = [`## ${version} (${date})`, "", ...body.trimEnd().split("\n"), ""];
+  if (first < 0) return [...lines, ...(lines.at(-1) === "" ? [] : [""]), ...section].join("\n");
+  return [...lines.slice(0, first), ...section, ...lines.slice(first)].join("\n");
 }
 
 /** The `version` of the `[package]` table of a Cargo.toml. */

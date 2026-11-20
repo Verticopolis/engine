@@ -4,10 +4,11 @@ Release notes for the engine crate (`engine-rs/Cargo.toml`), one `## <version>`
 section per crate version, newest first, written for people who build on the
 engine. The player-facing notes live in the game's
 [`CHANGELOG.md`](https://github.com/Verticopolis/web/blob/main/CHANGELOG.md).
-A change adds a line under `## Unreleased`, led by its tier (`- **patch**: ...`);
-**Cut release** picks the version from those tiers and turns the heading into
-the version's section, and the release workflow refuses a version with no
-section (CONTRIBUTING.md, "Releasing"). Describe what changed
+A pull request adds its entries as a change note under
+[`.changes/`](https://github.com/Verticopolis/engine/blob/main/.changes/README.md), with its tier (major, minor or patch);
+**Cut release** picks the version from those tiers and writes the notes into
+the version's section, each entry led by its tier, and the release workflow
+refuses a version with no section (CONTRIBUTING.md, "Releasing"). Describe what changed
 in the engine's contract and behavior: saves, frame and view layouts, the
 catalog, identity, the binding, and rules. An engine change a player can feel
 also gets a line in the app changelog.
@@ -17,14 +18,6 @@ raised the version, so they are documentation only.
 
 There is no entry for 0.17.0, which only
 existed as a step inside a stacked branch.
-
-## Unreleased
-
-- **patch**: the npm package's `events/gameplayEventRules.ts` declares its
-  own `GameplayEventRules` type and exports it. It imported that type from
-  `./gameplayCatalog`, a file the package never carried, so TypeScript
-  refused the file in a game that imported the rules. The rules themselves
-  are unchanged.
 
 ## 1.59.0 (2026-11-20)
 

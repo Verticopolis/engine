@@ -54,13 +54,14 @@ instead of ticking a box.
 ## Versioning
 
 <!--
-Only a release PR edits the version (CONTRIBUTING.md, "Releasing"). Every
-other change to the crate adds its line under "## Unreleased" at the top of
-engine-rs/CHANGELOG.md, naming its tier (major / minor / patch). A change to
-how the game plays regenerates the conformance lock in the same PR.
+Only a release PR edits the version or engine-rs/CHANGELOG.md (CONTRIBUTING.md,
+"Releasing"). Every other change to the crate adds a change note under
+.changes/ named after its branch, with its crate tier (major / minor / patch,
+or none) and its changelog entries (.changes/README.md). A change to how the
+game plays regenerates the conformance lock in the same PR.
 -->
 
-- [ ] Added a line with its tier under "## Unreleased" in `engine-rs/CHANGELOG.md`, **or** this PR changes nothing the crate ships
+- [ ] Added a change note with its crate tier under `.changes/`, **or** this PR changes nothing the crate ships
 - [ ] Regenerated the conformance lock, **or** this PR does not change how the game plays
 - [ ] Updated the guides on docs.verticopolis.com and the READMEs (`engine-rs/CRATE_README.md`, `packages/verticopolis-engine/README.md`) that went stale, **or** read them and none did
 
