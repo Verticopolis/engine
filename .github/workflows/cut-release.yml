@@ -1,0 +1,106 @@
+name: Cut release
+
+# Opens the engine's release PR (CONTRIBUTING.md "Releasing") without anyone
+# raising the version by hand, the way the game's Cut release does in
+# Verticopolis/web. Run it from the Actions tab (Run workflow) on main: it
+# runs scripts/cut-release.ts, which picks the version from the tiers of the
+# `## Unreleased` entries in engine-rs/CHANGELOG.md (the highest of major,
+# minor and patch), raises the crate version, the lockfiles and the
+# compatibility record, dates the changelog section and moves the guides'
+# pins. It commits the result to release/<version> and opens the "Release
+# engine <version>" PR. Leave "version" empty for the tier the entries ask
+# for, or name a later one, such as 2.0.0.
+#
+# Merging the PR is still a person's call, and release-tag.yml tags and
+# publishes the release once it merges. The run refuses while another release
+# PR is open, so there is one at a time.
+#
+# It installs nothing: the script uses only Node's own modules, so no
+# dependency's code runs with this job's write token.
+#
+# It pushes and opens the PR with the default GITHUB_TOKEN, which needs
+# "Allow GitHub Actions to create and approve pull requests" (Settings,
+# Actions, General). A PR from that token starts no workflow runs on its own,
+# so a maintainer starts the required checks: with the run button on the PR
+# when GitHub shows one, or else by closing and reopening the PR, which a
+# person's reopen always does (pull_request: reopened).
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Name the version (for example 2.0.0); leave empty for the tier the Unreleased entries ask for"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cut-release
+  cancel-in-progress: false
+
+jobs:
+  cut:
+    # A release is cut from main, never from a branch's unmerged code.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Cut the release and open the PR
+        env:
+          VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ -n "$VERSION" ] && ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::version must look like 2.0.0, got '$VERSION'"
+            exit 2
+          fi
+          open="$(gh pr list --state open --base main --limit 100 --json number,title,headRefName \
+            --jq '[.[] | select((.headRefName | startswith("release/")) or (.title | test("^Release ")))] | map("#\(.number)") | join(" ")')"
+          if [ -n "$open" ]; then
+            echo "::error::A release PR is already open ($open); merge or close it first."
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          base="$(git rev-parse --short HEAD)"
+          if [ -n "$VERSION" ]; then
+            node scripts/cut-release.ts --version "$VERSION" | tee "$RUNNER_TEMP/cut.log"
+          else
+            node scripts/cut-release.ts | tee "$RUNNER_TEMP/cut.log"
+          fi
+          version="$(tail -n 1 "$RUNNER_TEMP/cut.log")"
+          printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'
+          branch="release/$version"
+          if git ls-remote --exit-code --heads origin "$branch" > /dev/null; then
+            echo "::error::$branch already exists on origin; merge or delete its PR first"
+            exit 1
+          fi
+          title="Release engine $version"
+          git checkout -b "$branch"
+          git add -A
+          git commit -m "$title"
+          git push origin "$branch"
+          {
+            echo "Cut by the **Cut release** workflow from the \`## Unreleased\` entries of \`engine-rs/CHANGELOG.md\` on main $base."
+            echo
+            echo "- Crate: $version"
+            echo
+            echo "**Start the checks:** this PR was opened by the workflow token, which starts no runs on its own. Start the required checks with the run button on this PR if GitHub shows one, or else close and reopen this PR."
+            echo
+            echo "Review the changelog section and the guides (a release that changes what a host sees updates them here too), then merge with a merge commit. Merging starts **Release tags**, which tags \`v$version\` and publishes the release; the registry publish waits for the owner's approval."
+          } > "$RUNNER_TEMP/body.md"
+          gh pr create --base main --head "$branch" --title "$title" --body-file "$RUNNER_TEMP/body.md"
