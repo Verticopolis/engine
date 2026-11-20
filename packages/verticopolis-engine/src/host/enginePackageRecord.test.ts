@@ -1,7 +1,14 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { ENGINE_GLUE, ENGINE_WASM } from "./enginePackageNames.ts";
-import { canonicalFilesJson, engineBuildRecord, expectedOf, parseEngineRecord, shortId, type EnginePackageRecord } from "./enginePackageRecord.ts";
+import {
+  canonicalFilesJson,
+  engineBuildRecord,
+  expectedOf,
+  parseEngineRecord,
+  shortId,
+  type EnginePackageRecord,
+} from "./enginePackageRecord.ts";
 
 const sha = (d: Uint8Array | string) => createHash("sha256").update(d).digest("hex");
 const glue = new TextEncoder().encode("export default function init() {}\n");
@@ -38,7 +45,10 @@ describe("engineBuildRecord", () => {
 describe("canonicalFilesJson", () => {
   it("is fixed key order and no whitespace, whatever order the entries came in", () => {
     const r = record();
-    const flipped = { [ENGINE_WASM]: { bytes: r.files[ENGINE_WASM].bytes, sha256: r.files[ENGINE_WASM].sha256 }, [ENGINE_GLUE]: { bytes: r.files[ENGINE_GLUE].bytes, sha256: r.files[ENGINE_GLUE].sha256 } };
+    const flipped = {
+      [ENGINE_WASM]: { bytes: r.files[ENGINE_WASM].bytes, sha256: r.files[ENGINE_WASM].sha256 },
+      [ENGINE_GLUE]: { bytes: r.files[ENGINE_GLUE].bytes, sha256: r.files[ENGINE_GLUE].sha256 },
+    };
     expect(canonicalFilesJson(flipped)).toBe(canonicalFilesJson(r.files));
     expect(canonicalFilesJson(r.files)).toBe(
       `{"${ENGINE_GLUE}":{"sha256":"${sha(glue)}","bytes":${glue.length}},"${ENGINE_WASM}":{"sha256":"${sha(wasm)}","bytes":${wasm.length}}}`,
@@ -60,7 +70,9 @@ describe("parseEngineRecord", () => {
 
   it("ignores an unknown key inside a file entry and drops it from the record", () => {
     const r = record();
-    const parsed = parseEngineRecord(JSON.stringify({ ...r, files: { ...r.files, [ENGINE_GLUE]: { ...r.files[ENGINE_GLUE], note: "x" } } }));
+    const parsed = parseEngineRecord(
+      JSON.stringify({ ...r, files: { ...r.files, [ENGINE_GLUE]: { ...r.files[ENGINE_GLUE], note: "x" } } }),
+    );
     expect(parsed).toEqual({ ok: true, record: r });
   });
 
@@ -72,12 +84,30 @@ describe("parseEngineRecord", () => {
     ["an uppercase package id", (r) => ({ ...r, package: String(r.package).toUpperCase() })],
     ["no files block", ({ files: _f, ...r }) => r],
     ["a files block that is an array", (r) => ({ ...r, files: [] })],
-    ["a missing binary entry", (r) => ({ ...r, files: { [ENGINE_GLUE]: (r.files as Record<string, unknown>)[ENGINE_GLUE] } })],
-    ["an extra file entry", (r) => ({ ...r, files: { ...(r.files as object), "snippets/x.js": { sha256: "0".repeat(64), bytes: 1 } } })],
-    ["a digest that is not hex", (r) => ({ ...r, files: { ...(r.files as object), [ENGINE_GLUE]: { sha256: "z".repeat(64), bytes: 1 } } })],
-    ["a negative byte count", (r) => ({ ...r, files: { ...(r.files as object), [ENGINE_GLUE]: { sha256: "0".repeat(64), bytes: -1 } } })],
-    ["a fractional byte count", (r) => ({ ...r, files: { ...(r.files as object), [ENGINE_GLUE]: { sha256: "0".repeat(64), bytes: 1.5 } } })],
-    ["a string byte count", (r) => ({ ...r, files: { ...(r.files as object), [ENGINE_GLUE]: { sha256: "0".repeat(64), bytes: "5" } } })],
+    [
+      "a missing binary entry",
+      (r) => ({ ...r, files: { [ENGINE_GLUE]: (r.files as Record<string, unknown>)[ENGINE_GLUE] } }),
+    ],
+    [
+      "an extra file entry",
+      (r) => ({ ...r, files: { ...(r.files as object), "snippets/x.js": { sha256: "0".repeat(64), bytes: 1 } } }),
+    ],
+    [
+      "a digest that is not hex",
+      (r) => ({ ...r, files: { ...(r.files as object), [ENGINE_GLUE]: { sha256: "z".repeat(64), bytes: 1 } } }),
+    ],
+    [
+      "a negative byte count",
+      (r) => ({ ...r, files: { ...(r.files as object), [ENGINE_GLUE]: { sha256: "0".repeat(64), bytes: -1 } } }),
+    ],
+    [
+      "a fractional byte count",
+      (r) => ({ ...r, files: { ...(r.files as object), [ENGINE_GLUE]: { sha256: "0".repeat(64), bytes: 1.5 } } }),
+    ],
+    [
+      "a string byte count",
+      (r) => ({ ...r, files: { ...(r.files as object), [ENGINE_GLUE]: { sha256: "0".repeat(64), bytes: "5" } } }),
+    ],
   ];
   it.each(bad)("refuses %s", (_name, mutate) => {
     const r = mutate({ ...record() } as unknown as Record<string, unknown>);
@@ -130,7 +160,12 @@ describe("the crate entry", () => {
   });
 
   it("rides into the part of the record the shell compiles in, beside the package and files", () => {
-    expect(expectedOf(withCrate())).toEqual({ package: record().package, files: record().files, crate, sources: record().sources });
+    expect(expectedOf(withCrate())).toEqual({
+      package: record().package,
+      files: record().files,
+      crate,
+      sources: record().sources,
+    });
     expect("crate" in expectedOf(record())).toBe(false);
   });
 });

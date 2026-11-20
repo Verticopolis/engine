@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { EVAL_TIERS, NO_ROOM_TIERS, RENT_TIERS, RoomTierReader, roomTierShape, type RoomTierPort } from "./roomTiers.ts";
+import {
+  EVAL_TIERS,
+  NO_ROOM_TIERS,
+  RENT_TIERS,
+  RoomTierReader,
+  roomTierShape,
+  type RoomTierPort,
+} from "./roomTiers.ts";
 
 /** A layout that lists the slots and both tables in an order of its own, so a
  *  reader that assumed the engine's order would misread every row. */
@@ -8,12 +15,23 @@ const EVAL_NAMES = ["excellent", "unrated", "good", "terrible"];
 const RENT_NAMES = ["high", "average", "low", "veryLow", "noRate", "unpriced"];
 
 function layout(over: Record<string, unknown> = {}): string {
-  return JSON.stringify({ records: { roomTier: SLOTS, unitCard: ["id"] }, evalTiers: EVAL_NAMES, rentTiers: RENT_NAMES, ...over });
+  return JSON.stringify({
+    records: { roomTier: SLOTS, unitCard: ["id"] },
+    evalTiers: EVAL_NAMES,
+    rentTiers: RENT_NAMES,
+    ...over,
+  });
 }
 
 /** One row in `SLOTS` order, from named fields and tier names. */
 function row(id: number, floor: number, x: number, evalTier: string, rentTier: string): number[] {
-  const values: Record<string, number> = { id, floor, x, evalTier: EVAL_NAMES.indexOf(evalTier), rentTier: RENT_NAMES.indexOf(rentTier) };
+  const values: Record<string, number> = {
+    id,
+    floor,
+    x,
+    evalTier: EVAL_NAMES.indexOf(evalTier),
+    rentTier: RENT_NAMES.indexOf(rentTier),
+  };
   return SLOTS.map((slot) => values[slot]);
 }
 
@@ -31,11 +49,21 @@ function port(rows: number[][], text = layout()): RoomTierPort & { calls: number
 
 describe("RoomTierReader", () => {
   it("reads each row by the layout's slot names and tier tables", () => {
-    const p = port([row(11, 2, 160, "good", "average"), row(12, -1, 40, "unrated", "noRate"), row(13, 30, 200, "excellent", "veryLow")]);
+    const p = port([
+      row(11, 2, 160, "good", "average"),
+      row(12, -1, 40, "unrated", "noRate"),
+      row(13, 30, 200, "excellent", "veryLow"),
+    ]);
     const tiers = new RoomTierReader(p).read();
     expect(p.calls).toBe(1);
     expect(tiers.size).toBe(3);
-    const read = Array.from({ length: tiers.size }, (_, i) => [tiers.id(i), tiers.floor(i), tiers.x(i), tiers.evalTier(i), tiers.rentTier(i)]);
+    const read = Array.from({ length: tiers.size }, (_, i) => [
+      tiers.id(i),
+      tiers.floor(i),
+      tiers.x(i),
+      tiers.evalTier(i),
+      tiers.rentTier(i),
+    ]);
     expect(read).toEqual([
       [11, 2, 160, "good", "average"],
       [12, -1, 40, "unrated", "noRate"],
@@ -86,7 +114,8 @@ describe("RoomTierReader", () => {
   });
 
   it("answers null for a layout that is not JSON or carries the record in the wrong form", () => {
-    for (const text of ["", "{", "not json", "null", "7", '"text"', "[]"]) expect(roomTierShape(text), JSON.stringify(text)).toBeNull();
+    for (const text of ["", "{", "not json", "null", "7", '"text"', "[]"])
+      expect(roomTierShape(text), JSON.stringify(text)).toBeNull();
     const bad: Record<string, unknown>[] = [
       { records: { roomTier: "id,floor,x,evalTier,rentTier" } },
       { records: { roomTier: { id: 0 } } },
@@ -146,10 +175,21 @@ describe("RoomTierReader", () => {
     const rows = [1, 2, 3, 4, 5].map((id) => [99, ...tierRow(id)]);
     const tiers = new RoomTierReader(port(rows, layout({ records: { roomTier: first } }))).read();
     expect(tiers.size).toBe(5);
-    expect([tiers.id(1), tiers.floor(1), tiers.x(1), tiers.evalTier(1), tiers.rentTier(1)]).toEqual([2, 4, 8, "terrible", "low"]);
+    expect([tiers.id(1), tiers.floor(1), tiers.x(1), tiers.evalTier(1), tiers.rentTier(1)]).toEqual([
+      2,
+      4,
+      8,
+      "terrible",
+      "low",
+    ]);
     // The unknown slot last.
     const last = [...SLOTS, "pad"];
-    const lastTiers = new RoomTierReader(port([1, 2].map((id) => [...tierRow(id), 99]), layout({ records: { roomTier: last } }))).read();
+    const lastTiers = new RoomTierReader(
+      port(
+        [1, 2].map((id) => [...tierRow(id), 99]),
+        layout({ records: { roomTier: last } }),
+      ),
+    ).read();
     expect(lastTiers.size).toBe(2);
     expect([lastTiers.id(1), lastTiers.x(1), lastTiers.rentTier(1)]).toEqual([2, 8, "low"]);
   });

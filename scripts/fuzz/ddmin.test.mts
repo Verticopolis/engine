@@ -3,7 +3,10 @@ import { ddmin } from "./ddmin.mts";
 
 const range = (n: number): number[] => Array.from({ length: n }, (_, i) => i);
 /** Fails while every `needed` item is still present. */
-const needs = (...needed: number[]) => (c: readonly number[]) => needed.every((x) => c.includes(x));
+const needs =
+  (...needed: number[]) =>
+  (c: readonly number[]) =>
+    needed.every((x) => c.includes(x));
 
 describe("ddmin", () => {
   it("reduces to the one item that matters", () => {

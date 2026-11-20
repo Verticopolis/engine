@@ -21,12 +21,7 @@ export function isOperational(u: { state: UnitState }): boolean {
  *  departure resolves. `moving_in` is reserved and counts if a move-in phase is
  *  ever assigned. */
 export function isPresent(u: { state: UnitState }): boolean {
-  return (
-    u.state === "occupied" ||
-    u.state === "asleep" ||
-    u.state === "moving_in" ||
-    u.state === "vacating"
-  );
+  return u.state === "occupied" || u.state === "asleep" || u.state === "moving_in" || u.state === "vacating";
 }
 
 /** A unit that is settled (`occupied`) or on notice (`vacating`): still in

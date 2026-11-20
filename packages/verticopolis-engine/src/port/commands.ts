@@ -103,7 +103,11 @@ export interface CommandResults {
   /** The new subtype, when the reroll applied. */
   rerollSubtype: BaseResult & { readonly subtype?: string };
   /** The booking's price and the rooms it treats, when booked. */
-  callExterminator: BaseResult & { readonly reason?: "unavailable" | "pending" | "none" | "funds"; readonly cost?: number; readonly rooms?: number };
+  callExterminator: BaseResult & {
+    readonly reason?: "unavailable" | "pending" | "none" | "funds";
+    readonly cost?: number;
+    readonly rooms?: number;
+  };
   /** Refused when no emergency is waiting. Accepting without the funds
    *  takes the default, as the engine does; `delta` shows which happened. */
   resolveChoice: BaseResult;

@@ -12,7 +12,13 @@
  * throws `EnginePackageAborted` once it fires, so a late result is dropped.
  */
 import { ENGINE_GLUE, ENGINE_WASM } from "./enginePackageNames.ts";
-import { canonicalFilesJson, parseEngineRecord, shortId, type EnginePackageRecord, type ExpectedEnginePackage } from "./enginePackageRecord.ts";
+import {
+  canonicalFilesJson,
+  parseEngineRecord,
+  shortId,
+  type EnginePackageRecord,
+  type ExpectedEnginePackage,
+} from "./enginePackageRecord.ts";
 
 /** Why a package was refused. `mismatch` is the bytes disagreeing with the
  *  shell, `load-failed` is the bytes not arriving whole, `unverifiable` is a
@@ -40,7 +46,11 @@ export interface PackageFailureDetail {
 export class EnginePackageError extends Error {
   readonly kind: PackageFailureKind;
   readonly detail: PackageFailureDetail;
-  constructor(kind: PackageFailureKind, message: string, detail: Partial<PackageFailureDetail> & { controlled: boolean }) {
+  constructor(
+    kind: PackageFailureKind,
+    message: string,
+    detail: Partial<PackageFailureDetail> & { controlled: boolean },
+  ) {
     super(message);
     this.name = "EnginePackageError";
     this.kind = kind;
@@ -104,7 +114,9 @@ export function isControlled(nav: { serviceWorker?: { controller?: unknown } } |
 }
 
 /** The page's digest: `crypto.subtle`, or undefined in an insecure context. */
-export function browserDigest(c: { subtle?: SubtleCrypto } | null | undefined = globalThis.crypto): VerifyOptions["digest"] {
+export function browserDigest(
+  c: { subtle?: SubtleCrypto } | null | undefined = globalThis.crypto,
+): VerifyOptions["digest"] {
   const subtle = c?.subtle;
   if (!subtle) return undefined;
   return async (bytes) => new Uint8Array(await subtle.digest("SHA-256", bytes as BufferSource));
@@ -124,13 +136,22 @@ const NAMES: Record<PackageFile, string> = { "build-record": "BUILD.json", glue:
  * that lies is caught by the count. An unavailable stream is a load failure:
  * there is no unbounded `arrayBuffer()` fallback.
  */
-async function readBounded(file: PackageFile, res: Response, cap: number, ctl: AbortController, fail: (kind: PackageFailureKind, why: string) => EnginePackageError): Promise<Uint8Array> {
+async function readBounded(
+  file: PackageFile,
+  res: Response,
+  cap: number,
+  ctl: AbortController,
+  fail: (kind: PackageFailureKind, why: string) => EnginePackageError,
+): Promise<Uint8Array> {
   // Content-Length counts the encoded bytes, while the stream yields decoded
   // ones, so it is only compared with a body that was not compressed. For a
   // compressed one the real count below is the only measure.
   const header = res.headers.get("content-length");
   const encoding = res.headers.get("content-encoding");
-  const declared = header !== null && (encoding === null || encoding === "" || encoding.toLowerCase() === "identity") ? Number(header) : Number.NaN;
+  const declared =
+    header !== null && (encoding === null || encoding === "" || encoding.toLowerCase() === "identity")
+      ? Number(header)
+      : Number.NaN;
   if (Number.isFinite(declared) && declared > cap) {
     await res.body?.cancel().catch(() => undefined);
     throw fail("mismatch", `${NAMES[file]} is larger than the ${cap} bytes this build expects`);
@@ -178,19 +199,26 @@ async function readBounded(file: PackageFile, res: Response, cap: number, ctl: A
 export async function verifyEnginePackage(opts: VerifyOptions): Promise<VerifiedPackage> {
   const { expected, signal } = opts;
   const base = { controlled: opts.controlled, expectedPackage: expected ? shortId(expected.package) : null };
-  const fail = (kind: PackageFailureKind, why: string, more: Partial<PackageFailureDetail> = {}) => new EnginePackageError(kind, why, { ...base, ...more });
+  const fail = (kind: PackageFailureKind, why: string, more: Partial<PackageFailureDetail> = {}) =>
+    new EnginePackageError(kind, why, { ...base, ...more });
   const gone = () => {
     if (signal.aborted) throw new EnginePackageAborted();
   };
   gone();
   if (!expected) throw fail("load-failed", "this build carries no engine package; a corrected deployment is needed");
-  if (!opts.digest) throw fail("unverifiable", "this browser connection cannot verify the engine files (no crypto.subtle); open the game over HTTPS");
+  if (!opts.digest)
+    throw fail(
+      "unverifiable",
+      "this browser connection cannot verify the engine files (no crypto.subtle); open the game over HTTPS",
+    );
   const digest = opts.digest;
   const sha = async (bytes: Uint8Array, file: PackageFile): Promise<string> => {
     try {
       return hex(await digest(bytes));
     } catch (e) {
-      throw fail("unverifiable", `hashing ${NAMES[file]} failed: ${e instanceof Error ? e.message : String(e)}`, { file });
+      throw fail("unverifiable", `hashing ${NAMES[file]} failed: ${e instanceof Error ? e.message : String(e)}`, {
+        file,
+      });
     }
   };
 
@@ -205,7 +233,9 @@ export async function verifyEnginePackage(opts: VerifyOptions): Promise<Verified
       res = await opts.fetch(url, { signal: ctl.signal });
     } catch (e) {
       if (ctl.signal.aborted) throw new SiblingStopped();
-      throw fail("load-failed", `${NAMES[file]} could not be fetched: ${e instanceof Error ? e.message : String(e)}`, { file });
+      throw fail("load-failed", `${NAMES[file]} could not be fetched: ${e instanceof Error ? e.message : String(e)}`, {
+        file,
+      });
     }
     if (ctl.signal.aborted) throw new SiblingStopped();
     const refuse = (why: string) => {
@@ -226,7 +256,9 @@ export async function verifyEnginePackage(opts: VerifyOptions): Promise<Verified
     // The digest the shell expects for this file rides on any refusal, the
     // oversize one included (the record may not have been read yet).
     const entry = file === "build-record" ? null : expected.files[file === "glue" ? ENGINE_GLUE : ENGINE_WASM];
-    return readBounded(file, res, cap, ctl, (kind, why) => fail(kind, why, { file, expected: entry ? shortId(entry.sha256) : null }));
+    return readBounded(file, res, cap, ctl, (kind, why) =>
+      fail(kind, why, { file, expected: entry ? shortId(entry.sha256) : null }),
+    );
   };
   const order: [PackageFile, string, number][] = [
     ["build-record", opts.urls.record, RECORD_CAP_BYTES],
@@ -254,7 +286,11 @@ export async function verifyEnginePackage(opts: VerifyOptions): Promise<Verified
         // record was read; when the record did arrive whole, the refusal
         // still names the package it served.
         const early = settled[0];
-        if (s.reason instanceof EnginePackageError && s.reason.detail.servedPackage === null && early.status === "fulfilled") {
+        if (
+          s.reason instanceof EnginePackageError &&
+          s.reason.detail.servedPackage === null &&
+          early.status === "fulfilled"
+        ) {
           const served = parseEngineRecord(new TextDecoder().decode(early.value));
           if (served.ok) s.reason.detail.servedPackage = shortId(served.record.package);
         }
@@ -275,33 +311,56 @@ export async function verifyEnginePackage(opts: VerifyOptions): Promise<Verified
   // A complete body of the wrong size is a different build (a body that ends
   // early with nothing to say it was cut short reads the same way). The sizes
   // are compared before any hashing, with the served id attached.
-  for (const [file, bytes] of [["glue", glue], ["wasm", wasm]] as const) {
+  for (const [file, bytes] of [
+    ["glue", glue],
+    ["wasm", wasm],
+  ] as const) {
     const want = expected.files[file === "glue" ? ENGINE_GLUE : ENGINE_WASM];
     if (bytes.length !== want.bytes) {
-      throw fail("mismatch", `${NAMES[file]} is ${bytes.length} bytes; this build expects ${want.bytes}`, { file, expected: shortId(want.sha256), ...served });
+      throw fail("mismatch", `${NAMES[file]} is ${bytes.length} bytes; this build expects ${want.bytes}`, {
+        file,
+        expected: shortId(want.sha256),
+        ...served,
+      });
     }
   }
   if (record.package !== expected.package) {
-    throw fail("mismatch", `BUILD.json names package ${shortId(record.package)}; this build expects ${shortId(expected.package)}`, { file: "build-record", ...served });
+    throw fail(
+      "mismatch",
+      `BUILD.json names package ${shortId(record.package)}; this build expects ${shortId(expected.package)}`,
+      { file: "build-record", ...served },
+    );
   }
   // Keeping the package id while changing a file entry must not pass: the id
   // is recomputed from the served entries, never taken on trust.
   const recomputed = await sha(new TextEncoder().encode(canonicalFilesJson(record.files)), "build-record");
   gone();
   if (recomputed !== record.package) {
-    throw fail("mismatch", `BUILD.json's package id does not match its own file entries`, { file: "build-record", expected: shortId(record.package), found: shortId(recomputed), ...served });
+    throw fail("mismatch", `BUILD.json's package id does not match its own file entries`, {
+      file: "build-record",
+      expected: shortId(record.package),
+      found: shortId(recomputed),
+      ...served,
+    });
   }
 
   // The record's own entries need no separate comparison with the fetched
   // bytes: its package id equals the shell's, and that id was just recomputed
   // from its entries, so the entries are the shell's.
-  for (const [file, bytes] of [["glue", glue], ["wasm", wasm]] as const) {
+  for (const [file, bytes] of [
+    ["glue", glue],
+    ["wasm", wasm],
+  ] as const) {
     const name = file === "glue" ? ENGINE_GLUE : ENGINE_WASM;
     const want = expected.files[name];
     const found = await sha(bytes, file);
     gone();
     if (found !== want.sha256) {
-      throw fail("mismatch", `${name} is not the file this build expects (${shortId(found)}, not ${shortId(want.sha256)})`, { file, expected: shortId(want.sha256), found: shortId(found), ...served });
+      throw fail(
+        "mismatch",
+        `${name} is not the file this build expects (${shortId(found)}, not ${shortId(want.sha256)})`,
+        { file, expected: shortId(want.sha256), found: shortId(found), ...served },
+      );
     }
   }
   return { glue, wasm, record };

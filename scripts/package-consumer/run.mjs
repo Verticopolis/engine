@@ -12,7 +12,8 @@ const fail = (message) => {
 };
 const identity = (engine, label) => {
   const id = JSON.parse(engine.engineIdentity());
-  if (!id.catalogDigests?.classic || !id.catalogDigests?.modern) fail(`${label}: engineIdentity() has no catalog digests`);
+  if (!id.catalogDigests?.classic || !id.catalogDigests?.modern)
+    fail(`${label}: engineIdentity() has no catalog digests`);
   return JSON.stringify(id);
 };
 
@@ -23,7 +24,8 @@ const imported = (await import("@verticopolis/engine")).default;
 if (identity(imported, "import main") !== playerId) fail("import and require of the main load different engines");
 for (const mode of ["classic", "modern"]) {
   const catalog = JSON.parse(player.catalog(mode));
-  if (catalog.mode !== mode || !Array.isArray(catalog.facilities) || catalog.facilities.length === 0) fail(`catalog("${mode}") is empty`);
+  if (catalog.mode !== mode || !Array.isArray(catalog.facilities) || catalog.facilities.length === 0)
+    fail(`catalog("${mode}") is empty`);
 }
 
 // The tooling build for Node, which the README loads with require().
@@ -33,7 +35,9 @@ if (identity(tooling, "tooling") !== playerId) fail("the tooling build reports a
 // The browser builds: ES modules that take the WebAssembly bytes from the host.
 for (const dir of ["web", "tooling/web"]) {
   const web = await import(`@verticopolis/engine/${dir}/verticopolis_engine.js`);
-  await web.default({ module_or_path: readFileSync(require.resolve(`@verticopolis/engine/${dir}/verticopolis_engine_bg.wasm`)) });
+  await web.default({
+    module_or_path: readFileSync(require.resolve(`@verticopolis/engine/${dir}/verticopolis_engine_bg.wasm`)),
+  });
   if (identity(web, dir) !== playerId) fail(`${dir} reports another engine than the Node build`);
   const build = JSON.parse(readFileSync(require.resolve(`@verticopolis/engine/${dir}/BUILD.json`), "utf8"));
   if (!/^[0-9a-f]{64}$/.test(build.sources ?? "")) fail(`${dir}/BUILD.json has no sources hash`);
@@ -41,19 +45,22 @@ for (const dir of ["web", "tooling/web"]) {
 
 // The conformance suite a host replays.
 const expected = JSON.parse(readFileSync(require.resolve("@verticopolis/engine/conformance/expected.json"), "utf8"));
-if (!expected.scenarios || Object.keys(expected.scenarios).length === 0) fail("conformance/expected.json has no scenarios");
+if (!expected.scenarios || Object.keys(expected.scenarios).length === 0)
+  fail("conformance/expected.json has no scenarios");
 
 // The engine stands alone (engine#89): it names no components package in any
 // dependency list, and this project installed nothing else, so a layer module
 // that reached for one would fail to import below.
 const pkg = JSON.parse(readFileSync(require.resolve("@verticopolis/engine/package.json"), "utf8"));
 for (const list of ["dependencies", "peerDependencies", "optionalDependencies", "devDependencies"]) {
-  for (const name of Object.keys(pkg[list] ?? {})) if (name.startsWith("@verticopolis/components")) fail(`package.json lists ${name} in ${list}`);
+  for (const name of Object.keys(pkg[list] ?? {}))
+    if (name.startsWith("@verticopolis/components")) fail(`package.json lists ${name} in ${list}`);
 }
 // node/ and tooling/node/ are wasm-bindgen's CommonJS under an ESM package.
 const root = dirname(require.resolve("@verticopolis/engine/package.json"));
 for (const dir of ["node", "tooling/node"]) {
-  if (JSON.parse(readFileSync(join(root, dir, "package.json"), "utf8")).type !== "commonjs") fail(`${dir}/package.json does not mark it CommonJS`);
+  if (JSON.parse(readFileSync(join(root, dir, "package.json"), "utf8")).type !== "commonjs")
+    fail(`${dir}/package.json does not mark it CommonJS`);
 }
 
 // The TypeScript layer: every compiled module imports by its subpath.
@@ -71,10 +78,17 @@ const port = tooling.Engine.newGame(1, "classic");
 const view = new ViewReader(port, () => 1);
 view.update();
 const frame = new FrameReader(port, view);
-if (frame.mode !== "classic" || typeof frame.clock.hour !== "number" || !(frame.tower.lobbyHeights() instanceof Float64Array)) fail("the frame reader does not read a fresh engine");
+if (
+  frame.mode !== "classic" ||
+  typeof frame.clock.hour !== "number" ||
+  !(frame.tower.lobbyHeights() instanceof Float64Array)
+)
+  fail("the frame reader does not read a fresh engine");
 // The test helpers find the fixtures the package carries.
 const { catalogFor } = await import("@verticopolis/engine/testing/catalogFixture");
 if (catalogFor("modern").mode !== "modern") fail("testing/catalogFixture does not read the shipped fixtures");
 
 console.log(`package consumer: ${layer} layer modules import, the frame reader reads an engine`);
-console.log(`package consumer: ${require("@verticopolis/engine/package.json").version} loads from Node, ESM, the browser builds and the tooling build`);
+console.log(
+  `package consumer: ${require("@verticopolis/engine/package.json").version} loads from Node, ESM, the browser builds and the tooling build`,
+);

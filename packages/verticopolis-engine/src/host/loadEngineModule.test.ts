@@ -9,7 +9,13 @@ import { EngineBootError } from "./bootError.ts";
 import type { BuildMetadataResult } from "./buildSection.ts";
 import { compileEngineBytes } from "./engineLoad.ts";
 import { loadWasmEngine } from "./rustEngine.ts";
-import { enginePackageUrls, loadEngineModule, loadEngineUnchecked, type EngineGlue, type LoadEngineOptions } from "./loadEngineModule.ts";
+import {
+  enginePackageUrls,
+  loadEngineModule,
+  loadEngineUnchecked,
+  type EngineGlue,
+  type LoadEngineOptions,
+} from "./loadEngineModule.ts";
 
 const sha = (d: Uint8Array | string) => createHash("sha256").update(d).digest("hex");
 const enc = (s: string) => new TextEncoder().encode(s);
@@ -72,7 +78,11 @@ function harness() {
   return { init, mod, imported, blobs, revoked, io };
 }
 
-function opts(h: ReturnType<typeof harness>, s: ReturnType<typeof served>, over: Partial<LoadEngineOptions> = {}): LoadEngineOptions {
+function opts(
+  h: ReturnType<typeof harness>,
+  s: ReturnType<typeof served>,
+  over: Partial<LoadEngineOptions> = {},
+): LoadEngineOptions {
   return {
     expected,
     fetch: s.fetch as unknown as LoadEngineOptions["fetch"],
@@ -86,7 +96,11 @@ function opts(h: ReturnType<typeof harness>, s: ReturnType<typeof served>, over:
 
 describe("enginePackageUrls", () => {
   it("names the record and the binary beside the glue", () => {
-    expect(enginePackageUrls(GLUE_URL)).toEqual({ glue: GLUE_URL, wasm: `${ORIGIN}/engine/${ENGINE_WASM}`, record: `${ORIGIN}/engine/${ENGINE_BUILD_RECORD}` });
+    expect(enginePackageUrls(GLUE_URL)).toEqual({
+      glue: GLUE_URL,
+      wasm: `${ORIGIN}/engine/${ENGINE_WASM}`,
+      record: `${ORIGIN}/engine/${ENGINE_BUILD_RECORD}`,
+    });
   });
 });
 
@@ -107,7 +121,8 @@ describe.skipIf(!existsSync(GLUE_FILE))("the glue the loader imports from a Blob
   it("reads its own URL only to find the binary when init is given none, which the loader always does", () => {
     const uses = text.match(/.*import\.meta.*/g) ?? [];
     expect(uses.length).toBeGreaterThan(0);
-    for (const line of uses) expect(line).toMatch(/new URL\(\s*['"]verticopolis_engine_bg\.wasm['"]\s*,\s*import\.meta\.url\s*\)/);
+    for (const line of uses)
+      expect(line).toMatch(/new URL\(\s*['"]verticopolis_engine_bg\.wasm['"]\s*,\s*import\.meta\.url\s*\)/);
   });
 });
 
@@ -125,7 +140,9 @@ describe("loadWasmEngine on the verified route", () => {
     const h = harness();
     const ctl = new AbortController();
     ctl.abort();
-    const err = await loadWasmEngine(GLUE_URL, { ...opts(h, served()), signal: ctl.signal, tooling: false }).catch((e: unknown) => e);
+    const err = await loadWasmEngine(GLUE_URL, { ...opts(h, served()), signal: ctl.signal, tooling: false }).catch(
+      (e: unknown) => e,
+    );
     expect(err).toBeInstanceOf(EnginePackageAborted);
     expect(h.io.importModule).not.toHaveBeenCalled();
   });
@@ -147,9 +164,13 @@ describe("loadEngineModule", () => {
     // The module that runs was compiled from the hashed bytes.
     expect(compile.mock.calls[0][0]).toEqual(wasm);
     const arg = h.init.mock.calls[0][0] as { module_or_path: WebAssembly.Module };
-    expect(arg.module_or_path).toBe(await compile.mock.results[0].value.then((r: { module: WebAssembly.Module }) => r.module));
+    expect(arg.module_or_path).toBe(
+      await compile.mock.results[0].value.then((r: { module: WebAssembly.Module }) => r.module),
+    );
     // One request per file, none after the check.
-    expect([...s.calls].sort()).toEqual([`${ORIGIN}/engine/${ENGINE_BUILD_RECORD}`, GLUE_URL, `${ORIGIN}/engine/${ENGINE_WASM}`].sort());
+    expect([...s.calls].sort()).toEqual(
+      [`${ORIGIN}/engine/${ENGINE_BUILD_RECORD}`, GLUE_URL, `${ORIGIN}/engine/${ENGINE_WASM}`].sort(),
+    );
   });
 
   it("returns what init returned, for the linear memory", async () => {
@@ -182,13 +203,17 @@ describe("loadEngineModule", () => {
 
   it("refuses a build that carries no package", async () => {
     const h = harness();
-    await expect(loadEngineModule(GLUE_URL, opts(h, served(), { expected: null }))).rejects.toMatchObject({ kind: "load-failed" });
+    await expect(loadEngineModule(GLUE_URL, opts(h, served(), { expected: null }))).rejects.toMatchObject({
+      kind: "load-failed",
+    });
     expect(h.io.importModule).not.toHaveBeenCalled();
   });
 
   it("refuses where the browser cannot hash", async () => {
     const h = harness();
-    await expect(loadEngineModule(GLUE_URL, opts(h, served(), { digest: undefined }))).rejects.toMatchObject({ kind: "unverifiable" });
+    await expect(loadEngineModule(GLUE_URL, opts(h, served(), { digest: undefined }))).rejects.toMatchObject({
+      kind: "unverifiable",
+    });
     expect(h.io.importModule).not.toHaveBeenCalled();
   });
 
@@ -215,7 +240,9 @@ describe("loadEngineModule", () => {
         ctl.abort();
         return s.fetch(url);
       }) as unknown as LoadEngineOptions["fetch"];
-      await expect(loadEngineModule(GLUE_URL, opts(h, s, { signal: ctl.signal, fetch }))).rejects.toBeInstanceOf(EnginePackageAborted);
+      await expect(loadEngineModule(GLUE_URL, opts(h, s, { signal: ctl.signal, fetch }))).rejects.toBeInstanceOf(
+        EnginePackageAborted,
+      );
       expect(h.io.importModule).not.toHaveBeenCalled();
       expect(h.init).not.toHaveBeenCalled();
     });

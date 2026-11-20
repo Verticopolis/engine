@@ -47,7 +47,8 @@ try {
   const files = readdirSync(join(root, NOTES)).filter(isNoteFile).sort();
   const notes = files.map((f) => parseNote(f, read(join(NOTES, f))));
   const tier = highestTier(notes);
-  if (tier === undefined) throw new Error(`no note in ${NOTES}/ names a tier above none, so there is nothing to release`);
+  if (tier === undefined)
+    throw new Error(`no note in ${NOTES}/ names a tier above none, so there is nothing to release`);
   const was = crateVersion(read(CARGO));
   const version = nextVersion(was, tier, arg("--version"));
   const date = new Date().toISOString().slice(0, 10);
@@ -63,7 +64,9 @@ try {
     write(guide, text);
   }
 
-  console.log(`cut-release: engine ${was} -> ${version} (${arg("--version") ? "named" : tier}), ${files.length} note(s) into the changelog section dated ${date}`);
+  console.log(
+    `cut-release: engine ${was} -> ${version} (${arg("--version") ? "named" : tier}), ${files.length} note(s) into the changelog section dated ${date}`,
+  );
   console.log(version);
 } catch (e) {
   console.error(`cut-release: ${e instanceof Error ? e.message : String(e)}`);

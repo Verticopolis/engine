@@ -4,7 +4,11 @@ import { unfoldFloorRuns } from "./floorRuns.ts";
 describe("unfoldFloorRuns", () => {
   it("unfolds a run into its tiles in place and keeps the rest", () => {
     const office = { id: 9, kind: "office", floor: 2, x: 100 };
-    const units = [office, { id: 43, kind: "floor", floor: 2, x: 167, run: 3 }, { id: 46, kind: "floor", floor: 2, x: 300 }];
+    const units = [
+      office,
+      { id: 43, kind: "floor", floor: 2, x: 167, run: 3 },
+      { id: 46, kind: "floor", floor: 2, x: 300 },
+    ];
     expect(unfoldFloorRuns(units)).toEqual([
       office,
       { id: 43, kind: "floor", floor: 2, x: 167 },
@@ -15,7 +19,10 @@ describe("unfoldFloorRuns", () => {
   });
 
   it("hands back the same list when nothing is folded", () => {
-    const units = [{ id: 1, kind: "lobby", floor: 1, x: 90, run: 4 }, { id: 2, kind: "floor", floor: 2, x: 90, run: 1 }];
+    const units = [
+      { id: 1, kind: "lobby", floor: 1, x: 90, run: 4 },
+      { id: 2, kind: "floor", floor: 2, x: 90, run: 1 },
+    ];
     expect(unfoldFloorRuns(units)).toBe(units);
   });
 

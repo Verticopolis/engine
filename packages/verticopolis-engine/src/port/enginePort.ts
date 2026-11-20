@@ -112,7 +112,8 @@ export type SchedulePresetName = "rush" | "balanced" | "feeder" | "stage-up-towe
 export type AssistedPreset = Exclude<SchedulePresetName, "stage-up-tower">;
 
 /** How a preset query ended. */
-export type PresetStatus = "available" | "unavailable-in-mode" | "no-cars" | "not-an-elevator" | "missing-shaft" | "unknown-preset";
+export type PresetStatus =
+  "available" | "unavailable-in-mode" | "no-cars" | "not-an-elevator" | "missing-shaft" | "unknown-preset";
 
 /** What `schedulePreset` answers (engine-rs `schedule_presets.rs`): the rows and
  *  homes the preset sets. `weekday` and `weekend` are null for the staging-only
@@ -187,13 +188,7 @@ export interface EnginePortLifecycle {
    *  `[steps, owed]`, the steps run and the minutes still owed. The engine
    *  keeps the step mode they were owed under; `step` false owes the frame's
    *  minutes without stepping them. */
-  advance(
-    owed: number,
-    dtMs: number,
-    minutesPerSecond: number,
-    steadyClock: boolean,
-    step: boolean,
-  ): PortRecord;
+  advance(owed: number, dtMs: number, minutesPerSecond: number, steadyClock: boolean, step: boolean): PortRecord;
   /** The save; JSON is the save format. */
   serialize(): string;
   /** `serialize()` stamped with `savedAt` and `appVersion`, as UTF-8 bytes. */
@@ -203,12 +198,7 @@ export interface EnginePortLifecycle {
   /** The `history` source: keeps the live camera and auto-bridge preference, and never applies the founder rule. */
   restore(text: string): PortRecord;
   /** The `found` source. */
-  foundTower(
-    seed: number,
-    modeCode: number,
-    calendarCode: number,
-    unbridged: boolean,
-  ): PortRecord;
+  foundTower(seed: number, modeCode: number, calendarCode: number, unbridged: boolean): PortRecord;
   /** Moves on every done swap; the reader rebuilds on a move. */
   generation(): number;
   undoSignature(): string;

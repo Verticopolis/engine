@@ -17,7 +17,9 @@ type GlueModule = { default: (init?: { module_or_path: WebAssembly.Module }) => 
 
 /** Compile engine binary bytes already in hand (the verified loader's, see
  *  loadEngineModule.ts) and read their build metadata. */
-export async function compileEngineBytes(bytes: Uint8Array): Promise<{ module: WebAssembly.Module; build: BuildMetadataResult }> {
+export async function compileEngineBytes(
+  bytes: Uint8Array,
+): Promise<{ module: WebAssembly.Module; build: BuildMetadataResult }> {
   const module = await WebAssembly.compile(bytes as BufferSource);
   return { module, build: parseBuildMetadata(WebAssembly.Module.customSections(module, BUILD_SECTION)) };
 }
@@ -26,11 +28,17 @@ export async function compileEngineBytes(bytes: Uint8Array): Promise<{ module: W
  *  served as `application/wasm` compiles as it streams in; one served as
  *  anything else (a server with no wasm MIME type) compiles from its bytes,
  *  as the glue's own loader does. */
-export async function compileEngineBinary(wasmUrl: string | URL): Promise<{ module: WebAssembly.Module; build: BuildMetadataResult }> {
+export async function compileEngineBinary(
+  wasmUrl: string | URL,
+): Promise<{ module: WebAssembly.Module; build: BuildMetadataResult }> {
   const response = await fetch(wasmUrl);
-  if (!response.ok) throw new Error(`failed to fetch Wasm: ${response.status} ${response.statusText} fetching '${String(wasmUrl)}'`);
-  const streams = typeof WebAssembly.compileStreaming === "function" && response.headers.get("Content-Type") === "application/wasm";
-  const module = streams ? await WebAssembly.compileStreaming(response) : await WebAssembly.compile(await response.arrayBuffer());
+  if (!response.ok)
+    throw new Error(`failed to fetch Wasm: ${response.status} ${response.statusText} fetching '${String(wasmUrl)}'`);
+  const streams =
+    typeof WebAssembly.compileStreaming === "function" && response.headers.get("Content-Type") === "application/wasm";
+  const module = streams
+    ? await WebAssembly.compileStreaming(response)
+    : await WebAssembly.compile(await response.arrayBuffer());
   return { module, build: parseBuildMetadata(WebAssembly.Module.customSections(module, BUILD_SECTION)) };
 }
 
@@ -48,7 +56,10 @@ export interface EngineLoadOptions {
 /** Import the glue, compile the binary beside it and initialize the glue on
  *  that compiled module. Returns the glue's namespace and what its init
  *  resolved to (the engine's exports, for the memory size). */
-export async function initEngineGlue(glueUrl: string, opts: EngineLoadOptions = {}): Promise<{ mod: GlueModule; exports: unknown }> {
+export async function initEngineGlue(
+  glueUrl: string,
+  opts: EngineLoadOptions = {},
+): Promise<{ mod: GlueModule; exports: unknown }> {
   const wasmUrl = opts.wasmUrl ?? engineBinaryUrl(glueUrl);
   // The build is reported as soon as the binary has compiled, so a glue that
   // then fails to import or to initialize still leaves what the binary said.

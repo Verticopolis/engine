@@ -40,7 +40,8 @@ export function nextVersion(current: string, tier: Tier, named?: string): string
   const bumped = bumpVersion(current, tier);
   if (named === undefined || named === "") return bumped;
   parse(named);
-  if (named !== bumped && !isLater(bumped, named)) throw new Error(`${named} is not ${bumped} or later (the ${tier} release after ${current})`);
+  if (named !== bumped && !isLater(bumped, named))
+    throw new Error(`${named} is not ${bumped} or later (the ${tier} release after ${current})`);
   return named;
 }
 
@@ -50,8 +51,10 @@ export function nextVersion(current: string, tier: Tier, named?: string): string
  */
 export function addSection(changelog: string, version: string, date: string, body: string): string {
   const lines = changelog.split("\n");
-  if (lines.some((l) => l.startsWith(`## ${version} `) || l.trimEnd() === `## ${version}`)) throw new Error(`the changelog already has a ${version} section`);
-  if (lines.some((l) => l.trimEnd() === "## Unreleased")) throw new Error(`the changelog still has a "## Unreleased" section; move its entries to .changes/ notes`);
+  if (lines.some((l) => l.startsWith(`## ${version} `) || l.trimEnd() === `## ${version}`))
+    throw new Error(`the changelog already has a ${version} section`);
+  if (lines.some((l) => l.trimEnd() === "## Unreleased"))
+    throw new Error(`the changelog still has a "## Unreleased" section; move its entries to .changes/ notes`);
   const first = lines.findIndex((l) => l.startsWith("## "));
   const section = [`## ${version} (${date})`, "", ...body.trimEnd().split("\n"), ""];
   if (first < 0) return [...lines, ...(lines.at(-1) === "" ? [] : [""]), ...section].join("\n");
@@ -93,7 +96,8 @@ export function setCrateVersion(cargoToml: string, version: string): string {
 export function setLockedVersion(lock: string, from: string, to: string): string {
   const entry = /(\[\[package\]\]\nname = "verticopolis-engine"\nversion = ")([^"]*)(")/g;
   const found = [...lock.matchAll(entry)];
-  if (found.length !== 1) throw new Error(`expected one verticopolis-engine package in the lockfile, found ${found.length}`);
+  if (found.length !== 1)
+    throw new Error(`expected one verticopolis-engine package in the lockfile, found ${found.length}`);
   if (found[0][2] !== from) throw new Error(`the lockfile has verticopolis-engine ${found[0][2]}, not ${from}`);
   return lock.replace(entry, `$1${to}$3`);
 }

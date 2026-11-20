@@ -12,6 +12,4 @@ export function initSync(module: { module: BufferSource | WebAssembly.Module }):
 
 /** Fetch and load the `.wasm`. With no argument it loads the file next to
  *  this module (`new URL("verticopolis_engine_bg.wasm", import.meta.url)`). */
-export default function init(
-  module_or_path?: { module_or_path: InitInput | Promise<InitInput> },
-): Promise<unknown>;
+export default function init(module_or_path?: { module_or_path: InitInput | Promise<InitInput> }): Promise<unknown>;

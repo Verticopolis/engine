@@ -24,7 +24,20 @@ import type { PackageFailureDetail, PackageFailureKind } from "./enginePackageCh
  * writer (Verticopolis/web#1205) is `trap-save`, and one in the slot census that loads a save
  * into a short-lived engine (Verticopolis/web#1612) is `trap-census`.
  */
-export const FALLBACK_REASONS = ["none", "boot-timeout", "boot-error", "package-mismatch", "unverifiable", "attach-refused", "trap-command", "trap-tick", "trap-undo", "trap-save", "trap-census", "other"] as const;
+export const FALLBACK_REASONS = [
+  "none",
+  "boot-timeout",
+  "boot-error",
+  "package-mismatch",
+  "unverifiable",
+  "attach-refused",
+  "trap-command",
+  "trap-tick",
+  "trap-undo",
+  "trap-save",
+  "trap-census",
+  "other",
+] as const;
 export type FallbackReason = (typeof FALLBACK_REASONS)[number];
 
 /** Where a fallback happened: loading the package, starting the host on the

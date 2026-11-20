@@ -176,7 +176,12 @@ export interface FireResponseView {
   readonly guards: readonly BombSearchGuard[];
   /** The minutes the helicopter was called, lands (and puts the fire out),
    *  stops spraying, and is gone. */
-  readonly helicopter: { readonly called: number; readonly arrive: number; readonly sprayEnd: number; readonly leave: number } | null;
+  readonly helicopter: {
+    readonly called: number;
+    readonly arrive: number;
+    readonly sprayEnd: number;
+    readonly leave: number;
+  } | null;
   readonly out: boolean;
   readonly seq: number;
 }

@@ -24,7 +24,12 @@ export class EmergencyReads {
     this.fire = null;
   }
 
-  read(port: Pick<EnginePort, "pendingChoice" | "bombSearch" | "fireResponse">, choiceUp: boolean, bombSeq: number, fireSeq = 0): void {
+  read(
+    port: Pick<EnginePort, "pendingChoice" | "bombSearch" | "fireResponse">,
+    choiceUp: boolean,
+    bombSeq: number,
+    fireSeq = 0,
+  ): void {
     if (choiceUp && !this.choiceUp) {
       const text = port.pendingChoice();
       this.choice = text === undefined ? null : (JSON.parse(text) as PendingChoiceView);

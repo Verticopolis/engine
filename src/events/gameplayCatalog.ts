@@ -64,7 +64,8 @@ const whole = (v: unknown): v is number => Number.isSafeInteger(v);
  *  `engine-rs/src/gameplay.rs`; both refuse the same catalogs. */
 export function checkCatalog(raw: unknown): GameplayCatalog {
   if (!isObject(raw)) throw new Error("catalog: must be an object");
-  if (!whole(raw.catalogVersion) || raw.catalogVersion < 1) throw new Error("catalog: catalogVersion must be a whole number from 1");
+  if (!whole(raw.catalogVersion) || raw.catalogVersion < 1)
+    throw new Error("catalog: catalogVersion must be a whole number from 1");
   if (!prose(raw.about)) throw new Error("catalog: about must be a non-empty string without */");
   const enums = raw.enums;
   if (!isObject(enums)) throw new Error("catalog: enums must be an object");
@@ -82,12 +83,14 @@ export function checkCatalog(raw: unknown): GameplayCatalog {
   if (!Array.isArray(raw.events)) throw new Error("catalog: events must be an array");
   const names = new Set<string>();
   for (const e of raw.events as unknown[]) {
-    if (!isObject(e) || typeof e.name !== "string" || !EVENT_NAME.test(e.name)) throw new Error("event: name must be snake_case");
+    if (!isObject(e) || typeof e.name !== "string" || !EVENT_NAME.test(e.name))
+      throw new Error("event: name must be snake_case");
     const name = e.name;
     if (names.has(name)) throw new Error(`event ${name}: listed twice`);
     names.add(name);
     if (!whole(e.version) || e.version < 1) throw new Error(`event ${name}: version must be a whole number from 1`);
-    if (e.cardinality !== "per_occurrence" && e.cardinality !== "per_tower") throw new Error(`event ${name}: cardinality must be per_occurrence or per_tower`);
+    if (e.cardinality !== "per_occurrence" && e.cardinality !== "per_tower")
+      throw new Error(`event ${name}: cardinality must be per_occurrence or per_tower`);
     for (const key of ["semantics", "history"]) {
       if (!prose(e[key])) throw new Error(`event ${name}: ${key} must be a non-empty string without */`);
     }
@@ -107,7 +110,9 @@ export function checkCatalog(raw: unknown): GameplayCatalog {
           throw new Error(`${where}: an integer needs whole min and max within ${INTEGER_LIMIT}`);
         }
       } else {
-        throw new Error(`${where}: type ${String(type ?? "(none)")} is not allowed; payloads carry closed enums and small integers only`);
+        throw new Error(
+          `${where}: type ${String(type ?? "(none)")} is not allowed; payloads carry closed enums and small integers only`,
+        );
       }
     }
   }
@@ -131,7 +136,8 @@ export function checkEvent(catalog: GameplayEventRules, event: unknown): void {
   const name = event.name;
   const entry = catalog.events.find((e) => e.name === name);
   if (!entry) throw new Error(`event ${name}: not in the catalog`);
-  if (Object.keys(event).length !== 2 || !isObject(event.payload)) throw new Error(`event ${name}: must be exactly { name, payload }`);
+  if (Object.keys(event).length !== 2 || !isObject(event.payload))
+    throw new Error(`event ${name}: must be exactly { name, payload }`);
   const payload = event.payload;
   for (const k of Object.keys(payload)) {
     if (!own(entry.payload, k)) throw new Error(`event ${name}: field ${k} is not in the catalog`);
@@ -184,7 +190,12 @@ export function renderGameplayEventsDts(catalog: GameplayCatalog): string {
   }
   out.push("/** Every gameplay event's payload, by event name. */", "export interface GameplayEventPayloads {");
   for (const e of catalog.events) {
-    out.push(doc(`${e.semantics} Version ${e.version}, ${e.cardinality === "per_tower" ? "once per tower" : "per occurrence"}. ${e.history}`, "  "));
+    out.push(
+      doc(
+        `${e.semantics} Version ${e.version}, ${e.cardinality === "per_tower" ? "once per tower" : "per occurrence"}. ${e.history}`,
+        "  ",
+      ),
+    );
     const fields = Object.entries(e.payload).map(([field, spec]) => {
       if (spec.type === "enum") return `    ${field}: ${enumTypeName(spec.enum)};`;
       return `    /** A whole number from ${spec.min} to ${spec.max}. */\n    ${field}: number;`;
@@ -211,10 +222,14 @@ export function renderGameplayEventsDts(catalog: GameplayCatalog): string {
  *  rules {@link checkEvent} needs at runtime, so the shipped bridge checks
  *  every drained event against the same catalog the engines are held to. */
 export function renderGameplayEventRules(catalog: GameplayCatalog): string {
-  const enums = Object.entries(catalog.enums).map(([set, values]) => `    ${set}: [${values.map((v) => JSON.stringify(v)).join(", ")}],`);
+  const enums = Object.entries(catalog.enums).map(
+    ([set, values]) => `    ${set}: [${values.map((v) => JSON.stringify(v)).join(", ")}],`,
+  );
   const events = catalog.events.map((e) => {
     const fields = Object.entries(e.payload).map(([field, spec]) =>
-      spec.type === "enum" ? `${field}: { type: "enum", enum: ${JSON.stringify(spec.enum)} }` : `${field}: { type: "integer", min: ${spec.min}, max: ${spec.max} }`,
+      spec.type === "enum"
+        ? `${field}: { type: "enum", enum: ${JSON.stringify(spec.enum)} }`
+        : `${field}: { type: "integer", min: ${spec.min}, max: ${spec.max} }`,
     );
     return `    { name: ${JSON.stringify(e.name)}, payload: {${fields.length ? ` ${fields.join(", ")} ` : ""}} },`;
   });

@@ -31,7 +31,13 @@
  * its notes stay out of the player's bundle.
  */
 
-import { ENGINE_BUILD_RECORD, ENGINE_DIR, ENGINE_GLUE, ENGINE_THIRD_PARTY_RECORD, ENGINE_WASM } from "./enginePackageNames.ts";
+import {
+  ENGINE_BUILD_RECORD,
+  ENGINE_DIR,
+  ENGINE_GLUE,
+  ENGINE_THIRD_PARTY_RECORD,
+  ENGINE_WASM,
+} from "./enginePackageNames.ts";
 
 export { ENGINE_BUILD_RECORD, ENGINE_DIR, ENGINE_GLUE, ENGINE_THIRD_PARTY_RECORD, ENGINE_WASM };
 
@@ -48,17 +54,40 @@ export interface EngineFile {
 /** Every file the package build leaves in `engine-rs/pkg-web/`. Add a new
  *  one here in the same change that writes it. */
 export const ENGINE_PACKAGE: readonly EngineFile[] = [
-  { name: ENGINE_GLUE, runtime: true, readBy: "the WASM host and the engine worker, through the verified loader (loadEngineModule.ts), which imports the checked bytes" },
-  { name: ENGINE_WASM, runtime: true, readBy: "the verified loader (loadEngineModule.ts), which fetches and hashes it and passes the bytes to the glue's init" },
-  { name: ENGINE_BUILD_RECORD, runtime: true, readBy: "the verified loader (enginePackageCheck.ts hashes the glue and binary against this record); also the build, CI's package cache and packageHash.test.ts" },
-  { name: ENGINE_THIRD_PARTY_RECORD, runtime: false, readBy: "the third-party notices build (scripts/gen-third-party-notices.ts)" },
+  {
+    name: ENGINE_GLUE,
+    runtime: true,
+    readBy:
+      "the WASM host and the engine worker, through the verified loader (loadEngineModule.ts), which imports the checked bytes",
+  },
+  {
+    name: ENGINE_WASM,
+    runtime: true,
+    readBy:
+      "the verified loader (loadEngineModule.ts), which fetches and hashes it and passes the bytes to the glue's init",
+  },
+  {
+    name: ENGINE_BUILD_RECORD,
+    runtime: true,
+    readBy:
+      "the verified loader (enginePackageCheck.ts hashes the glue and binary against this record); also the build, CI's package cache and packageHash.test.ts",
+  },
+  {
+    name: ENGINE_THIRD_PARTY_RECORD,
+    runtime: false,
+    readBy: "the third-party notices build (scripts/gen-third-party-notices.ts)",
+  },
 ];
 
 /** The engine files fetched at run time, as paths under the site base. */
-export const ENGINE_RUNTIME_FILES: readonly string[] = ENGINE_PACKAGE.filter((f) => f.runtime).map((f) => ENGINE_DIR + f.name);
+export const ENGINE_RUNTIME_FILES: readonly string[] = ENGINE_PACKAGE.filter((f) => f.runtime).map(
+  (f) => ENGINE_DIR + f.name,
+);
 
 /** The engine files the game never fetches, as paths under the site base. */
-export const ENGINE_BUILD_ONLY_FILES: readonly string[] = ENGINE_PACKAGE.filter((f) => !f.runtime).map((f) => ENGINE_DIR + f.name);
+export const ENGINE_BUILD_ONLY_FILES: readonly string[] = ENGINE_PACKAGE.filter((f) => !f.runtime).map(
+  (f) => ENGINE_DIR + f.name,
+);
 
 /**
  * The files the glue loads relative to itself: `new URL("x", import.meta.url)`
@@ -68,7 +97,8 @@ export const ENGINE_BUILD_ONLY_FILES: readonly string[] = ENGINE_PACKAGE.filter(
  */
 export function glueLoads(glue: string): string[] {
   const found = new Set<string>();
-  for (const m of glue.matchAll(/new URL\(\s*["'`]([^"'`]+)["'`]\s*,\s*import\.meta\.url/g)) found.add(m[1].replace(/^\.\//, ""));
+  for (const m of glue.matchAll(/new URL\(\s*["'`]([^"'`]+)["'`]\s*,\s*import\.meta\.url/g))
+    found.add(m[1].replace(/^\.\//, ""));
   for (const m of glue.matchAll(/(?:\bfrom|\bimport)\s*\(?\s*["'`](\.\/[^"'`]+)["'`]/g)) found.add(m[1].slice(2));
   return [...found].sort();
 }

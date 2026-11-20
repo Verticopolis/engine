@@ -344,5 +344,7 @@ export const GENERATED_EXPORTS: readonly BindingExport[] = ["free"];
 
 /** The names in one tier, in table order. */
 export function exportsInTier(tier: BindingTier): BindingExport[] {
-  return (Object.keys(BINDING_EXPORT_TIERS) as BindingExport[]).filter((name) => BINDING_EXPORT_TIERS[name].tier === tier);
+  return (Object.keys(BINDING_EXPORT_TIERS) as BindingExport[]).filter(
+    (name) => BINDING_EXPORT_TIERS[name].tier === tier,
+  );
 }

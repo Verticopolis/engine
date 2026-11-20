@@ -47,7 +47,9 @@ for (const [name, text] of Object.entries(files)) {
     // A missing fixture is stale too.
   }
   if (current !== text) {
-    console.error(`::error file=packages/verticopolis-engine/src/fixtures/${name}::${name} differs from the engine's answer; run node scripts/layer-fixtures.ts and commit it.`);
+    console.error(
+      `::error file=packages/verticopolis-engine/src/fixtures/${name}::${name} differs from the engine's answer; run node scripts/layer-fixtures.ts and commit it.`,
+    );
     stale++;
   }
 }

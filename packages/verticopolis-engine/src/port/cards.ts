@@ -28,7 +28,10 @@ interface Layout {
 }
 
 /** The port members the cards read. */
-export type CardPort = Pick<EnginePort, "viewLayout" | "unitCard" | "shaftCard" | "unitLabel" | "unitSubtype" | "generation">;
+export type CardPort = Pick<
+  EnginePort,
+  "viewLayout" | "unitCard" | "shaftCard" | "unitLabel" | "unitSubtype" | "generation"
+>;
 
 const HOURS = 24;
 const DAYS = 2;
@@ -39,7 +42,8 @@ function slots(names: readonly string[]): Record<string, number> {
 }
 
 const nullable = (n: number): number | null => (Number.isNaN(n) ? null : n);
-const named = <T extends string>(table: readonly string[], code: number): T | null => (Number.isNaN(code) ? null : ((table[code] as T | undefined) ?? null));
+const named = <T extends string>(table: readonly string[], code: number): T | null =>
+  Number.isNaN(code) ? null : ((table[code] as T | undefined) ?? null);
 
 export class Cards {
   private readonly layout: Layout;
@@ -52,10 +56,7 @@ export class Cards {
   private readonly port: CardPort;
   private readonly reader: Pick<ViewReader, "tower" | "header">;
 
-  constructor(
-    port: CardPort,
-    reader: Pick<ViewReader, "tower" | "header">,
-  ) {
+  constructor(port: CardPort, reader: Pick<ViewReader, "tower" | "header">) {
     this.port = port;
     this.reader = reader;
     this.layout = JSON.parse(port.viewLayout()) as Layout;
@@ -142,14 +143,23 @@ export class Cards {
     let i = head;
     let hourly: HourlyView | null = null;
     if (r[at.hourly] === 1) {
-      hourly = { weekday: Array.from(r.subarray(i, i + HOURS)), weekend: Array.from(r.subarray(i + HOURS, i + 2 * HOURS)) };
+      hourly = {
+        weekday: Array.from(r.subarray(i, i + HOURS)),
+        weekend: Array.from(r.subarray(i + HOURS, i + 2 * HOURS)),
+      };
       i += DAYS * HOURS;
     }
     const stops: StopRow[] = [];
     const s = this.stopAt;
     const width = this.layout.records.stopRow.length;
     for (let n = 0; n < r[at.stops]; n++, i += width) {
-      stops.push({ floor: r[i + s.floor], served: r[i + s.served] === 1, lobby: r[i + s.lobby] === 1, endpoint: r[i + s.endpoint] === 1, toggles: r[i + s.toggles] === 1 });
+      stops.push({
+        floor: r[i + s.floor],
+        served: r[i + s.served] === 1,
+        lobby: r[i + s.lobby] === 1,
+        endpoint: r[i + s.endpoint] === 1,
+        toggles: r[i + s.toggles] === 1,
+      });
     }
     let origins: OriginsView | null = null;
     if (r[at.origins] === 1) {

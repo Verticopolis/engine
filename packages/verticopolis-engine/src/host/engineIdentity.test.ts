@@ -24,9 +24,7 @@ describe("readEngineIdentity", () => {
 
 describe("parseEngineIdentity", () => {
   it("reads a full record", () => {
-    expect(parseEngineIdentity(JSON.stringify(IDENTITY_FIXTURE))).toEqual(
-      IDENTITY_FIXTURE,
-    );
+    expect(parseEngineIdentity(JSON.stringify(IDENTITY_FIXTURE))).toEqual(IDENTITY_FIXTURE);
   });
 
   it("ignores fields a newer schema adds", () => {

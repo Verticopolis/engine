@@ -23,12 +23,10 @@ const LOAD_FIELDS = [
   "residentsSeeded",
 ];
 
-const codes = (fields: readonly string[]): PortCodes =>
-  ({ fields: () => fields }) as unknown as PortCodes;
+const codes = (fields: readonly string[]): PortCodes => ({ fields: () => fields }) as unknown as PortCodes;
 
 describe("importFacts", () => {
-  const record = (over: Record<string, number>) =>
-    Float64Array.from(LOAD_FIELDS.map((name) => over[name] ?? 0));
+  const record = (over: Record<string, number>) => Float64Array.from(LOAD_FIELDS.map((name) => over[name] ?? 0));
 
   it("reads the slots by name and gathers the notes", () => {
     const rec = record({
@@ -50,10 +48,7 @@ describe("importFacts", () => {
     });
     const asked: number[] = [];
     const port = {
-      tdtNote: (i: number) => (
-        asked.push(i),
-        i === 1 ? undefined : `note ${i}`
-      ),
+      tdtNote: (i: number) => (asked.push(i), i === 1 ? undefined : `note ${i}`),
       tdtTowerName: () => "Name",
     };
     const facts = importFacts(rec, codes(LOAD_FIELDS), port);
@@ -93,23 +88,9 @@ describe("importFacts", () => {
 
 describe("exportFacts", () => {
   it("reads the counts, the encode stats and the extent by name", () => {
-    const fields = [
-      "ok",
-      "rooms",
-      "burnedOut",
-      "balance",
-      "money",
-      "star",
-      "expressLen",
-      "topFloor",
-      "basements",
-    ];
+    const fields = ["ok", "rooms", "burnedOut", "balance", "money", "star", "expressLen", "topFloor", "basements"];
     const port = { towerName: vi.fn(() => "Tower"), tdtFilename: vi.fn(() => "TOWER.TDT") };
-    const facts = exportFacts(
-      Float64Array.from([1, 40, 2, 500, 50000, 4, 3, 30, 2]),
-      codes(fields),
-      port,
-    );
+    const facts = exportFacts(Float64Array.from([1, 40, 2, 500, 50000, 4, 3, 30, 2]), codes(fields), port);
     expect(facts.towerName).toBe("Tower");
     // The download's name is the engine's (#1676), not one worked out here.
     expect(facts.filename).toBe("TOWER.TDT");
@@ -125,6 +106,9 @@ describe("exportFacts", () => {
     expect(facts.topFloor).toBe(30);
     expect(facts.basements).toBe(2);
     const unnamed = { towerName: vi.fn(() => undefined), tdtFilename: vi.fn(() => "TOWER1.TDT") };
-    expect(exportFacts(Float64Array.from([1]), codes(["ok"]), unnamed)).toMatchObject({ towerName: "", filename: "TOWER1.TDT" });
+    expect(exportFacts(Float64Array.from([1]), codes(["ok"]), unnamed)).toMatchObject({
+      towerName: "",
+      filename: "TOWER1.TDT",
+    });
   });
 });

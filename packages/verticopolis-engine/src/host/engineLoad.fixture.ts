@@ -34,11 +34,19 @@ export function wasmWith(...sections: Uint8Array[]): Uint8Array {
 export const stampedWasm = (sourceHash: string): Uint8Array => stampBuildSection(EMPTY_WASM, sourceHash);
 
 /** A `verticopolis.build` section with a payload of the test's choosing. */
-export const buildSectionWith = (json: string): Uint8Array => customSection(BUILD_SECTION, new TextEncoder().encode(json));
+export const buildSectionWith = (json: string): Uint8Array =>
+  customSection(BUILD_SECTION, new TextEncoder().encode(json));
 
 /** A fetch that answers every request with these bytes as `application/wasm`
  *  (or as the given content type, to try the non-streaming path). */
 export function wasmFetch(bytes: Uint8Array, init: ResponseInit & { type?: string } = {}): typeof fetch {
   return (async () =>
-    new Response(bytes as BodyInit, { status: 200, ...init, headers: { "Content-Type": init.type ?? "application/wasm", ...(init.headers as Record<string, string> | undefined) } })) as unknown as typeof fetch;
+    new Response(bytes as BodyInit, {
+      status: 200,
+      ...init,
+      headers: {
+        "Content-Type": init.type ?? "application/wasm",
+        ...(init.headers as Record<string, string> | undefined),
+      },
+    })) as unknown as typeof fetch;
 }

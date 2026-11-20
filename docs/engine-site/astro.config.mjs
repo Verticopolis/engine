@@ -18,7 +18,8 @@ export default defineConfig({
   integrations: [
     starlight({
       title,
-      description: "Developer docs for the Verticopolis simulation engine: the JavaScript package, the Rust crate, the host API and the conformance suite.",
+      description:
+        "Developer docs for the Verticopolis simulation engine: the JavaScript package, the Rust crate, the host API and the conformance suite.",
       logo: { src: "./src/assets/logo.png", alt: "Verticopolis" },
       favicon: "/favicon.png",
       social: [{ icon: "github", label: "GitHub", href: GITHUB }],

@@ -1,13 +1,25 @@
 import { createHash, webcrypto } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { EnginePackageAborted, EnginePackageError, browserDigest, isControlled, verifyEnginePackage, RECORD_CAP_BYTES, type VerifyOptions } from "./enginePackageCheck.ts";
+import {
+  EnginePackageAborted,
+  EnginePackageError,
+  browserDigest,
+  isControlled,
+  verifyEnginePackage,
+  RECORD_CAP_BYTES,
+  type VerifyOptions,
+} from "./enginePackageCheck.ts";
 import { ENGINE_GLUE, ENGINE_WASM } from "./enginePackageNames.ts";
 import { engineBuildRecord, expectedOf, type EnginePackageRecord } from "./enginePackageRecord.ts";
 
 const sha = (d: Uint8Array | string) => createHash("sha256").update(d).digest("hex");
 const enc = (s: string) => new TextEncoder().encode(s);
 const ORIGIN = "https://game.example";
-const URLS = { record: `${ORIGIN}/engine/BUILD.json`, glue: `${ORIGIN}/engine/${ENGINE_GLUE}`, wasm: `${ORIGIN}/engine/${ENGINE_WASM}` };
+const URLS = {
+  record: `${ORIGIN}/engine/BUILD.json`,
+  glue: `${ORIGIN}/engine/${ENGINE_GLUE}`,
+  wasm: `${ORIGIN}/engine/${ENGINE_WASM}`,
+};
 
 const glue = enc("export default async function init() {}\nexport class Engine {}\n");
 const wasm = new Uint8Array(4096).map((_, i) => (i * 7) & 255);
@@ -47,14 +59,17 @@ function server(files: Record<string, Served>) {
     if (!spec) return Promise.resolve(new Response("not found", { status: 404 }));
     if (spec.reject) return Promise.reject(spec.reject);
     if (spec.hang) {
-      return new Promise((_, reject) => init.signal.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError"))));
+      return new Promise((_, reject) =>
+        init.signal.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError"))),
+      );
     }
     const chunks = spec.chunks ?? [spec.body ?? new Uint8Array()];
     let i = 0;
     const stream = new ReadableStream<Uint8Array>({
       start(c) {
         // A real fetch errors a body that is still arriving when its signal fires.
-        if (spec.endless) init.signal.addEventListener("abort", () => c.error(new DOMException("aborted", "AbortError")));
+        if (spec.endless)
+          init.signal.addEventListener("abort", () => c.error(new DOMException("aborted", "AbortError")));
       },
       pull(c) {
         if (i < chunks.length) c.enqueue(chunks[i++]);
@@ -240,7 +255,8 @@ describe("files that do not arrive whole", () => {
     const files = good();
     const original = server(files).fetch;
     const e = await refusal(files, {
-      fetch: (url, init) => (url === URLS.record ? Promise.resolve(new Response(null, { status: 200 })) : original(url, init)),
+      fetch: (url, init) =>
+        url === URLS.record ? Promise.resolve(new Response(null, { status: 200 })) : original(url, init),
     });
     expect(e.kind).toBe("load-failed");
   });
@@ -268,7 +284,12 @@ describe("files from another build", () => {
   });
 
   it("refuses the R3 shape: a glue from one build and a binary from another", async () => {
-    const other = engineBuildRecord(enc("export default async function init() { /* B */ }\n"), flipped(wasm), "c".repeat(64), sha);
+    const other = engineBuildRecord(
+      enc("export default async function init() { /* B */ }\n"),
+      flipped(wasm),
+      "c".repeat(64),
+      sha,
+    );
     const files = good();
     files[URLS.glue] = { body: enc("export default async function init() { /* B */ }\n".padEnd(glue.length, " ")) };
     files[URLS.wasm] = { body: flipped(wasm) };
@@ -306,7 +327,10 @@ describe("files from another build", () => {
 
   it("compares Content-Length with an uncompressed body", async () => {
     const files = good();
-    files[URLS.wasm] = { body: wasm.slice(0, 100), headers: { "content-encoding": "identity", "content-length": String(wasm.length) } };
+    files[URLS.wasm] = {
+      body: wasm.slice(0, 100),
+      headers: { "content-encoding": "identity", "content-length": String(wasm.length) },
+    };
     const e = await refusal(files);
     expect(e.kind).toBe("load-failed");
   });
@@ -351,7 +375,10 @@ describe("files from another build", () => {
 });
 
 describe("a BUILD.json that does not fit", () => {
-  const record200 = (body: Uint8Array | string): Record<string, Served> => ({ ...good(), [URLS.record]: { body: typeof body === "string" ? enc(body) : body } });
+  const record200 = (body: Uint8Array | string): Record<string, Served> => ({
+    ...good(),
+    [URLS.record]: { body: typeof body === "string" ? enc(body) : body },
+  });
 
   it.each([
     ["empty", ""],
@@ -374,7 +401,10 @@ describe("a BUILD.json that does not fit", () => {
   });
 
   it("refuses a record that keeps this build's package id but changes a file entry", async () => {
-    const forged: EnginePackageRecord = { ...record, files: { ...record.files, [ENGINE_WASM]: { sha256: sha("another binary"), bytes: wasm.length } } };
+    const forged: EnginePackageRecord = {
+      ...record,
+      files: { ...record.files, [ENGINE_WASM]: { sha256: sha("another binary"), bytes: wasm.length } },
+    };
     expect(forged.package).toBe(record.package);
     const e = await refusal(record200(recordText(forged)));
     expect(e.kind).toBe("mismatch");
@@ -388,7 +418,15 @@ describe("the caller's deadline and the siblings", () => {
     const s = server(good());
     const ctl = new AbortController();
     ctl.abort();
-    const err = await verifyEnginePackage({ expected, urls: URLS, fetch: s.fetch, digest: browserDigest(webcrypto as unknown as Crypto), signal: ctl.signal, controlled: false, origin: ORIGIN }).catch((e: unknown) => e);
+    const err = await verifyEnginePackage({
+      expected,
+      urls: URLS,
+      fetch: s.fetch,
+      digest: browserDigest(webcrypto as unknown as Crypto),
+      signal: ctl.signal,
+      controlled: false,
+      origin: ORIGIN,
+    }).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(EnginePackageAborted);
     expect(s.seen).toHaveLength(0);
   });

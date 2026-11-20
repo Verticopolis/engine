@@ -28,13 +28,15 @@ if (!out) {
 }
 const root = resolve(import.meta.dirname, "..");
 const dir = resolve(out);
-const tsc = (args: string[]) => execFileSync(resolve(root, "node_modules/.bin/tsc"), args, { cwd: root, stdio: "inherit" });
+const tsc = (args: string[]) =>
+  execFileSync(resolve(root, "node_modules/.bin/tsc"), args, { cwd: root, stdio: "inherit" });
 
 tsc(["-p", "packages/verticopolis-engine/tsconfig.build.json", "--outDir", dir]);
 
 const fixtures = resolve(root, "packages/verticopolis-engine/src/fixtures");
 mkdirSync(join(dir, "fixtures"), { recursive: true });
-for (const name of readdirSync(fixtures)) if (name.endsWith(".json")) copyFileSync(join(fixtures, name), join(dir, "fixtures", name));
+for (const name of readdirSync(fixtures))
+  if (name.endsWith(".json")) copyFileSync(join(fixtures, name), join(dir, "fixtures", name));
 
 // The event rules are generated TypeScript; the package ships them compiled too.
 const stage = mkdtempSync(join(tmpdir(), "engine-events-"));
@@ -42,11 +44,21 @@ try {
   copyFileSync(resolve(root, "src/events/gameplayCatalog.ts"), join(stage, "gameplayCatalog.ts"));
   copyFileSync(resolve(root, "engine-rs/pkg-events/gameplayEventRules.ts"), join(stage, "gameplayEventRules.ts"));
   tsc([
-    "--outDir", join(dir, "events"),
-    "--declaration", "--strict", "--skipLibCheck",
-    "--target", "es2023", "--module", "esnext", "--moduleResolution", "bundler",
-    "--rewriteRelativeImportExtensions", "--verbatimModuleSyntax",
-    join(stage, "gameplayCatalog.ts"), join(stage, "gameplayEventRules.ts"),
+    "--outDir",
+    join(dir, "events"),
+    "--declaration",
+    "--strict",
+    "--skipLibCheck",
+    "--target",
+    "es2023",
+    "--module",
+    "esnext",
+    "--moduleResolution",
+    "bundler",
+    "--rewriteRelativeImportExtensions",
+    "--verbatimModuleSyntax",
+    join(stage, "gameplayCatalog.ts"),
+    join(stage, "gameplayEventRules.ts"),
   ]);
 } finally {
   rmSync(stage, { recursive: true, force: true });

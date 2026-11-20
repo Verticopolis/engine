@@ -1,7 +1,14 @@
 import type { BuildMetadataResult } from "./buildSection.ts";
 import { compileEngineBytes, initEngineGlue, type EngineLoadOptions } from "./engineLoad.ts";
 import { DEV_SKIP_MARKER, ENGINE_BUILD_RECORD, ENGINE_WASM } from "./enginePackageNames.ts";
-import { browserDigest, EnginePackageAborted, isControlled, verifyEnginePackage, type PackageUrls, type VerifyOptions } from "./enginePackageCheck.ts";
+import {
+  browserDigest,
+  EnginePackageAborted,
+  isControlled,
+  verifyEnginePackage,
+  type PackageUrls,
+  type VerifyOptions,
+} from "./enginePackageCheck.ts";
 import type { ExpectedEnginePackage } from "./enginePackageRecord.ts";
 
 /**
@@ -127,6 +134,9 @@ export interface UncheckedLoadOptions extends EngineLoadOptions {
  */
 export async function loadEngineUnchecked(glueUrl: string, opts: UncheckedLoadOptions = {}): Promise<LoadedEngine> {
   console.info(`[wasm] ${DEV_SKIP_MARKER}`);
-  const { mod, exports } = await (opts.initGlue ?? initEngineGlue)(glueUrl, { onBuild: opts.onBuild, wasmUrl: opts.wasmUrl });
+  const { mod, exports } = await (opts.initGlue ?? initEngineGlue)(glueUrl, {
+    onBuild: opts.onBuild,
+    wasmUrl: opts.wasmUrl,
+  });
   return { mod: mod as EngineGlue, exports: exports as LoadedEngine["exports"], verified: false };
 }

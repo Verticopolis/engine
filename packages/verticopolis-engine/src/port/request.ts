@@ -49,7 +49,8 @@ type Field<O extends CommandOp, K extends string> = Extract<Command, { op: O }>[
 
 /** A whole number both engines read the same way: the Rust binding takes
  *  floors, columns and ids as 32-bit integers and wraps anything wider. */
-const whole = (v: unknown): boolean => typeof v === "number" && Number.isInteger(v) && v >= -(2 ** 31) && v <= 2 ** 31 - 1;
+const whole = (v: unknown): boolean =>
+  typeof v === "number" && Number.isInteger(v) && v >= -(2 ** 31) && v <= 2 ** 31 - 1;
 const finite = (v: unknown): boolean => typeof v === "number" && Number.isFinite(v);
 const flag = (v: unknown): boolean => typeof v === "boolean";
 const text = (v: unknown): boolean => typeof v === "string" && v.length <= MAX_TEXT;
@@ -62,7 +63,13 @@ const member =
 
 const method = member<Field<"removeFacility", "method">>({ sell: true, bulldoze: true });
 const end = member<Field<"extendTransport", "end">>({ up: true, down: true });
-const policy = member<Field<"setFilmPolicy", "policy">>({ auto: true, feature: true, blockbuster: true, revival: true, off: true });
+const policy = member<Field<"setFilmPolicy", "policy">>({
+  auto: true,
+  feature: true,
+  blockbuster: true,
+  revival: true,
+  off: true,
+});
 const logKind = member<NonNullable<Field<"emit", "kind">>>({ info: true, good: true, bad: true, money: true });
 const brushKind = member<Field<"paintBrush", "kind">>({ floor: true, lobby: true });
 const batchTarget = (v: unknown): boolean => v === "default" || v === "noRate" || finite(v);
@@ -194,7 +201,8 @@ const CHECKS: { readonly [K in CommandOp]: Check } = {
   adjustRent: (c) => whole(c.id) && (c.dir === 1 || c.dir === -1),
   setNoRate: id,
   priceUnit: (c) => whole(c.id) && finite(c.target),
-  applyRentBatch: (c, isKind) => isKind(c.kind) && batchTarget(c.target) && (c.onlyDefaultPriced === undefined || flag(c.onlyDefaultPriced)),
+  applyRentBatch: (c, isKind) =>
+    isKind(c.kind) && batchTarget(c.target) && (c.onlyDefaultPriced === undefined || flag(c.onlyDefaultPriced)),
   setFilmPolicy: (c) => whole(c.id) && policy(c.policy),
   rerollSubtype: id,
   callExterminator: none,

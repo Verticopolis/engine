@@ -30,9 +30,14 @@ export function rebaseLink(link, base) {
 /** Every root link in href, src and srcset attributes of one page, rebased. */
 export function rebaseHtml(html, base) {
   const rebased = html
-    .replace(/(\s(?:href|src)=)(["'])(.*?)\2/g, (_, attr, quote, link) => `${attr}${quote}${rebaseLink(link, base)}${quote}`)
+    .replace(
+      /(\s(?:href|src)=)(["'])(.*?)\2/g,
+      (_, attr, quote, link) => `${attr}${quote}${rebaseLink(link, base)}${quote}`,
+    )
     .replace(/(\ssrcset=)(["'])(.*?)\2/g, (_, attr, quote, list) => {
-      const entries = list.split(",").map((entry) => entry.replace(/^(\s*)(\S+)/, (__, space, url) => space + rebaseLink(url, base)));
+      const entries = list
+        .split(",")
+        .map((entry) => entry.replace(/^(\s*)(\S+)/, (__, space, url) => space + rebaseLink(url, base)));
       return `${attr}${quote}${entries.join(",")}${quote}`;
     });
   return rebased.includes(NOINDEX) ? rebased : rebased.replace(/<head(\s[^>]*)?>/i, (head) => `${head}${NOINDEX}`);

@@ -42,10 +42,7 @@ export class FrameReader {
   private readonly port: EnginePort;
   private readonly reader: ViewReader;
 
-  constructor(
-    port: EnginePort,
-    reader: ViewReader,
-  ) {
+  constructor(port: EnginePort, reader: ViewReader) {
     this.port = port;
     this.reader = reader;
     const l = JSON.parse(port.viewLayout()) as { heatModes: HeatmapMode[]; heatTints: string[] };
@@ -152,4 +149,3 @@ export class FrameReader {
     return this.queue;
   }
 }
-

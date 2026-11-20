@@ -24,7 +24,9 @@ const AUTO_OFF = 0;
 
 export function scheduleSlots(schedule: ElevatorSchedule): Float64Array {
   const row = (hours: number[] | undefined): number[] =>
-    hours ? [1, ...Array.from({ length: SCHEDULE_HOURS }, (_, h) => hours[h] ?? ALL_CARS)] : Array<number>(1 + SCHEDULE_HOURS).fill(0);
+    hours
+      ? [1, ...Array.from({ length: SCHEDULE_HOURS }, (_, h) => hours[h] ?? ALL_CARS)]
+      : Array<number>(1 + SCHEDULE_HOURS).fill(0);
   const homes = (schedule.homeFloors ?? []).slice(0, HOMES);
   return Float64Array.from([
     ...row(schedule.activeCars?.weekday),
@@ -50,7 +52,10 @@ export function scheduleFromSlots(slots: Float64Array): ElevatorSchedule | undef
     return xs.every((x) => Number.isSafeInteger(x)) ? xs : undefined;
   };
   const activeCars: Record<string, number[]> = {};
-  for (const [name, at] of [["weekday", 0], ["weekend", 1 + SCHEDULE_HOURS]] as const) {
+  for (const [name, at] of [
+    ["weekday", 0],
+    ["weekend", 1 + SCHEDULE_HOURS],
+  ] as const) {
     if (slots[at] === 1) {
       const hours = ints(at + 1, SCHEDULE_HOURS);
       if (!hours) return undefined;

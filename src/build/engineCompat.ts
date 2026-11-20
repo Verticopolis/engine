@@ -110,14 +110,11 @@ export const VERSION_CONSTANTS: Record<
   },
 };
 
-const hex16 = (data: string | Uint8Array) =>
-  createHash("sha256").update(data).digest("hex").slice(0, 16);
+const hex16 = (data: string | Uint8Array) => createHash("sha256").update(data).digest("hex").slice(0, 16);
 
 /** A checkout with CRLF line endings must digest like one with LF. */
 function lf(data: Buffer): Buffer {
-  return data.includes(0)
-    ? data
-    : Buffer.from(data.toString("latin1").replace(/\r\n/g, "\n"), "latin1");
+  return data.includes(0) ? data : Buffer.from(data.toString("latin1").replace(/\r\n/g, "\n"), "latin1");
 }
 
 /** For each lock file in order (read from under `root`, the repository root): its name, a newline, its length, a newline, then its bytes. */
@@ -139,9 +136,8 @@ export function lockDigest(root: string): string {
  */
 export function interfaceDigest(declaration: string): string {
   const code = declaration
-    .replace(
-      /"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
-      (m) => (m[0] === "/" ? " " : m),
+    .replace(/"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, (m) =>
+      m[0] === "/" ? " " : m,
     )
     .replace(/\s+/g, " ")
     .trim();
@@ -154,31 +150,14 @@ export function interfaceDigest(declaration: string): string {
  * match (a `#[cfg(test)]` copy, a raw string that quotes it) is an error, so
  * the constant read here is the constant the engine compiles.
  */
-export function rustConstant(
-  source: string,
-  name: string,
-  type: string,
-): number {
+export function rustConstant(source: string, name: string, type: string): number {
   // One pass in the order things start, so a `/*` inside a line comment (as in
   // `migrations/*`) does not open a block comment that eats the declaration.
-  const code = source.replace(
-    /"(?:[^"\\]|\\[\s\S])*"|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
-    (m) => (m[0] === "/" ? " " : m),
-  );
-  const found = [
-    ...code.matchAll(
-      new RegExp(
-        `^(?:pub(?:\\(crate\\))? )?const ${name}: ${type} = (\\d+);`,
-        "gm",
-      ),
-    ),
-  ];
-  if (found.length === 0)
-    throw new Error(`no \`const ${name}: ${type} = N;\` in the Rust source`);
+  const code = source.replace(/"(?:[^"\\]|\\[\s\S])*"|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, (m) => (m[0] === "/" ? " " : m));
+  const found = [...code.matchAll(new RegExp(`^(?:pub(?:\\(crate\\))? )?const ${name}: ${type} = (\\d+);`, "gm"))];
+  if (found.length === 0) throw new Error(`no \`const ${name}: ${type} = N;\` in the Rust source`);
   if (found.length > 1)
-    throw new Error(
-      `\`const ${name}: ${type}\` is declared ${found.length} times in the Rust source`,
-    );
+    throw new Error(`\`const ${name}: ${type}\` is declared ${found.length} times in the Rust source`);
   return Number(found[0][1]);
 }
 
@@ -188,13 +167,11 @@ export function cargoPackage(cargoToml: string): {
   version: string;
 } {
   const pkg = /\[package\]([\s\S]*?)(?:\n\s*\[|$)/.exec(cargoToml)?.[1] ?? "";
-  const field = (key: string) =>
-    new RegExp(`^${key}\\s*=\\s*"([^"]+)"`, "m").exec(pkg)?.[1];
+  const field = (key: string) => new RegExp(`^${key}\\s*=\\s*"([^"]+)"`, "m").exec(pkg)?.[1];
   const name = field("name");
   const version = field("version");
   if (!name) throw new Error("engine-rs/Cargo.toml has no [package] name");
-  if (!version)
-    throw new Error("engine-rs/Cargo.toml has no [package] version");
+  if (!version) throw new Error("engine-rs/Cargo.toml has no [package] version");
   return { name, version };
 }
 
@@ -240,9 +217,7 @@ export function computeCompat(root: string): CompatRecord {
  */
 export function unbumpedPins(old: CompatRecord, now: CompatRecord): string[] {
   if (old.crateVersion !== now.crateVersion) return [];
-  return (Object.keys(now) as (keyof CompatRecord & string)[]).filter(
-    (k) => k !== "crateVersion" && old[k] !== now[k],
-  );
+  return (Object.keys(now) as (keyof CompatRecord & string)[]).filter((k) => k !== "crateVersion" && old[k] !== now[k]);
 }
 
 /** `x.y.z` with nothing after it: a release a bump can name. */
@@ -293,14 +268,7 @@ export function baseRecord(git: Git): BaseRecord {
   try {
     text = git(["show", `origin/main:${COMPAT_RECORD_PATH}`]);
   } catch {
-    const ever = git([
-      "log",
-      "--format=%H",
-      "-1",
-      "origin/main",
-      "--",
-      COMPAT_RECORD_PATH,
-    ]).trim();
+    const ever = git(["log", "--format=%H", "-1", "origin/main", "--", COMPAT_RECORD_PATH]).trim();
     if (ever)
       throw new Error(
         `${source} no longer has ${COMPAT_RECORD_PATH} (deleted or moved); restore it before re-recording`,
@@ -313,11 +281,7 @@ export function baseRecord(git: Git): BaseRecord {
   } catch {
     throw new Error(`${source}'s ${COMPAT_RECORD_PATH} cannot be read as JSON`);
   }
-  if (
-    typeof record !== "object" ||
-    record === null ||
-    typeof (record as CompatRecord).crateVersion !== "string"
-  )
+  if (typeof record !== "object" || record === null || typeof (record as CompatRecord).crateVersion !== "string")
     throw new Error(`${source}'s ${COMPAT_RECORD_PATH} has no crateVersion`);
   return { record: record as CompatRecord, source };
 }

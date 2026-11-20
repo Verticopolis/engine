@@ -21,7 +21,11 @@ export interface DdminResult<T> {
  *  settles: dropping any one item makes it stop failing. `fails(items)` must
  *  already be true; the predicate decides what counts (a scenario the Rust
  *  engine refuses does not). Deterministic for a deterministic predicate. */
-export function ddmin<T>(items: readonly T[], fails: (candidate: readonly T[]) => boolean, maxTests = 500): DdminResult<T> {
+export function ddmin<T>(
+  items: readonly T[],
+  fails: (candidate: readonly T[]) => boolean,
+  maxTests = 500,
+): DdminResult<T> {
   let kept = [...items];
   let tests = 0;
   const test = (candidate: T[]): boolean | null => {
