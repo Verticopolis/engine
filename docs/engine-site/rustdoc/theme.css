@@ -9,7 +9,10 @@
 
 :root {
   --font-family: var(--r-font);
+  /* The game's menu bar, then the navy title bar under it. */
+  --vc-menubar-h: 24px;
   --vc-bar-height: 4rem;
+  --vc-chrome-height: calc(var(--vc-menubar-h) + var(--vc-bar-height));
   --desktop-sidebar-width: 300px;
 }
 :root[data-theme="light"],
@@ -64,9 +67,10 @@
   font-weight: 700;
 }
 
-/* ---- The title bar: Starlight's header -------------------------------- */
+/* ---- The menu bar and the title bar: Starlight's header --------------- */
 
-/* The bar takes a row of its own above rustdoc's sidebar and page. */
+/* Each bar takes a row of its own above rustdoc's sidebar and page, the game's
+   menu bar (menu-bar.css) on top, as on the docs pages. */
 .rustdoc {
   flex-wrap: wrap;
 }
@@ -74,10 +78,30 @@
   flex: 1 1 0;
   min-width: 0;
 }
-.vc-header {
+/* Its menus open over rustdoc's sidebar, which stacks itself as high as
+   100. */
+.rustdoc > .vc-menubar-host {
   flex: 0 0 100%;
   position: sticky;
   top: 0;
+  z-index: 110;
+  height: var(--vc-menubar-h);
+  box-sizing: border-box;
+}
+/* The components' MenuBar draws the bar inside the host. */
+.vc-menubar-host > .menubar {
+  height: 100%;
+  box-sizing: border-box;
+}
+@media print {
+  .rustdoc > .vc-menubar-host {
+    display: none;
+  }
+}
+.vc-header {
+  flex: 0 0 100%;
+  position: sticky;
+  top: var(--vc-menubar-h);
   z-index: 20;
   display: flex;
   align-items: center;
@@ -114,8 +138,8 @@ rustdoc-topbar .vc-bar-links a:focus-visible {
   display: none;
 }
 .sidebar {
-  top: var(--vc-bar-height);
-  height: calc(100vh - var(--vc-bar-height));
+  top: var(--vc-chrome-height);
+  height: calc(100vh - var(--vc-chrome-height));
   border-right: 2px solid var(--r-shadow);
 }
 .vc-site-menu {
@@ -194,9 +218,9 @@ rustdoc-topbar .vc-bar-links a:focus-visible {
 }
 
 /* A source page pins rustdoc's file-list button to the window's top left,
-   which is the title bar's logo here, so it sits just below the bar. */
+   which is the bars' corner here, so it sits just below them. */
 .src #sidebar-button {
-  top: calc(var(--vc-bar-height) + 8px);
+  top: calc(var(--vc-chrome-height) + 8px);
 }
 
 /* GitHub closes the menu only where the title bar hides it (the components'
@@ -220,7 +244,7 @@ rustdoc-topbar .vc-bar-links a:focus-visible {
     padding-inline: 1rem;
   }
   rustdoc-topbar {
-    top: var(--vc-bar-height);
+    top: var(--vc-chrome-height);
   }
 
   /* One bar: once the script has copied the title and the links into
@@ -234,7 +258,7 @@ rustdoc-topbar .vc-bar-links a:focus-visible {
     display: none;
   }
   .vc-one-bar rustdoc-topbar {
-    top: 0;
+    top: var(--vc-menubar-h);
     align-items: center;
     gap: 0.5rem;
     padding: 0 1rem;
@@ -295,5 +319,77 @@ rustdoc-topbar .vc-bar-links a:focus-visible {
   }
   .vc-one-bar rustdoc-topbar .sidebar-menu-toggle:active {
     box-shadow: var(--bevel-in);
+  }
+}
+
+/* ---- The game's appearance schemes ------------------------------------ */
+
+/* The scheme picked in the game (menu.mjs puts it on the root). The palette
+   swap is retro-tokens.css's and the title bar's buttons are
+   starlight-schemes.css's; these give rustdoc's own chrome the scheme's
+   shapes, as that sheet gives the docs pages theirs. */
+html[data-scheme="skyline"] .vc-header {
+  background: var(--sky-title);
+  text-shadow: 0 1px 0 #15123a;
+}
+html[data-scheme="skyline"] .sidebar .vc-site-menu a[aria-current="page"],
+html[data-scheme="skyline"] .sidebar .vc-site-menu a[aria-current="page"]:hover {
+  background: var(--sky-violet);
+  border-radius: 4px;
+}
+
+/* High Contrast: white on black, links and the current row in yellow, on
+   rustdoc's dark theme (menu.mjs holds the page on it). */
+html[data-scheme="high_contrast"][data-theme] {
+  --main-background-color: #000000;
+  --main-color: #ffffff;
+  --sidebar-background-color: #000000;
+  --sidebar-background-color-hover: #000000;
+  --sidebar-border-color: #ffffff;
+  --sidebar-link-color: #ffffff;
+  --sidebar-current-link-background-color: #ffff00;
+  --link-color: #ffff00;
+  --mod-link-color: #ffff00;
+  --type-link-color: #ffff00;
+  --trait-link-color: #ffff00;
+  --function-link-color: #ffff00;
+  --macro-link-color: #ffff00;
+  --keyword-link-color: #ffff00;
+  --attribute-link-color: #ffff00;
+  --assoc-item-link-color: #ffff00;
+  --headings-border-bottom-color: #ffffff;
+  --border-color: #ffffff;
+  --code-block-background-color: #000000;
+  --search-input-focused-border-color: #ffff00;
+  --right-side-color: #ffffff;
+}
+html[data-scheme="high_contrast"] .vc-header {
+  background: #000000;
+  color: #ffffff;
+  border-bottom: 2px solid #ffffff;
+}
+html[data-scheme="high_contrast"] .sidebar {
+  border-right-color: #ffffff;
+}
+html[data-scheme="high_contrast"] .sidebar .current,
+html[data-scheme="high_contrast"] .sidebar .current a {
+  background: #ffff00;
+  color: #000000;
+  box-shadow: none;
+}
+html[data-scheme="high_contrast"] .vc-site-menu a {
+  color: #ffffff;
+}
+html[data-scheme="high_contrast"] pre {
+  box-shadow: inset 0 0 0 1px #ffffff;
+}
+@media (max-width: 700px) {
+  html[data-scheme="skyline"].vc-one-bar rustdoc-topbar {
+    background: var(--sky-title);
+  }
+  html[data-scheme="high_contrast"].vc-one-bar rustdoc-topbar {
+    background: #000000;
+    color: #ffffff;
+    border-bottom: 2px solid #ffffff;
   }
 }

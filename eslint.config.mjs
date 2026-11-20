@@ -37,6 +37,13 @@ export default [
     },
   },
   {
+    // The docs site's menu bar runs in the browser, on both kinds of page.
+    files: ["docs/engine-site/menu.mjs", "docs/engine-site/rustdoc/*.mjs"],
+    languageOptions: {
+      globals: { ...globals.browser },
+    },
+  },
+  {
     files: ["**/*.test.ts"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
