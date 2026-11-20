@@ -30,24 +30,23 @@ wasm:build && npm run glue:test`), where
 `packages/verticopolis-engine/glue/conformanceWasm.test.ts` replays every
 scenario against this lock. A mismatch fails the build and names the
 first checkpoint that differs. Beyond the scripted scenarios, the frame-day
-golden (in the game's repository, Verticopolis/web:
-`src/tests/goldens/frame-days.json`, built by
-`src/tests/goldens/frameDays.ts`) pins a day on every fixture at every speed,
-played through the port's `advance` as the web frame loop plays it, as
+golden (`packages/verticopolis-engine/glue/goldens/frame-days.json`, built by
+`glue/goldens/frameDays.ts`) pins a day on every fixture at every speed,
+played through the port's `advance` as a frontend's frame loop plays it, as
 hashes of the same two views and of the gameplay events at the start, after
 the first frame, every hour and at the end of the day
-(`conformanceWasmFrameDays.integration.test.ts`). It is written by
-the Rust run under its own switch (`VC_FRAME_DAYS_UPDATE=1 npx vitest run
---project integration conformanceWasmFrameDays`, with the engine package
-built), on purpose and in the same pull request as the change that moves it,
-like the lock. It is not
-one of the lock files below, so a refresh of it alone does not move the crate
-version. The port-edit golden (`src/tests/goldens/port-edits.json`, built by
-`src/tests/goldens/portEdits.ts`) does the same for the player's edits: the
-mirror's edit and brush checks sent as the game's port commands, and the
-game's undo and redo, with every answer and the same hashes after each step
-(`conformanceWasmPortEdits`, written under `VC_PORT_EDITS_UPDATE=1`). Until
-#1875 the TypeScript reference engine was held to the lock and the goldens too.
+(`glue/frameDaysGolden.test.ts`). It is written by the Rust run under its own
+switch (`VC_FRAME_DAYS_UPDATE=1 npm run glue:test -- frameDaysGolden`, with
+the engine package built), on purpose and in the same pull request as the
+change that moves it, like the lock. It is not one of the lock files below,
+so a refresh of it alone does not move the crate version. The port-edit
+golden (`glue/goldens/port-edits.json`, built by `glue/goldens/portEdits.ts`)
+does the same for a player's edits: the edit and brush checks sent as port
+commands, and undo and redo, with every answer and the same hashes after each
+step (`glue/portEditsGolden.test.ts`, written under
+`VC_PORT_EDITS_UPDATE=1 npm run glue:test -- portEditsGolden`). Both moved
+here from Verticopolis/web, where the TypeScript reference engine was held to
+the lock and the goldens too until Verticopolis/web#1875.
 
 The fuzz corpus's goldens move the same way: when a change moves an entry on
 purpose, pin the new records with `node scripts/fuzz-corpus.mts --update`
@@ -67,8 +66,8 @@ The update replays every scenario file and writes `expected.json` and
 `catalog-digests.json` only when every scenario runs to its end; it refuses
 to run in CI. Run the referee and the glue lane (`npm run wasm:build && npm
 run glue:test`) after it: both must pass on the new lock. A simulation change
-that moves the lock usually moves the game's frame-day and port-edit goldens
-too; they are refreshed in Verticopolis/web when it raises its engine pin.
+that moves the lock usually moves the frame-day and port-edit goldens too:
+refresh them in the same pull request (the commands are above).
 
 A change to any of the five lock files (`catalog-digests.json`, the event
 catalog `src/gameplay/catalog.json`, `expected.json`,
