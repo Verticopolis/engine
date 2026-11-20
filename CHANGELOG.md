@@ -19,6 +19,33 @@ raised the version, so they are documentation only.
 There is no entry for 0.17.0, which only
 existed as a step inside a stacked branch.
 
+## 1.60.1 (2026-11-20)
+
+- **patch**: the repository's layout changed: the crate sits at the repository root and
+  the npm package's manifest is `packages/verticopolis-engine/package.json`.
+  What the crate and the npm package ship is unchanged, apart from the
+  generated `events/` declarations' header comments naming the new paths.
+- **patch**: `engineSourceHash` (`@verticopolis/engine/host/packageHash`) follows a
+  crate's `include` list at its top level, so hashing a crate that sits at a
+  repository root reads only the folders and files the crate ships. It throws
+  on an `include` entry with a glob character it cannot follow.
+- **patch**: On the real-world calendar, fires, bomb threats and thieves roll a tenth
+  of their daily odds, so a 30-day month brings the emergencies a 3-day
+  canon month does. They had kept the canon calendar's per-day odds over
+  360-day years: an undefended Modern tower saw about seven fires by the
+  third quarter of its first year. Classic and Modern's Short calendar are
+  unchanged.
+- **patch**: The conformance lock moves for the Modern scenarios on the real-world
+  calendar only; the ransom and fire-rescue scenarios tick until their
+  emergency arrives at the new odds, and the uncaught-thief scenario and
+  fuzz entry start from seed 13.
+- **patch**: the conformance referee writes both locks with `--update`
+  (`cargo run --release --features conformance --bin conformance -- --update`):
+  every scenario's checkpoints into `conformance/expected.json` and each
+  mode's catalog digest into `conformance/catalog-digests.json`, only when
+  every scenario runs to its end and never in CI.
+- **patch**: the office rent line reads "(1 office)" for a single office instead of "(1 offices)", like the club, clinic and rental lines.
+
 ## 1.60.0 (2026-11-20)
 
 - **minor**: the npm package carries the engine's TypeScript layer, moved here with its
