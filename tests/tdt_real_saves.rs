@@ -1,8 +1,6 @@
 //! Nine real SimTower saves from 1997, contributed by Reddit user u/invokes
 //! with their consent (r/SimTower thread, 2026-10-29); see
-//! `conformance/fixtures/tdt-reddit/README.md` and issue #1491. The TypeScript
-//! importer reads the same files in
-//! `src/tests/integration/tdtRealSaves.integration.test.ts` and must agree.
+//! `conformance/fixtures/tdt-reddit/README.md` and issue #1491.
 
 use std::path::PathBuf;
 
@@ -395,4 +393,31 @@ fn imported_basement_express_stops_survive_repeated_save_round_trips_for_all_ski
     let (modern_marked, modern_skips) = pick(&modern);
     assert!(modern_marked);
     assert!(modern_skips.contains(&(basement_skip as f64)));
+}
+
+#[test]
+fn shop_restaurant_and_fast_food_styles_survive_a_vctower_round_trip() {
+    use verticopolis_engine::load::{decode_vctower_bytes, deserialize, encode_simulation_vctower};
+
+    let styles = |save: &serde_json::Value| -> Vec<String> {
+        let mut out: Vec<String> = save["units"]
+            .as_array()
+            .expect("units")
+            .iter()
+            .filter(|u| matches!(u["kind"].as_str(), Some("shop" | "restaurant" | "fastFood")))
+            .map(|u| format!("{}@{},{}={}", u["kind"], u["floor"], u["x"], u["subtype"]))
+            .collect();
+        out.sort();
+        out
+    };
+    for (name, _, _) in SAVES {
+        let imported = import_save(name);
+        let before = styles(&imported);
+        // Every styled room has a style, so the comparison is not of empty names.
+        assert!(before.iter().all(|line| !line.ends_with("=null")), "{name}");
+        let sim = deserialize(&imported).expect("loads");
+        let file = encode_simulation_vctower(&sim, "3.0.0", 0.0).expect("writes a .vctower");
+        let reopened = deserialize(&decode_vctower_bytes(&file).expect("reads")).expect("reopens");
+        assert_eq!(styles(&reopened.serialize()), before, "{name}");
+    }
 }
