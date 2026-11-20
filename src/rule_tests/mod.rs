@@ -78,6 +78,7 @@ mod legibility;
 mod legibility_move_ins;
 mod loader_cases;
 mod lobby_distance;
+mod log_text;
 mod meal_cadence;
 mod metro_shoppers;
 mod metro_stations;
