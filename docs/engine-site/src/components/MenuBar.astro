@@ -1,0 +1,35 @@
+---
+// The game's menu bar along the top of every page, above the title bar, as
+// the help site draws it. What it holds and what each item does are
+// menu.mjs, which the Rust API reference's pages share; the components'
+// MenuBar draws it into the host here, and its look and its place over the
+// title bar are styles/menu-bar.css and styles/starlight-menu-bar.css.
+import { MENU_HOST } from "../../menu.mjs";
+---
+
+<div id={MENU_HOST}></div>
+
+<script>
+  import { MenuBar } from "@verticopolis/components/windows/menuBar";
+  import { mountMenu, storeTheme, storedTheme } from "../../menu.mjs";
+
+  const themeSelect = () => document.querySelector<HTMLSelectElement>("starlight-theme-select select");
+  mountMenu(MenuBar, {
+    theme: storedTheme,
+    // Starlight's own theme switch makes the change and keeps it; the menu
+    // also keeps it for the Rust API reference's pages.
+    setTheme: (theme: "light" | "dark" | "auto") => {
+      const select = themeSelect();
+      if (select) {
+        select.value = theme;
+        select.dispatchEvent(new Event("change"));
+      }
+      storeTheme(theme);
+    },
+    // Starlight's search closes on any click outside its box, and the menu
+    // item's own click is still on its way up to the window, so open it on
+    // the next tick, once that click is done.
+    openSearch: () =>
+      setTimeout(() => document.querySelector<HTMLButtonElement>("site-search button[data-open-modal]")?.click()),
+  });
+</script>

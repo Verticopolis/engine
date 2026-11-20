@@ -10,9 +10,10 @@
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.7",
-    "@verticopolis/components": "1.0.0",
+    "@verticopolis/components": "2.0.0",
     "astro": "7.4.12",
     "mermaid": "12.3.0",
-    "postcss": "8.5.32"
+    "postcss": "8.5.32",
+    "rolldown": "1.2.19"
   }
 }

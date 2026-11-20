@@ -119,10 +119,13 @@ jobs:
             cargo doc --locked --no-deps --manifest-path Cargo.toml
           mkdir -p docs/engine-site/dist/rust
           cp -R target/doc/. docs/engine-site/dist/rust/
+          # The menu bar's script, which every Rust page loads from /rust/.
+          cp "$chrome/vc-menu.js" docs/engine-site/dist/rust/vc-menu.js
           printf '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=verticopolis_engine/index.html"><title>Rust API reference</title><a href="verticopolis_engine/index.html">Rust API reference</a>\n' > docs/engine-site/dist/rust/index.html
           test -f docs/engine-site/dist/index.html
           test -f docs/engine-site/dist/crate/index.html
           test -f docs/engine-site/dist/rust/verticopolis_engine/index.html
+          test -s docs/engine-site/dist/rust/vc-menu.js
           if [ -n "$PR" ]; then node docs/engine-site/scripts/preview-base.mjs docs/engine-site/dist "$DOCS_BASE"; fi
 
       - name: Upload the site

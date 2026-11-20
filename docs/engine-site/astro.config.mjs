@@ -6,6 +6,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import { GITHUB, sidebar, siteTitle } from "./site.mjs";
+import { schemeBootScript } from "./menu.mjs";
 
 // DOCS_REF names the ref the pages link to; the workflow sets it to main.
 const title = siteTitle(process.env.DOCS_REF);
@@ -30,8 +31,17 @@ export default defineConfig({
       // Starlight's CSS sits in the `starlight` layer and the components' in
       // `vc`; this orders them before any stylesheet loads, so the game look
       // wins (the components README, "Styles").
-      head: [{ tag: "style", content: "@layer starlight, vc;" }],
-      customCss: ["@verticopolis/components/styles/starlight.css"],
+      // The scheme picked in the game goes on the page before it paints
+      // (menu.mjs).
+      head: [
+        { tag: "style", content: "@layer starlight, vc;" },
+        { tag: "script", content: schemeBootScript() },
+      ],
+      // The game's look, then its menu bar over the title bar (MenuBar.astro).
+      customCss: [
+        "@verticopolis/components/styles/starlight.css",
+        "@verticopolis/components/styles/starlight-menu-bar.css",
+      ],
       sidebar,
     }),
   ],
