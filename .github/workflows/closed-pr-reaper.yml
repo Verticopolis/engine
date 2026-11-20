@@ -1,0 +1,64 @@
+# Cancels the runs a pull request leaves behind once it is merged or closed.
+#
+# Workflow concurrency cancels a pull request's older run only when a newer run
+# joins the same group, which takes a new push. Merging or closing the pull
+# request starts no such run (the merge's push to main has its own group), so
+# every run still going on the pull request's branch kept running or queued
+# until it finished, holding runners that open pull requests were waiting for.
+# On close, this cancels every queued, running or waiting `pull_request` run for
+# that branch from the same repository, and every `push` run on that branch
+# when it is not main. It never touches its own run, a run created after the
+# close (new work on a reused branch name), or a run from a fork.
+name: Closed pull request reaper
+
+on:
+  pull_request:
+    types: [closed]
+
+# Least privilege: cancelling runs needs `actions: write` and nothing else.
+permissions:
+  actions: write
+
+# One group per pull request, so two closes never cancel each other's reap.
+concurrency:
+  group: closed-pr-reaper-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  reap:
+    # A fork's pull request gets a read-only token that cannot cancel anything.
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Cancel the closed pull request's unfinished runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SELF_RUN: ${{ github.run_id }}
+          CLOSED_AT: ${{ github.event.pull_request.closed_at }}
+        # No `-e`: this is best-effort cleanup, so one failed API call must not
+        # stop the rest. Each call carries its own fallback.
+        run: |
+          set -uo pipefail
+          echo "PR #${PR_NUMBER} closed; cancelling its unfinished runs on ${PR_BRANCH}"
+          for status in queued in_progress waiting requested pending; do
+            ids=$(gh api --method GET "repos/$REPO/actions/runs" \
+              -f branch="$PR_BRANCH" -f status="$status" -f per_page=100 2>/dev/null \
+              | jq -r --argjson self "$SELF_RUN" --arg closed "$CLOSED_AT" --arg repo "$REPO" '
+                .workflow_runs[]
+                | select(.id != $self and .created_at < $closed)
+                | select(.head_repository.full_name == $repo)
+                | select(.event == "pull_request"
+                    or (.event == "push" and .head_branch != "main"))
+                | .id' 2>/dev/null || true)
+            for id in $ids; do
+              echo "  cancel ${status} run ${id}"
+              gh run cancel "$id" --repo "$REPO" >/dev/null 2>&1 \
+                || gh api --method POST "repos/$REPO/actions/runs/$id/force-cancel" >/dev/null 2>&1 \
+                || echo "  (could not cancel $id)"
+            done
+          done
+          echo "Reaper done."
