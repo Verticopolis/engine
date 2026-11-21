@@ -7,8 +7,8 @@
 // GitHub at DOCS_REF (the release tag on a release build, main otherwise). A
 // mermaid block becomes a <pre class="mermaid"> that the page draws as a
 // diagram in the browser (src/components/Mermaid.astro), as GitHub draws it.
-// The game's logo, favicon and title-screen skyline are copied in the same way;
-// its palette comes from @verticopolis/components (astro.config.mjs).
+// The game's logo and favicon are copied in the same way; its palette and the
+// title screen's skyline come from @verticopolis/components (astro.config.mjs).
 import { copyFileSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, posix, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -119,7 +119,6 @@ function main() {
   mkdirSync(join(site, "public"), { recursive: true });
   copyFileSync(join(site, "brand/icon-1024x1024.png"), join(site, "src/assets/logo.png"));
   copyFileSync(join(site, "brand/favicon.png"), join(site, "public/favicon.png"));
-  copyFileSync(join(site, "brand/splash-skyline.svg"), join(site, "public/splash-skyline.svg"));
   console.log(`synced ${pages.length} pages at ${ref}`);
 }
 

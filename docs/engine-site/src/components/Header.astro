@@ -1,19 +1,23 @@
 ---
 // The engine docs' header: the game's menu bar on top (MenuBar.astro), then
-// the shared title bar (TitleBar.astro), handed Starlight's search and theme
-// switch from this site's own Starlight, and the script that draws a page's
-// diagrams (Mermaid.astro).
+// the shared title bar from @verticopolis/components, handed the site's name
+// and front page from Starlight and Starlight's search and theme switch from
+// this site's own Starlight, and the script that draws a page's diagrams
+// (Mermaid.astro).
 import Search from "@astrojs/starlight/components/Search.astro";
 import ThemeSelect from "@astrojs/starlight/components/ThemeSelect.astro";
-import TitleBar from "./TitleBar.astro";
+import TitleBar from "@verticopolis/components/astro/TitleBar.astro";
 import MenuBar from "./MenuBar.astro";
 import Mermaid from "./Mermaid.astro";
 import logo from "../assets/logo.png";
+import { GAME, GITHUB } from "../../title-bar.mjs";
 import { SHORT_TITLE } from "../../site.mjs";
+
+const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute;
 ---
 
 <MenuBar />
-<TitleBar logo={logo} short={SHORT_TITLE}>
+<TitleBar logo={logo} title={siteTitle} short={SHORT_TITLE} href={siteTitleHref} github={GITHUB} game={GAME}>
   <Search slot="search" />
   <ThemeSelect slot="theme" />
 </TitleBar>

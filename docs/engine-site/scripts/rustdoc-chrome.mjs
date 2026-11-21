@@ -21,9 +21,10 @@
 //                to /rust/ so every page shares one cached copy
 //
 // The title and the menu come from site.mjs and pages.json, the same lists
-// Starlight draws from, so the two stay one menu. The title bar's markup is
-// title-bar.mjs, the one the docs site and the help site draw, and the menu
-// bar's model is menu.mjs, the one the docs site draws.
+// Starlight draws from, so the two stay one menu. The title bar's markup
+// comes from title-bar.mjs, which writes the same bar the docs site and the
+// help site draw with TitleBar.astro from @verticopolis/components, and the
+// menu bar's model is menu.mjs, the one the docs site draws.
 //
 // Usage: node scripts/rustdoc-chrome.mjs <output folder>
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
