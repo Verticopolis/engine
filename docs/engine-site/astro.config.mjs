@@ -26,7 +26,7 @@ export default defineConfig({
       social: [{ icon: "github", label: "GitHub", href: GITHUB }],
       components: {
         Header: "./src/components/Header.astro",
-        Hero: "./src/components/TitleScreen.astro",
+        Hero: "./src/components/Hero.astro",
       },
       // Starlight's CSS sits in the `starlight` layer and the components' in
       // `vc`; this orders them before any stylesheet loads, so the game look

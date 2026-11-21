@@ -1,0 +1,20 @@
+---
+// The landing page's hero: the game's title screen from
+// @verticopolis/components, filled from the page's `hero` front matter.
+// Starlight renders it in place of its own hero (astro.config.mjs,
+// components.Hero).
+import TitleScreen from "@verticopolis/components/astro/TitleScreen.astro";
+
+const { tagline, actions = [] } = Astro.locals.starlightRoute.entry.data.hero || {};
+---
+
+<TitleScreen
+  label="Verticopolis engine"
+  caption="THE ENGINE DEVELOPER DOCS"
+  premise={tagline}
+  actions={actions.map((action) => ({
+    text: action.text,
+    href: action.link,
+    primary: action.variant === "primary",
+  }))}
+/>

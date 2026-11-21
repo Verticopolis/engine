@@ -119,7 +119,6 @@ function main() {
   mkdirSync(join(site, "public"), { recursive: true });
   copyFileSync(join(site, "brand/icon-1024x1024.png"), join(site, "src/assets/logo.png"));
   copyFileSync(join(site, "brand/favicon.png"), join(site, "public/favicon.png"));
-  copyFileSync(join(site, "brand/splash-skyline.svg"), join(site, "public/splash-skyline.svg"));
   console.log(`synced ${pages.length} pages at ${ref}`);
 }
 
