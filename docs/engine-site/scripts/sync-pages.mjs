@@ -7,8 +7,8 @@
 // GitHub at DOCS_REF (the release tag on a release build, main otherwise). A
 // mermaid block becomes a <pre class="mermaid"> that the page draws as a
 // diagram in the browser (src/components/Mermaid.astro), as GitHub draws it.
-// The game's logo, favicon and title-screen skyline are copied in the same way;
-// its palette comes from @verticopolis/components (astro.config.mjs).
+// The game's logo and favicon are copied in the same way; its palette and the
+// title screen's skyline come from @verticopolis/components (astro.config.mjs).
 import { copyFileSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, posix, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

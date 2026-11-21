@@ -2,8 +2,8 @@
 // menu. astro.config.mjs hands both to Starlight, and
 // scripts/rustdoc-chrome.mjs draws the same header and menu into the pages
 // cargo doc writes, so a page added here shows up in both places. The title
-// bar itself (the game button, GitHub) is title-bar.mjs, which the help site
-// draws too.
+// bar itself is TitleBar.astro from @verticopolis/components; title-bar.mjs
+// holds its links (the game, GitHub) and the markup rustdoc's pages get.
 import { GAME } from "./title-bar.mjs";
 
 export { GITHUB } from "./title-bar.mjs";
