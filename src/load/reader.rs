@@ -271,7 +271,7 @@ pub(crate) fn unit_from_value(u: &Value, modern: bool) -> Option<(Unit, Option<i
             (Some(s), None) if kind == Kind::Lobby => crate::tower::look_named(s),
             _ => None,
         };
-    let retail = kind.subtype_list().is_some();
+    let retail = crate::economy::visitors::keeps_patronage(kind);
     let retail_field = |field: Option<&Value>| -> Option<f64> {
         if !retail {
             return None;

@@ -117,14 +117,42 @@ pub fn counts_set_audience(kind: Kind) -> bool {
 }
 
 /// Whether `kind`'s census is the count its room carries from the day
-/// before (`visitors_yest`): daily visitors or a set audience.
+/// before (`visitors_yest`): daily visitors, a set audience or the day's
+/// patronage.
 pub fn census_follows_the_day(kind: Kind) -> bool {
-    counts_daily_visitors(kind) || counts_set_audience(kind)
+    counts_daily_visitors(kind) || counts_set_audience(kind) || census_counts_patronage(kind)
+}
+
+/// Whether `kind` keeps a patronage tally, the customers its demand sends
+/// each day: every venue with a spend per customer.
+pub fn keeps_patronage(kind: Kind) -> bool {
+    crate::economy::retail_spend_per_customer(kind).is_some_and(|s| s > 0.0)
+}
+
+/// Whether `kind`'s census is the customers it served the day before, held
+/// to its population (owner, 2026-11-25): a venue that keeps a patronage
+/// tally, has no daily visitor count of its own, and whose customers no
+/// meal trip, show or walk-in brings in person, so it has no live head
+/// count to show. While walk-ins are off that is the amusements, boutique
+/// bay, nightclub, spa, sky bar and daycare.
+pub fn census_counts_patronage(kind: Kind) -> bool {
+    keeps_patronage(kind) && !counts_daily_visitors(kind) && !kind.counts_visitors()
+}
+
+/// The census a venue that counts its patronage carries into the next day:
+/// the day's whole customers, held to its population.
+pub fn patronage_census(kind: Kind, patronage: f64) -> i64 {
+    let whole = if patronage.is_finite() {
+        patronage.max(0.0).floor() as i64
+    } else {
+        0
+    };
+    whole.min(kind.facility().population)
 }
 
 /// Whether `kind`'s census is the customers inside it right now: a venue
-/// whose census does not follow the day (the Modern venues, such as the
-/// nightclub, the spa and the food hall). Every Classic room's census
+/// whose census does not follow the day (the Modern food hall, while
+/// walk-ins are off). Every Classic room's census
 /// follows the day or counts the people who live or work there.
 /// The tests pin `Unit::recycling_census_share` against it; the share
 /// decides the same in one pass.

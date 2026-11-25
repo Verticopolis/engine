@@ -255,7 +255,9 @@ fn values_resolve_for_the_mode() {
     assert_eq!(cadence(&modern, "clinic"), "quarterly");
     // Only the venues that track customers quote a ticket.
     assert_eq!(entry(&modern, "shop").spend_per_customer, Some(20.0));
-    assert_eq!(entry(&modern, "nightclub").spend_per_customer, None);
+    assert_eq!(entry(&modern, "spa").spend_per_customer, Some(40.0));
+    assert_eq!(entry(&modern, "nightclub").spend_per_customer, Some(30.0));
+    assert_eq!(entry(&modern, "cinema").spend_per_customer, None);
     // Classic never counts Food Hall customers: it pays the hall nothing.
     assert_eq!(entry(&classic, "foodHall").spend_per_customer, None);
     assert_eq!(entry(&modern, "foodHall").spend_per_customer, Some(25.0));

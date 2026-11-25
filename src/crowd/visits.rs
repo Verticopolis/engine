@@ -324,7 +324,7 @@ pub fn begin_dwell(crowd: &mut Crowd, tower: &mut Tower, i: usize) {
         }
         // A venue whose customers come in person counts each one at the
         // door, so Today's patronage is who really came.
-        if kind.takes_walk_ins() && counts_patronage(kind) {
+        if kind.takes_walk_ins() && crate::economy::visitors::keeps_patronage(kind) {
             let mut tally = v.extras_mut();
             tally.patronage_today = Some(tally.patronage_today.unwrap_or(0.0) + 1.0);
         }
@@ -346,13 +346,6 @@ pub fn begin_dwell(crowd: &mut Crowd, tower: &mut Tower, i: usize) {
             tower.bump_meal_overlay_revision();
         }
     }
-}
-
-/// Whether `kind` keeps a patronage tally: a venue with subtypes and a
-/// spend per customer (`collect_traffic_income`'s retail test).
-fn counts_patronage(kind: Kind) -> bool {
-    kind.subtype_list().is_some()
-        && crate::economy::retail_spend_per_customer(kind).is_some_and(|s| s > 0.0)
 }
 
 /// Takes person `i` out of the venue's head count as they walk out of it

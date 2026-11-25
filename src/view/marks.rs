@@ -201,10 +201,11 @@ impl Unit {
     }
 
     /// A room's share of the population recycling plans for: its census
-    /// share, except that a venue counting the customers inside it right now
-    /// adds none. Those customers mostly live or work in the tower and are
-    /// counted there already, and their number swings with the lunch crowd,
-    /// which flipped the recycling gate at noon (#358).
+    /// share, except that a venue counting the customers inside it right now,
+    /// or yesterday's patronage, adds none. Those customers mostly live or
+    /// work in the tower and are counted there already, and a live count
+    /// swings with the lunch crowd, which flipped the recycling gate at noon
+    /// (#358).
     /// `Simulation::recycling_population` sums it, and so does the
     /// recycling tally (`tally.rs`).
     ///
@@ -213,7 +214,7 @@ impl Unit {
     /// `census_share` and `census_count`, with a live-customer venue's
     /// branch giving 0 (pinned against `census_share` in `tests`).
     pub(crate) fn recycling_census_share(&self) -> i64 {
-        if !self.is_present() {
+        if !self.is_present() || crate::economy::visitors::census_counts_patronage(self.kind) {
             0
         } else if crate::economy::visitors::census_follows_the_day(self.kind) {
             i64::from(self.visitors_yest.unwrap_or(0))

@@ -104,7 +104,10 @@ impl Simulation {
             "state": u.state.as_str(),
             "satisfaction": u.satisfaction,
             "occupants": u.occupants,
-            "customersIn": u.customers_in,
+            // The customers inside right now, for a venue people come to in
+            // person (`Kind::counts_visitors`); null on any other kind, whose
+            // customers the patronage block counts instead.
+            "customersIn": u.kind.counts_visitors().then(|| u.customers_in.unwrap_or(0)),
             "residents": u.residents,
             "everOccupied": u.ever_occupied,
             "noRate": u.no_rate,
