@@ -85,7 +85,7 @@ fn reference(u: &Unit) -> Value {
     if let Some(v) = u.subtype {
         m.insert("subtype".into(), json!(v));
     }
-    if u.kind.subtype_list().is_some() {
+    if crate::economy::visitors::keeps_patronage(u.kind) {
         if let Some(v) = extras.patronage_today {
             m.insert("patronageToday".into(), json!(v));
         }

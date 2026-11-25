@@ -326,8 +326,8 @@ export interface CatalogFacility {
    *  the money loop pays a sold-out venue. */
   readonly dailyIncome: number | null;
   /** The average ticket per customer the engine counts customers with, for the
-   *  venues that track them in this mode (those with subtypes and a daily
-   *  income), else null. */
+   *  venues that track them in this mode (those with a daily income and a
+   *  patronage tally), else null. */
   readonly spendPerCustomer: number | null;
   /** A service facility's monthly maintenance, or null. */
   readonly upkeepMonthly: number | null;

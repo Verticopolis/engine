@@ -470,7 +470,11 @@ mod tests {
             let active =
                 |sim: &mut Simulation, id| sim.service_diagnostic_facts(id).unwrap().retail.active;
             assert!(active(&mut sim, shop), "{mode:?} shop");
-            assert!(!active(&mut sim, bar), "{mode:?} sky bar");
+            assert_eq!(
+                active(&mut sim, bar),
+                mode == GameMode::Modern,
+                "{mode:?} sky bar"
+            );
             // Every other kind agrees with the catalog's own spendPerCustomer.
             let others = [
                 Kind::FastFood,

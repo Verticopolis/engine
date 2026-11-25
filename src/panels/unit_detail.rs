@@ -104,7 +104,7 @@ impl Simulation {
             "state": u.state.as_str(),
             "satisfaction": u.satisfaction,
             "occupants": u.occupants,
-            "customersIn": u.customers_in,
+            "customersIn": shown_customers(u),
             "residents": u.residents,
             "everOccupied": u.ever_occupied,
             "noRate": u.no_rate,
@@ -131,4 +131,14 @@ impl Simulation {
                 .then(|| crate::crowd::commuters::coming_to(&self.crowd, id)),
         }))
     }
+}
+
+/// The customers a unit's card shows inside it right now: a count for a venue
+/// people come to in person (`Kind::counts_visitors`), `None` for any other
+/// kind, whose customers the patronage block counts instead. The JSON card and
+/// the port's packed card both read it.
+pub(crate) fn shown_customers(u: &crate::tower::Unit) -> Option<i64> {
+    u.kind
+        .counts_visitors()
+        .then(|| u.customers_in.unwrap_or(0))
 }

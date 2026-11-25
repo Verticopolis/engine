@@ -5,8 +5,8 @@ use indexmap::IndexMap;
 use super::films::{fills_blockbuster_slot, theater_audience};
 use super::screens::{put_screens, screens};
 use super::visitors::{
-    climb_steps, counts_set_audience, expected_visitors, served_visitors, set_audience,
-    venue_day_ends_in_the_morning, NEW_FILM_DRAW,
+    census_counts_patronage, climb_steps, counts_set_audience, expected_visitors, keeps_patronage,
+    patronage_census, served_visitors, set_audience, venue_day_ends_in_the_morning, NEW_FILM_DRAW,
 };
 use super::{
     is_overhead_kind, ledger_cat_for, rental_message, service_maintenance_monthly,
@@ -160,7 +160,7 @@ impl Simulation {
                 }
                 continue;
             }
-            if u.kind.subtype_list().is_none() || venue_day_ends_in_the_morning(u.kind) {
+            if !keeps_patronage(u.kind) || venue_day_ends_in_the_morning(u.kind) {
                 continue;
             }
             self.close_venue_day(i);
@@ -181,9 +181,11 @@ impl Simulation {
         }
     }
 
-    /// Ends the day of the shop, fast food or restaurant at unit index `i`:
-    /// its served count follows the day's expected visitors and patronage,
-    /// and today's tallies become yesterday's. The day that ended is the
+    /// Ends the day of the venue at unit index `i` that keeps a patronage
+    /// tally: a shop's, fast food's or restaurant's served count follows the
+    /// day's expected visitors and patronage, a venue that counts its
+    /// patronage carries the day's customers into its census, and today's
+    /// tallies become yesterday's. The day that ended is the
     /// calendar day before today, whose weekend sets the caps, for a venue
     /// whose day ends at midnight and for one whose day ends at 10:00.
     fn close_venue_day(&mut self, i: usize) {
@@ -210,6 +212,9 @@ impl Simulation {
             let served = served_visitors(expected, patronage);
             // Served never exceeds a cap, and every cap fits a byte.
             u.set_visitors_yest(at, Some(u8::try_from(served).unwrap_or(u8::MAX)));
+        } else if census_counts_patronage(u.kind) {
+            let census = patronage_census(u.kind, u.extras().patronage_today.unwrap_or(0.0));
+            u.set_visitors_yest(at, Some(u8::try_from(census).unwrap_or(u8::MAX)));
         }
         let mut tally = u.extras_mut();
         tally.patronage_yest = Some(tally.patronage_today.unwrap_or(0.0));

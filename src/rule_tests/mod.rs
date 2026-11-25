@@ -141,6 +141,7 @@ mod venue_attendance;
 mod venue_cap;
 mod venue_day_close;
 mod venue_origins;
+mod venue_patronage_census;
 mod venue_presence;
 mod venue_staff;
 mod walking_penalties;

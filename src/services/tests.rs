@@ -308,7 +308,7 @@ fn the_vip_suite_stay_reads_the_suites_and_waits_five_days() {
 }
 
 /// A tower with a working recycling center in the basement, a shop on floor
-/// 3 and, in Modern, a nightclub on floor 2, every room open.
+/// 3 and, in Modern, a food hall on floor 2, every room open.
 fn venue_tower(mode: GameMode) -> Simulation {
     let mut sim = Simulation::new(1, mode, CalendarKind::RealWorld, false);
     for x in 0..LOT_WIDTH {
@@ -322,7 +322,7 @@ fn venue_tower(mode: GameMode) -> Simulation {
     }
     let mut placed = vec![sim.tower.place(Kind::Recycling, -1, 0)];
     if mode == GameMode::Modern {
-        placed.push(sim.tower.place(Kind::Nightclub, 2, 40));
+        placed.push(sim.tower.place(Kind::FoodHall, 2, 40));
     }
     placed.push(sim.tower.place(Kind::Shop, 3, 0));
     for r in placed {
@@ -339,7 +339,7 @@ fn set_customers(sim: &mut Simulation, kind: Kind, n: i64) {
 
 #[test]
 fn a_modern_venue_crowd_cannot_flip_the_recycling_gate() {
-    // #358: the nightclub's census is the customers inside right now, so
+    // #358: the food hall's census is the customers inside right now, so
     // the total population swings with the crowd. Recycling plans for the
     // population without them: a crowd far past one center's 2,500 leaves
     // the gate met and the bins as full as before.
@@ -347,7 +347,7 @@ fn a_modern_venue_crowd_cannot_flip_the_recycling_gate() {
     sim.star = 4;
     sim.clock.minutes += 12.0 * 60.0; // noon, so the bins hold something
     set_customers(&mut sim, Kind::Shop, 0);
-    set_customers(&mut sim, Kind::Nightclub, 0);
+    set_customers(&mut sim, Kind::FoodHall, 0);
     assert_eq!(sim.recycling_centers(), 1);
     let quiet_total = sim.tower.total_population();
     let quiet = sim.recycling_population();
@@ -355,7 +355,7 @@ fn a_modern_venue_crowd_cannot_flip_the_recycling_gate() {
     assert!(quiet_fill > 0.0 || quiet == 0);
     assert!(sim.recycling_demand_met());
 
-    set_customers(&mut sim, Kind::Nightclub, 3000);
+    set_customers(&mut sim, Kind::FoodHall, 3000);
     assert_eq!(
         sim.tower.total_population(),
         quiet_total + 3000,
@@ -388,11 +388,11 @@ fn a_classic_tower_plans_recycling_for_its_whole_population() {
 }
 
 #[test]
-fn the_recycling_share_is_the_census_share_except_for_a_live_venue() {
+fn the_recycling_share_is_the_census_share_except_for_a_venues_customers() {
     // `recycling_census_share` decides in one pass what `census_share`
     // decides through `census_count` and `live_load`; this keeps the copy
     // from drifting, for every kind and for a room present or not.
-    use crate::economy::visitors::census_counts_live_customers;
+    use crate::economy::visitors::{census_counts_live_customers, census_counts_patronage};
     use crate::facilities::FACILITIES;
     use crate::tower::UnitState;
     let sim = venue_tower(GameMode::Modern);
@@ -405,11 +405,12 @@ fn the_recycling_share_is_the_census_share_except_for_a_live_venue() {
             u.visitors_yest = Some(17);
             u.customers_in = Some(23);
             u.occupants = 9;
-            let expected = if census_counts_live_customers(f.kind) {
-                0
-            } else {
-                u.census_share()
-            };
+            let expected =
+                if census_counts_live_customers(f.kind) || census_counts_patronage(f.kind) {
+                    0
+                } else {
+                    u.census_share()
+                };
             assert_eq!(
                 u.recycling_census_share(),
                 expected,

@@ -316,7 +316,7 @@ impl Engine {
             unit_state_code(u.state),
             u.satisfaction,
             u.occupants as f64,
-            count(u.customers_in),
+            count(crate::panels::unit_detail::shown_customers(u)),
             count(u.residents),
             flag(u.ever_occupied),
             flag(u.no_rate),

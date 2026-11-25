@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 use super::films::film_income_mult;
 use super::tickets::ticket_income_mult;
+use super::visitors::keeps_patronage;
 use super::{
     commercial_daily_income, ledger_cat_for, retail_spend_per_customer, weekend_multiplier,
     COMMERCIAL_LOBBY_FAR_MULT, COMMERCIAL_LOBBY_FLOORS, TRAFFIC_FACTOR_MIN, TRAFFIC_FACTOR_SPAN,
@@ -118,7 +119,7 @@ impl Simulation {
             let u = &mut self.tower.units[i];
             u.pending_income += hourly;
             let spend = retail_spend_per_customer(kind);
-            let is_retail = kind.subtype_list().is_some() && spend.is_some_and(|s| s > 0.0);
+            let is_retail = keeps_patronage(kind);
             if is_retail {
                 let cust_per_hour = daily / (spend.unwrap() * open_h);
                 let expected =

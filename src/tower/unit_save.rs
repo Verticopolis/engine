@@ -83,7 +83,7 @@ impl SaveEntries for Unit {
         if let Some(v) = self.subtype {
             put("subtype", EntryValue::Text(v))?;
         }
-        if self.kind.subtype_list().is_some() {
+        if crate::economy::visitors::keeps_patronage(self.kind) {
             if let Some(v) = extras.patronage_today {
                 put("patronageToday", EntryValue::Float(v))?;
             }
