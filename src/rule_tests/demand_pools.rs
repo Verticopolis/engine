@@ -4,8 +4,8 @@
 //! drain is `demand_tests`; the memo is
 //! `diagnostics::memo_tests::the_demand_memo_rebuilds_on_each_key_input_and_holds_within_the_hour`.
 use crate::clock::{Clock, GameMode};
-use crate::demand::{compute_demand_map, origin_demand};
-use crate::economy::{commercial_daily_income, daily_traffic_income};
+use crate::demand::{compute_demand_map, origin_demand, unmet_coverage};
+use crate::economy::{commercial_daily_income, commercial_demand_bid, daily_traffic_income};
 use crate::facilities::{Kind, LOT_WIDTH};
 use crate::rules::DEMAND_FLOOR_MODERN;
 use crate::sim::Simulation;
@@ -86,16 +86,53 @@ fn both_modes_cap_an_over_demanded_venue_on_the_same_scale() {
         assert!(pool(&sim) > daily_traffic_income(Kind::Shop).unwrap());
         let map = compute_demand_map(&mut sim);
         assert_eq!(map.fraction_by_unit[&shop], 1.0, "{mode:?}");
-        assert!(
-            map.share > 1.0,
-            "{mode:?}: the raw pressure stays visible past the cap"
-        );
+        // Coverage still reads the pool against the income on offer.
+        let income = commercial_daily_income(mode, Kind::Shop).unwrap();
+        assert!((map.share - pool(&sim) / income).abs() < 1e-9, "{mode:?}");
     }
     assert!(
         commercial_daily_income(GameMode::Classic, Kind::Shop).unwrap()
             > daily_traffic_income(Kind::Shop).unwrap(),
         "Classic still pays its larger 1994 figure"
     );
+}
+
+#[test]
+fn a_lone_classic_shop_covers_its_tenants_on_the_1994_scale() {
+    // The owner kept Classic's coverage on the 1994 chart (engine#141): the
+    // tenants' unmet-demand cap fires once the pool is twice what the shops
+    // offer, so a lone shop's offices hit it at about 223 of them, its
+    // $20,000 of 1994 income, and not at the 28 its bid would give.
+    let (sim, _) = offices_and_shop(GameMode::Classic, 0, 0, 0);
+    let per_office = origin_demand(&sim, Kind::Office, None, 1.0);
+    let income = commercial_daily_income(GameMode::Classic, Kind::Shop).unwrap();
+    let bid = daily_traffic_income(Kind::Shop).unwrap();
+    assert_eq!(
+        (2.0 * income / per_office).ceil(),
+        223.0,
+        "on the 1994 scale"
+    );
+    assert_eq!((2.0 * bid / per_office).ceil(), 28.0, "on the bid scale");
+    for mode in [GameMode::Classic, GameMode::Modern] {
+        let (mut sim, shop) = offices_and_shop(mode, 20, 9, 0);
+        let office = sim
+            .tower
+            .units
+            .iter()
+            .find(|u| u.kind == Kind::Office)
+            .cloned()
+            .unwrap();
+        let map = compute_demand_map(&mut sim);
+        assert_eq!(
+            map.fraction_by_unit[&shop], 1.0,
+            "{mode:?}: the shop is full"
+        );
+        let covered = unmet_coverage(&map, &office).unwrap();
+        match mode {
+            GameMode::Classic => assert_eq!(covered, 1.0, "Classic: well short of 223"),
+            GameMode::Modern => assert!(covered < 1.0, "Modern: the shop runs short"),
+        }
+    }
 }
 
 #[test]
@@ -131,10 +168,35 @@ fn below_the_cap_both_modes_earn_the_same_share() {
         compute_demand_map(&mut classic),
         compute_demand_map(&mut modern),
     );
-    assert!((c_map.share - m_map.share).abs() < 1e-9);
+    let (c_frac, m_frac) = (
+        c_map.fraction_by_unit[&c_shop],
+        m_map.fraction_by_unit[&m_shop],
+    );
+    assert!((c_frac - m_frac).abs() < 1e-9);
     assert!(m_map.share > DEMAND_FLOOR_MODERN && m_map.share < 1.0);
-    assert!((c_map.fraction_by_unit[&c_shop] - c_map.share).abs() < 1e-9);
-    assert!((m_map.fraction_by_unit[&m_shop] - m_map.share).abs() < 1e-9);
+    assert!((m_frac - m_map.share).abs() < 1e-9);
+    // Classic's coverage share reads the same pool against its 1994 income.
+    let scale = daily_traffic_income(Kind::Shop).unwrap()
+        / commercial_daily_income(GameMode::Classic, Kind::Shop).unwrap();
+    assert!((c_map.share - m_map.share * scale).abs() < 1e-9);
+}
+
+#[test]
+fn every_kind_that_earns_a_daily_income_bids_for_demand() {
+    // A venue with an income but no bid would drop out of the pool and earn
+    // nothing, with no error.
+    for mode in [GameMode::Classic, GameMode::Modern] {
+        for f in crate::facilities::FACILITIES {
+            let (income, bid) = (
+                commercial_daily_income(mode, f.kind),
+                commercial_demand_bid(mode, f.kind),
+            );
+            assert_eq!(bid.is_some(), income.is_some(), "{mode:?} {:?}", f.kind);
+            if mode == GameMode::Modern {
+                assert_eq!(bid, income, "Modern bids what it earns: {:?}", f.kind);
+            }
+        }
+    }
 }
 
 #[test]

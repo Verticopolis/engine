@@ -11,9 +11,12 @@ pub struct DemandMap {
     pub fraction_by_unit: FastMap<i64, f64>,
     pub delivered_by_unit: FastMap<i64, f64>,
     pub reachable_venues_by_origin: FastMap<i64, i64>,
+    /// The pool against `total_cap`: what tenants' coverage reads.
     pub share: f64,
     pub retail_venue_count: i64,
     pub pool: f64,
+    /// The daily income the reachable retail venues offer
+    /// (`commercial_daily_income`, the 1994 chart's in Classic).
     pub total_cap: f64,
     /// Daily income capacity of the reachable attendance venues (cinemas,
     /// party halls, aquatic centers) where the mode counts them as amenities
@@ -114,13 +117,19 @@ pub fn compute_demand_map(sim: &mut Simulation) -> DemandMap {
         reach_cache.insert(key, h);
         h
     };
+    // Each venue's (id, bid): its share of the pool comes from the bids,
+    // and the tenants' coverage from the income (`total_cap`).
     let mut venues: Vec<(i64, f64)> = Vec::new();
     let mut total_cap = 0.0;
+    let mut total_bid = 0.0;
     let mut retail_venue_count = 0;
     let mut attendance_cap = 0.0;
     let attendance_is_amenity = mode.attendance_counts_toward_coverage();
     for &(id, kind, floor, x, state, _) in &rooms {
-        let Some(cap) = crate::economy::commercial_demand_bid(mode, kind) else {
+        let (Some(cap), Some(bid)) = (
+            crate::economy::commercial_daily_income(mode, kind),
+            crate::economy::commercial_demand_bid(mode, kind),
+        ) else {
             continue;
         };
         if kind.attendance_cap().is_some() {
@@ -139,8 +148,9 @@ pub fn compute_demand_map(sim: &mut Simulation) -> DemandMap {
         if !draws(sim, floor, x) {
             continue;
         }
-        venues.push((id, cap));
+        venues.push((id, bid));
         total_cap += cap;
+        total_bid += bid;
     }
     let (per_capita, floor_frac) = mode.demand_model();
     let reachable_venue_count = venues.len() as i64;
@@ -162,15 +172,24 @@ pub fn compute_demand_map(sim: &mut Simulation) -> DemandMap {
     }
     let bonus = tower_demand_bonus(sim);
     pool *= bonus;
+    // Coverage reads the pool against the income each venue offers, the
+    // 1994 chart's in Classic; the venues split the pool by their bids,
+    // which Classic keeps on the Modern scale (web#2631). In Modern the two
+    // are the same.
     let share = if total_cap > 0.0 {
         pool / total_cap
     } else {
         0.0
     };
-    let frac = share.min(1.0).max(floor_frac);
-    for (id, cap) in venues {
+    let bid_share = if total_bid > 0.0 {
+        pool / total_bid
+    } else {
+        0.0
+    };
+    let frac = bid_share.min(1.0).max(floor_frac);
+    for (id, bid) in venues {
         fraction_by_unit.insert(id, frac);
-        delivered_by_unit.insert(id, frac * cap);
+        delivered_by_unit.insert(id, frac * bid);
     }
     DemandMap {
         fraction_by_unit,
