@@ -366,13 +366,14 @@ leaves the version alone: only the release PR raises it, in `Cargo.toml`, the
 lockfiles and `crateVersion` in `src/compat-record.json` (CONTRIBUTING.md,
 Pull requests and Releasing).
 
-`src/compat-record.json` pins the crate version beside what moves it, and
-the crate's `identity_tests.rs` holds it to the tree: its version, save,
-frame layout, view layout, catalog and identity numbers must match the
-crate's own, and its `lockDigest` must be the digest of the five lock files.
-A pull request that moves the lock updates `lockDigest` in the same commit
-(the failing test prints the new value). Nothing recomputes
-`interfaceDigest` or sees the Rust `pub` API, so a change to the binding or
-the public API is a review call. An internal change that keeps all of them
+`src/compat-record.json` pins the crate version beside the numbers that
+move it, and the crate's `identity_tests.rs` holds it to the tree: its
+version, save, frame layout, view layout, catalog and identity numbers must
+match the crate's own, and its `lockDigest` must be the digest of the five
+lock files. A pull request that moves the lock updates `lockDigest` in the
+same commit (the failing test prints the new value). The record pins no
+digest of the binding or the Rust `pub` API: the layer typecheck catches a
+binding export the TypeScript layer does not know, and the tier a change to
+either takes is a review call. An internal change that keeps all of them
 is told apart by the build hash in `BUILD.json` and needs no release.
 

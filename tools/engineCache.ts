@@ -26,7 +26,7 @@ export const ENGINE_BUILD_FILES = [
   "packages/verticopolis-engine/src/host/enginePackageNames.ts",
   "packages/verticopolis-engine/src/host/enginePackageRecord.ts",
   "packages/verticopolis-engine/src/host/buildSection.ts",
-  "tools/engineCompat.ts",
+  "tools/cargoManifest.ts",
   "packages/verticopolis-engine/events/gameplayCatalog.ts",
   "scripts/build-engine-wasm.sh",
   "scripts/pack-engine.sh",
