@@ -7,9 +7,7 @@ mod tdt_kit;
 use serde_json::{json, Value};
 use tdt_kit::*;
 use verticopolis_engine::facilities::Kind;
-use verticopolis_engine::tdt::format::{
-    view_words_from_view, TDT_DEFAULT_VIEW_X, TDT_DEFAULT_VIEW_Y,
-};
+use verticopolis_engine::tdt::format::{TDT_DEFAULT_VIEW_X, TDT_DEFAULT_VIEW_Y};
 
 /// A lobby-only Classic tower, enough for the writer.
 fn bare() -> Value {
@@ -24,14 +22,9 @@ fn words(bytes: &[u8]) -> (i64, i64) {
 fn the_writer_stamps_the_saved_view_and_drops_its_zoom() {
     let mut save = bare();
     save["view"] = json!({ "tile": 200, "floor": 20, "zoom": 2 });
-    assert_eq!(
-        words(&build(&save).bytes),
-        view_words_from_view(200.0, 20.0)
-    );
-    assert_ne!(
-        view_words_from_view(200.0, 20.0),
-        (TDT_DEFAULT_VIEW_X, TDT_DEFAULT_VIEW_Y)
-    );
+    // Tile 200 is 1600 px less half the 640 px window; floor 20 is TDT row 29,
+    // its 36 px row centered, less half the 469 px window.
+    assert_eq!(words(&build(&save).bytes), (1280, 3024));
 }
 
 #[test]
