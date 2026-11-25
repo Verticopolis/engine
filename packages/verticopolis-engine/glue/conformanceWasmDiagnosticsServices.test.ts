@@ -259,7 +259,10 @@ const nearCapacity = (card: Card): boolean => card.slots[CARD_NEAR_CAPACITY] ===
  *  first shaft, it lands in the lobby again and guts all six. Once the
  *  real-world calendar's emergencies rolled a tenth of their canon odds, the
  *  run waits about a hundred days for its threat and the blast lands on
- *  floor 18 and guts no cinema, restaurant or shop. */
+ *  floor 18 and guts no cinema, restaurant or shop. Once Classic venues
+ *  bid for demand at the Modern figures (Verticopolis/web#2631), the Classic
+ *  ransom scenario's threat comes at hour 376 and the corpus reaches an
+ *  inert cinema and shop again. */
 const CORPUS_SECTIONS: readonly string[] = [
   "commercial:lobbyFar:false",
   "commercial:lobbyFar:true",
@@ -274,6 +277,7 @@ const CORPUS_SECTIONS: readonly string[] = [
   "housekeeping:observedShortfall",
   "inert:amusements",
   "inert:boutiqueBay",
+  "inert:cinema",
   "inert:daycare",
   "inert:fastFood",
   "inert:foodHall",
@@ -281,6 +285,7 @@ const CORPUS_SECTIONS: readonly string[] = [
   "inert:nightclub",
   "inert:parking",
   "inert:parkingRamp",
+  "inert:shop",
   "inert:skyBar",
   "inert:spa",
   "parking:connected",

@@ -87,6 +87,17 @@ pub fn commercial_daily_income(mode: GameMode, kind: Kind) -> Option<f64> {
     }
 }
 
+/// What a venue bids for the tower's shopping demand (`demand.rs`): the
+/// Modern daily figure, in both modes, for every kind that earns a daily
+/// income in `mode`. Classic pays the 1994 chart's figures
+/// ([`classic_daily_traffic_income`]) but competes for demand on the same
+/// scale as Modern, so the eight-times-larger Classic chart does not leave
+/// each venue an eighth of the demand (web#2631).
+pub fn commercial_demand_bid(mode: GameMode, kind: Kind) -> Option<f64> {
+    commercial_daily_income(mode, kind)?;
+    daily_traffic_income(kind)
+}
+
 /// `ECON.retailSpendPerCustomer`.
 pub fn retail_spend_per_customer(kind: Kind) -> Option<f64> {
     Some(match kind {

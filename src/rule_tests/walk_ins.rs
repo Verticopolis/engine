@@ -110,8 +110,8 @@ fn day_of_bookings(office_floors: i64) -> (usize, f64) {
 fn a_day_books_as_many_shoppers_as_demand_sends() {
     // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
     crate::facilities::set_walk_ins_for_test(true);
-    let (busy, busy_frac) = day_of_bookings(10);
-    let (quiet, quiet_frac) = day_of_bookings(5);
+    let (busy, busy_frac) = day_of_bookings(2);
+    let (quiet, quiet_frac) = day_of_bookings(1);
     assert!(busy_frac > quiet_frac && quiet_frac > 0.0);
     // No 1994 cap: the busy shop books far past the original's 25 a day.
     assert!(busy > 100, "{busy} booked");
