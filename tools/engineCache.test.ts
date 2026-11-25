@@ -44,7 +44,7 @@ describe("engineCacheKey", () => {
   it("throws when a build file is missing, rather than keying without it", () => {
     const root = join(dir, "root");
     writeRoot(root);
-    rmSync(join(root, "tools/engineCompat.ts"));
+    rmSync(join(root, "tools/cargoManifest.ts"));
     expect(() => engineCacheKey(root, "abc", "test-v1")).toThrow();
   });
 });

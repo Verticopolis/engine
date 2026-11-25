@@ -35,7 +35,7 @@ import {
   parseBuildMetadata,
   stampBuildSection,
 } from "../packages/verticopolis-engine/src/host/buildSection.ts";
-import { cargoPackage } from "../tools/engineCompat.ts";
+import { cargoPackage } from "../tools/cargoManifest.ts";
 import {
   ENGINE_BUILD_RECORD,
   ENGINE_GLUE,

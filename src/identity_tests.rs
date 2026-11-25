@@ -106,7 +106,8 @@ fn the_json_is_canonical_and_round_trips() {
 }
 
 /// The compiled-in record is the crate's own: its version is `Cargo.toml`'s,
-/// its save version is the engine's, and a digest never reads "unreadable".
+/// its pinned numbers are the engine's, and its version never reads
+/// "unreadable".
 #[test]
 fn the_compat_record_agrees_with_the_crate() {
     let rec = compat();
@@ -118,14 +119,12 @@ fn the_compat_record_agrees_with_the_crate() {
     assert_eq!(rec["catalogVersion"], CATALOG_VERSION);
     assert_eq!(rec["identitySchema"], IDENTITY_SCHEMA);
     assert_ne!(crate_version(), UNREADABLE);
-    assert!(is_hex16(rec["interfaceDigest"].as_str().unwrap()));
 }
 
 /// The lock digest of the five conformance lock files: for each, its name, a
 /// newline, its byte length, a newline, then its bytes (line endings as LF).
-/// `tools/engineCompat.ts` computes the same digest. The event catalog
-/// keeps its lock name but lives in the crate (`src/gameplay/catalog.json`),
-/// so the published crate compiles it in.
+/// The event catalog keeps its lock name but lives in the crate
+/// (`src/gameplay/catalog.json`), so the published crate compiles it in.
 #[test]
 fn the_lock_digest_is_the_digest_of_the_lock_files() {
     let dir = crate_dir().join("conformance");
