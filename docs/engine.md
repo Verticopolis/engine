@@ -65,8 +65,10 @@ Every rule in [CONTRIBUTING.md](../CONTRIBUTING.md) applies here, plus:
   The crate version).
 - **The web game builds the package** with `npm run wasm:build` from the
   repository root, or `bash scripts/build-engine-wasm.sh`, which also installs
-  the pinned toolchain on x86_64 Linux. `npm run test:wasm` runs the web
-  suites that drive the engine through its package.
+  the pinned toolchain on x86_64 Linux. `npm run glue:test` runs the
+  TypeScript layer's suites against the built package here, and
+  Verticopolis/web's `npm run test:wasm` runs the game's suites that drive
+  the engine through its package.
 - **The guides follow the engine.** A change to the library source or the
   binding updates the crate and JavaScript guides
   (`docs/engine-site/guides/`) or their short READMEs where they went stale,
@@ -257,7 +259,8 @@ engine lacks one.
 
 These packages are build output and none of them is checked in. The
 TypeScript layer types the binding against the tooling build's declaration
-(`tooling/node/verticopolis_engine.d.ts`, which names tier 3 too):
+(`tooling/node/verticopolis_engine.d.ts` in the package, `wasm/pkg/verticopolis_engine.d.ts`
+in a checkout after `npm run wasm:build`, which names tier 3 too):
 `packages/verticopolis-engine/src/binding/binding.ts` imports its types, so a
 method added or renamed in `wasm.rs` reaches TypeScript as a type change and
 `npm run layer:typecheck` fails until the layer follows. The glue suites in
