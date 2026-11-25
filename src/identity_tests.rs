@@ -153,7 +153,7 @@ fn the_lock_digest_is_the_digest_of_the_lock_files() {
     assert_eq!(
         compat()["lockDigest"],
         hex.as_str(),
-        "after a change to the lock, set lockDigest in src/compat-record.json to the digest above"
+        "after a change to the lock, set lockDigest in src/compat-record.json to the right-hand value below"
     );
 }
 
