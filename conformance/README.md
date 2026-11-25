@@ -76,12 +76,14 @@ also moves the engine crate version, and the steps do not stop at the lock:
 
 1. Set `crate:` in the PR's `.changes` note (a patch level for a lock change on
    its own) and add an Engine line saying what moved.
-2. Run `npm run engine:compat` to rewrite `src/compat-record.json`.
+2. Set `lockDigest` in `src/compat-record.json` to the new digest
+   (`cargo test --locked the_lock_digest` fails and prints it).
 3. Commit the lock, the note and the record together.
 
-Without them `test` fails on the record and on the version check. The release
-PR raises the version in `Cargo.toml` and both `Cargo.lock` files.
-The rule is in `CONTRIBUTING.md` under Versioning.
+Without them `cargo test` fails on the record and the Change notes check
+fails on the note. The release PR raises the version in `Cargo.toml` and the
+lockfiles that name the crate. The rule is in `CONTRIBUTING.md` under Pull
+requests.
 
 A refactor that claims to change nothing must not touch `expected.json`.
 
