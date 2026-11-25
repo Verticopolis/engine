@@ -152,6 +152,12 @@ pub fn passenger_path(
     to_seg: i64,
 ) -> Option<Route> {
     let walk_budget = tower.mode.walkway_willingness_applies();
+    if let Some(known) = crowd
+        .route_memo
+        .get((tower.revision, walk_budget), from_seg, to_seg)
+    {
+        return known.clone();
+    }
     let mut seen = std::mem::take(&mut crowd.route_seen);
     let adj = adjacency(crowd, tower);
     let route = if walk_budget {
@@ -160,6 +166,7 @@ pub fn passenger_path(
         bfs_route_in(adj, from_seg, to_seg, &mut seen)
     };
     crowd.route_seen = seen;
+    crowd.route_memo.put(from_seg, to_seg, &route);
     route
 }
 

@@ -333,3 +333,21 @@ fn the_parking_flood_seeds_from_the_ramps_alone() {
     let loaded = crate::load::deserialize(&sim.serialize()).expect("the save loads");
     assert_parking(&loaded.tower, 2);
 }
+
+#[test]
+fn the_hourly_pass_holds_one_parking_fill_and_the_next_read_fills_afresh() {
+    let mut tower = stacked();
+    let ramp = must(tower.place(Kind::ParkingRamp, 0, 100));
+    let width = Kind::ParkingRamp.facility().width;
+    must(tower.place(Kind::Parking, 0, 100 + width));
+    tower.hold_parking();
+    let first = tower.reached_parking();
+    assert_eq!(first.len(), 1);
+    // Every read inside the pass hands out the same fill.
+    assert!(std::sync::Arc::ptr_eq(&first, &tower.reached_parking()));
+    assert_parking(&tower, 1);
+    tower.release_parking();
+    // Once the pass ends, a ramp that stops working carries nothing.
+    tower.get_unit_mut(ramp).unwrap().state = UnitState::Fire;
+    assert_parking(&tower, 0);
+}

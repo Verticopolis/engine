@@ -190,7 +190,7 @@ impl Tower {
 
     /// `functionalParkingSet`: parking-space ids chained to a ramp.
     pub fn functional_parking_set(&self) -> HashSet<i64> {
-        self.reached_parking().into_iter().collect()
+        self.reached_parking().iter().copied().collect()
     }
 
     pub fn functional_parking_spots(&self) -> i64 {
@@ -199,7 +199,7 @@ impl Tower {
 
     /// Each parking space a working ramp reaches, once: a fill room by room
     /// from the ramps, a ramp also reaching the floors above and below it.
-    fn reached_parking(&self) -> Vec<i64> {
+    pub(crate) fn fill_parking(&self) -> Vec<i64> {
         let usable =
             |u: &Unit| matches!(u.kind, Kind::Parking | Kind::ParkingRamp) && u.is_operational();
         let mut stack: Vec<(i64, i64)> = Vec::new();

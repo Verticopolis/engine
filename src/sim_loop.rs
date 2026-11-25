@@ -157,6 +157,7 @@ impl Simulation {
     #[doc(hidden)]
     pub fn on_hour(&mut self) {
         self.on_hour_runs += 1;
+        self.tower.hold_parking();
         self.update_presence();
         let hour = self.clock.hour();
         // Checkout comes before the commute bookings, so guests who check
@@ -196,6 +197,7 @@ impl Simulation {
         self.sample_elevator_util();
         self.evaluate_star();
         self.warn_long_lines();
+        self.tower.release_parking();
     }
 
     /// A line in which someone has waited past an hour since the last
