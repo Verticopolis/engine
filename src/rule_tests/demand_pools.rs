@@ -77,21 +77,25 @@ fn a_second_identical_venue_halves_the_first() {
 }
 
 #[test]
-fn modern_caps_an_over_demanded_venue_and_classic_reads_the_1994_ceiling() {
+fn both_modes_cap_an_over_demanded_venue_on_the_same_scale() {
+    // Classic pays the 1994 chart's figure but bids for demand at Modern's
+    // (web#2631), so the same offices fill a shop in both modes.
     let pool = |sim: &Simulation| 20.0 * origin_demand(sim, Kind::Office, None, 1.0);
-    let (mut modern, shop) = offices_and_shop(GameMode::Modern, 20, 9, 0);
-    assert!(pool(&modern) > daily_traffic_income(Kind::Shop).unwrap());
-    let map = compute_demand_map(&mut modern);
-    assert_eq!(map.fraction_by_unit[&shop], 1.0);
+    for mode in [GameMode::Modern, GameMode::Classic] {
+        let (mut sim, shop) = offices_and_shop(mode, 20, 9, 0);
+        assert!(pool(&sim) > daily_traffic_income(Kind::Shop).unwrap());
+        let map = compute_demand_map(&mut sim);
+        assert_eq!(map.fraction_by_unit[&shop], 1.0, "{mode:?}");
+        assert!(
+            map.share > 1.0,
+            "{mode:?}: the raw pressure stays visible past the cap"
+        );
+    }
     assert!(
-        map.share > 1.0,
-        "the raw pressure stays visible past the cap"
+        commercial_daily_income(GameMode::Classic, Kind::Shop).unwrap()
+            > daily_traffic_income(Kind::Shop).unwrap(),
+        "Classic still pays its larger 1994 figure"
     );
-
-    let (mut classic, shop) = offices_and_shop(GameMode::Classic, 20, 9, 0);
-    let cap = commercial_daily_income(GameMode::Classic, Kind::Shop).unwrap();
-    assert!(cap > pool(&classic));
-    assert!((fraction(&mut classic, shop) - pool(&classic) / cap).abs() < 1e-9);
 }
 
 #[test]
@@ -120,19 +124,17 @@ fn classic_starves_an_empty_towers_venue_and_modern_keeps_its_floor() {
 }
 
 #[test]
-fn below_the_cap_each_mode_earns_its_own_share_on_its_own_capacity() {
+fn below_the_cap_both_modes_earn_the_same_share() {
     let (mut classic, c_shop) = offices_and_shop(GameMode::Classic, 7, 12, 20);
     let (mut modern, m_shop) = offices_and_shop(GameMode::Modern, 7, 12, 20);
     let (c_map, m_map) = (
         compute_demand_map(&mut classic),
         compute_demand_map(&mut modern),
     );
-    let ratio = daily_traffic_income(Kind::Shop).unwrap()
-        / commercial_daily_income(GameMode::Classic, Kind::Shop).unwrap();
-    assert!((c_map.share - m_map.share * ratio).abs() < 1e-9);
+    assert!((c_map.share - m_map.share).abs() < 1e-9);
     assert!(m_map.share > DEMAND_FLOOR_MODERN && m_map.share < 1.0);
-    assert!((c_map.fraction_by_unit[&c_shop] - c_map.share.min(1.0)).abs() < 1e-9);
-    assert!((m_map.fraction_by_unit[&m_shop] - m_map.share.min(1.0)).abs() < 1e-9);
+    assert!((c_map.fraction_by_unit[&c_shop] - c_map.share).abs() < 1e-9);
+    assert!((m_map.fraction_by_unit[&m_shop] - m_map.share).abs() < 1e-9);
 }
 
 #[test]

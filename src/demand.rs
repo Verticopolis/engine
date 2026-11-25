@@ -120,7 +120,7 @@ pub fn compute_demand_map(sim: &mut Simulation) -> DemandMap {
     let mut attendance_cap = 0.0;
     let attendance_is_amenity = mode.attendance_counts_toward_coverage();
     for &(id, kind, floor, x, state, _) in &rooms {
-        let Some(cap) = crate::economy::commercial_daily_income(mode, kind) else {
+        let Some(cap) = crate::economy::commercial_demand_bid(mode, kind) else {
             continue;
         };
         if kind.attendance_cap().is_some() {
