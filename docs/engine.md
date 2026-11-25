@@ -61,11 +61,14 @@ Every rule in [CONTRIBUTING.md](../CONTRIBUTING.md) applies here, plus:
   thread or process, and pulls in no unreviewed crate (`tests/independence.rs`).
 - **A change to how the game plays** regenerates `conformance/expected.json`
   in the same PR (see Keeping the lock honest), and a change to the save, frame
-  layout, catalog or binding moves the crate version (see The crate version).
+  layout, catalog or binding asks for a crate release in its change note (see
+  The crate version).
 - **The web game builds the package** with `npm run wasm:build` from the
   repository root, or `bash scripts/build-engine-wasm.sh`, which also installs
-  the pinned toolchain on x86_64 Linux. `npm run test:wasm` runs the web
-  suites that drive the engine through its package.
+  the pinned toolchain on x86_64 Linux. `npm run glue:test` runs the
+  TypeScript layer's suites against the built package here, and
+  Verticopolis/web's `npm run test:wasm` runs the game's suites that drive
+  the engine through its package.
 - **The guides follow the engine.** A change to the library source or the
   binding updates the crate and JavaScript guides
   (`docs/engine-site/guides/`) or their short READMEs where they went stale,
@@ -176,8 +179,8 @@ surrogate pair is written as U+FFFD where `JSON.stringify` writes the escape
 (the web game repairs such strings on load and on input, so its saves hold
 none). The Rust tests in `load.rs`
 round-trip every web-written fixture in `conformance/fixtures/`, and
-`src/tests/integration/conformanceWasmVctower.integration.test.ts` (part of
-`npm run test:wasm`) loads each fixture in the web game, writes it with the
+Verticopolis/web's `src/tests/integration/conformanceWasmVctower.integration.test.ts`
+(part of its `npm run test:wasm`) loads each fixture in the web game, writes it with the
 engine, checks the file against `SaveGame.export`'s and `toTowerFile`'s
 byte for byte, reads it back through `decodeVctower`, `fromTowerFile` and
 `SaveGame.import`, and checks the Founder status and the loaded state's
@@ -246,26 +249,26 @@ npm run glue:test           # every scenario through the binding, the frame-day 
 package in `wasm/pkg-web/` and the Node package in `wasm/pkg-player/`.
 The tooling build (`--features tooling`, which turns `wasm` on too) adds the
 binding's tier 3 ops (raw edits, scripted events and seeding calls, listed in
-`src/engineBinding/exportTiers.ts`) that the tests and the tooling harnesses
+`packages/verticopolis-engine/src/binding/exportTiers.ts`) that the tests and the tooling harnesses
 call: the Node package in `wasm/pkg/`, which the WASM suites load, and
 the browser package in `wasm/pkg-web-tooling/`, which a `VC_TOOLING=1`
-build and a dev serve put in place of the player's browser package. The build guard
-(`scripts/verify-engine-bundle.ts`) fails a production build whose engine has
-a tier 3 op and a tooling build whose engine lacks one.
+build and a dev serve put in place of the player's browser package. A frontend
+checks its own bundle: the web game's `scripts/verify-engine-bundle.ts` fails a
+production build whose engine has a tier 3 op and a tooling build whose
+engine lacks one.
 
-These packages are build output and are not checked in, except for the
-declaration wasm-bindgen writes for `wasm/pkg/`, copied to
-`src/engineBinding/engine.d.ts` (the tooling build's, so it names tier 3 too):
-`src/engineBinding/binding.ts` types the adapters against it, so a method added
-or renamed in `wasm.rs` reaches TypeScript as a type change, and the
-`engine-rs.yml` job fails when the checked-in copy is stale (rebuild and
-commit it with the Rust change). The WASM suite
-(`src/tests/integration/conformanceWasm.integration.test.ts`) skips itself
-when the package is missing, so `npm test` stays green without a Rust
-toolchain; CI builds the package first (the engine-wasm action fails when a
-package file is missing) and then runs the suite. Rebuild
-the package after any change to the Rust source; the suite replays whatever
-was built last.
+These packages are build output and none of them is checked in. The
+TypeScript layer types the binding against the tooling build's declaration
+(`tooling/node/verticopolis_engine.d.ts` in the package, `wasm/pkg/verticopolis_engine.d.ts`
+in a checkout after `npm run wasm:build`, which names tier 3 too):
+`packages/verticopolis-engine/src/binding/binding.ts` imports its types, so a
+method added or renamed in `wasm.rs` reaches TypeScript as a type change and
+`npm run layer:typecheck` fails until the layer follows. The glue suites in
+`packages/verticopolis-engine/glue/` (`npm run glue:test`, with
+`glue/conformanceWasm.test.ts` replaying the lock) need the built package;
+CI builds it first (the engine-wasm action fails when a package file is
+missing) and then runs them. Rebuild the package after any change to the
+Rust source; the suites replay whatever was built last.
 
 ## The catalog
 
@@ -290,8 +293,8 @@ A value a kind does not have is present as `null`, and the shape carries
 a `version` that moves when a field is added, renamed or removed.
 
 The WASM binding returns the same JSON from `catalog(mode)`, typed by
-`Catalog` in `src/catalog/catalogTypes.ts` and read through `readCatalog` in
-`src/engineBinding/catalog.ts`, which refuses a reply whose shape is not `Catalog`
+`Catalog` in `packages/verticopolis-engine/src/catalog/catalogTypes.ts` and
+read through `readCatalog` in `packages/verticopolis-engine/src/binding/catalog.ts`, which refuses a reply whose shape is not `Catalog`
 (a missing or mistyped field, a negative price, a pool or ground floor
 structure naming no listed kind). `conformance/catalog-digests.json` pins
 each mode's canonical hash: the referee writes it from this catalog
@@ -356,14 +359,20 @@ fixtures in `conformance/fixtures/` included (`.github/workflows/engine-rs.yml`)
 ## The crate version
 
 `version` in `Cargo.toml` moves with the engine's compatibility contract:
-the conformance lock, the save version, the frame layout, catalog and identity
-record versions, and the checked-in binding declaration `src/engineBinding/engine.d.ts`.
-Change any of them and the version goes up in the same pull request, in
-`Cargo.toml`, `Cargo.lock` and `consumer/Cargo.lock` (CI builds the consumer
-with `--locked`), followed by `npm run engine:compat`, which rewrites
-`src/compat-record.json`. `src/tests/engineCompat.guard.test.ts` fails when a
-pin moved and the record did not. An internal change that keeps all of them is
-told apart by the build hash in `BUILD.json` and needs no bump. The full rule,
-including what the guard does not see, is in `CONTRIBUTING.md` under
-Versioning.
+the conformance lock, the save version, the frame layout, view layout, catalog
+and identity record versions, and the binding's interface. A pull request that
+changes any of them says so in its change note (`crate:` patch or higher) and
+leaves the version alone: only the release PR raises it, in `Cargo.toml`, the
+lockfiles and `crateVersion` in `src/compat-record.json` (CONTRIBUTING.md,
+Pull requests and Releasing).
+
+`src/compat-record.json` pins the crate version beside what moves it, and
+the crate's `identity_tests.rs` holds it to the tree: its version, save,
+frame layout, view layout, catalog and identity numbers must match the
+crate's own, and its `lockDigest` must be the digest of the five lock files.
+A pull request that moves the lock updates `lockDigest` in the same commit
+(the failing test prints the new value). Nothing recomputes
+`interfaceDigest` or sees the Rust `pub` API, so a change to the binding or
+the public API is a review call. An internal change that keeps all of them
+is told apart by the build hash in `BUILD.json` and needs no release.
 

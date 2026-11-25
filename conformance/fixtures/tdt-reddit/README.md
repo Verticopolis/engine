@@ -12,9 +12,9 @@ They are the first saves of that vintage the importer has seen (issue #1491).
 payload no documented layout predicts, which used to lose the whole elevator
 and stairway table. `TOWER6.TDT` and `MYTOWER.TDT` hit the same rule, and in
 `MYTOWER.TDT` an express shaft does not stop at its own bottom floor.
-`TOWER8.TDT` has no elevators or stairways built. Two tests read all nine:
-`src/tests/integration/tdtRealSaves.integration.test.ts` and
-`tests/tdt_real_saves.rs`.
+`TOWER8.TDT` has no elevators or stairways built. The crate's
+`tests/tdt_real_saves.rs`, `tests/tdt_real_saves_loaded.rs` and
+`tests/tdt_real_saves_commute.rs` read all nine.
 
 The files are the originals, unmodified. Do not add them to the conformance
 lock (`conformance/tdt-cases.json`): its cases are synthetic.

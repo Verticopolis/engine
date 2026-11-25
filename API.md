@@ -53,8 +53,8 @@ verticopolis-engine = { git = "https://github.com/Verticopolis/engine", rev = "<
 The crate has no default features. The `wasm` feature is the JavaScript
 binding (`src/wasm.rs` and `src/wasm/`) and a native host leaves it off. The `tooling`
 feature turns `wasm` on and adds the binding's test and tooling calls (its
-tier 3 in `src/engineBinding/exportTiers.ts`, #1057), which only the web
-game's tests and tooling build; the shipped game and the npm package's
+tier 3 in `packages/verticopolis-engine/src/binding/exportTiers.ts`, #1057),
+which only tests and tooling build; the shipped game and the npm package's
 player build leave it off, and the package carries the tooling build
 separately as `@verticopolis/engine/tooling`. The `conformance`
 feature is the harness that replays the lock (tier 2 below); a host turns
@@ -67,9 +67,9 @@ verticopolis-engine = { git = "https://github.com/Verticopolis/engine", rev = "<
 The JavaScript binding's exports carry tiers of their own, separate from
 the crate tiers on this page: player commands, restores and reads, and the
 raw edit, test and seed ops that skip the charge rules. The table is
-`src/engineBinding/exportTiers.ts`; a new export picks a tier there, and
-`src/tests/bindingExportTiers.guard.test.ts` keeps the third tier out of the
-game's UI (#946).
+`packages/verticopolis-engine/src/binding/exportTiers.ts`; a new export picks
+a tier there, or the TypeScript layer's typecheck (`npm run layer:typecheck`)
+fails against the tooling build's declaration (#946).
 
 The build needs the Rust toolchain in `Cargo.toml` (`rust-version`) and
 nothing else: no Node.js, no npm, nothing from the web game. The crate is
@@ -123,7 +123,7 @@ tier 2, the harness a host uses to prove conformance.
 | Read the view | The renderer-facing view (facade slice 6a, #1213), for a host that keeps no copy of the simulation: `view::structure_view(&sim)`, the structural snapshot (the floor bounds, the mode and calendar, the scene seed, the rooms by slot, the floor and lobby tiles as runs by floor and x, the shafts with their skipped floors), read again when `tower.revision` moves and after a load, whose tower starts its revisions over; `view::ViewReader::new()` and `reader.frame(&sim, full)`, the dynamic frame (the header, the people, the rooms whose fields changed since that reader's last frame, every room on its first frame, after a structural change, on another tower or when `full` asks, and the elevators' cars, stairs and escalators running none and coming only with the structure; from half the rooms' worth of marks, or when the tower's mark log dropped marks that reader had not read, it compares every room instead, which sends the same rooms), read every rendered frame (the engine marks a room when its own commands and tick change it, so a host that writes a unit's fields itself passes `full` on its next frame); `reader.set_people_window(view::PeopleWindow::new(floor_lo, floor_hi, x_lo, x_hi))` makes its frames carry only the people a view shows, padded a floor and half the widest shaft so every rider of a car on screen comes along (`None` sends every person, and a window with nobody in it sends none; from 512 people the frame reads them from a per-floor index the step keeps, so its cost follows the screen; the window is the camera, never saved or hashed); `view::meta_since(&sim.tower, since)`, the labels and subtypes changed after a meta revision, read when `tower.meta_revision` moves (a tower starts at meta revision 1, so `None` or 0 lists them all, and a `since` holds for one tower only); `sim.tower_signature()`, a pure fingerprint of the fields the tower half of undo's signature reads, equal at two reads when those fields are (one walk over the units and shafts, a per-command read). Read them by name: the slots and widths in `view::layout` (`view::layout::header::POPULATION`, `view::layout::RUN_RECORD`, ...), all of them with the kind, state, weather, mode and calendar codes as JSON from `view::layout_json()`, versioned by `VIEW_LAYOUT_VERSION`. The JavaScript binding's `viewStructure`, `viewFrame`, `setPeopleWindow`, `unitMetaSince`, `towerSignature` (a `bigint`) and `viewLayout` wrap these, with one frame reader per engine, whose frames the header's `frameSeq` numbers |
 | Gameplay events | `sim.gameplay.drain()` after each frame; `to_json()` on each event; names and payloads are listed in `src/gameplay/catalog.json` (`gameplay::CATALOG_JSON`, checked with `check_event`). The buffer holds `GAMEPLAY_RING_CAP` events and counts any it had to drop in `sim.gameplay.dropped` |
 | Reference data | `catalog::catalog(mode)`: prices, sizes, caps and rules per facility kind, versioned by `CATALOG_VERSION` |
-| Identity | `identity::identity()` (`engineIdentity()` in the binding): schema, crate name and version, `SAVE_VERSION` and the oldest save version loaded, `FRAME_LAYOUT_VERSION`, `CATALOG_VERSION` with each mode's digest, and the conformance lock digest. It holds no build hash: a hash of the sources cannot be compiled into them, so the packaging supplies it as build metadata (below). The crate version goes up with the conformance lock, `SAVE_VERSION`, the frame layout, view layout, catalog and identity record versions, and `src/engineBinding/engine.d.ts` (`compat-record.json`, guarded by `src/tests/engineCompat.guard.test.ts`); the guard does not see the Rust `pub` API, so a change there is a review call (`CONTRIBUTING.md`, Versioning) |
+| Identity | `identity::identity()` (`engineIdentity()` in the binding): schema, crate name and version, `SAVE_VERSION` and the oldest save version loaded, `FRAME_LAYOUT_VERSION`, `CATALOG_VERSION` with each mode's digest, and the conformance lock digest. It holds no build hash: a hash of the sources cannot be compiled into them, so the packaging supplies it as build metadata (below). The crate version goes up with the conformance lock, `SAVE_VERSION`, the frame layout, view layout, catalog and identity record versions, and the binding's interface (`src/compat-record.json`, held by the crate's `identity_tests.rs`); the tests do not see the Rust `pub` API or recompute the interface digest, so a change there is a review call |
 | Snapshot hash | `canonical::digest(&snapshot::state_view(&sim))`: the hashed view the conformance lock pins (with the `conformance` feature, `scenario::state_view` names the same function) |
 | Save | `load::encode_simulation_vctower(&sim, app_version, saved_at_ms)`: the `.vctower` bytes the web game writes. A host that holds the save JSON (`sim.serialize()`) gets the same file from `load::stamp_save(&mut save, app_version, saved_at_ms)` then `load::encode_vctower(&save)` |
 | Load | `load::decode_vctower(text)`, then `load::deserialize(&save)`, then `load::mark_founder_from_loaded_file(&mut sim, &save)`, which marks a file with no build stamp as a founder's tower the way the web game does (skip it and a host drops that status on its next save) |
@@ -192,9 +192,9 @@ unavailable, never as a failure of the engine.
   exact version, a tag or a commit. Each crate release also publishes the
   WASM build to npm as `@verticopolis/engine`. The version goes up with the
   conformance lock, the save, frame layout, view layout, catalog and
-  identity record versions and the binding declaration (`src/compat-record.json`, held by
-  `src/tests/engineCompat.guard.test.ts`; the Rust `pub` API is a review
-  call). The compatibility policy is #47.
+  identity record versions and the binding's interface (`src/compat-record.json`, held by
+  the crate's `identity_tests.rs`; the Rust `pub` API and the binding's
+  interface are a review call). The compatibility policy is #47.
 - **The lock is the contract.** Any change to simulation behavior lands
   with a regenerated `conformance/expected.json` in the same pull request,
   and that diff is what a consumer must take on a pin bump. A host that

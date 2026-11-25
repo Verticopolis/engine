@@ -39,9 +39,9 @@ working on Verticopolis reads it, even if it is relicensed.
 `conformance/tdt-cases.json` (see [the conformance README](../../conformance/README.md#the-tdt-table)).
 Frontends reach it through the package (`loadTdt`, `adoptTdt`, `tdtExport`) and
 decode none of the file themselves. In Verticopolis/web the game picks the file, names the
-download and words the import and export reports, and
-`src/tests/integration/canon.integration.test.ts` there asserts the engine's
-constants against this page.
+download and words the import and export reports. The codec's own tests are the
+crate's `tests/tdt_*.rs` (import, export, round trips, the real saves, refusals
+and the fuzzer), which hold it to the facts on this page.
 
 **Confidence.** *High* = seen in every real save or in repeated harness runs.
 *Medium* = seen in a few saves or one harness run. *Low* = inferred.
@@ -498,8 +498,7 @@ now writes the table, points each stall at its record, lists the connected
 stalls by record, and puts the x of the B1 ramp in header bytes 36 and 37
 (`FFFF` with no ramp), the column the game holds every deeper ramp to. It
 numbers the clinic ids from 0 up. What makes a stall connected in our engine is
-in [classic-parking-audit.md](https://github.com/Verticopolis/web/blob/main/docs/canon/classic-parking-audit.md)
-in Verticopolis/web.
+in [classic-parking-audit.md](../canon/classic-parking-audit.md).
 
 ## 13. Lobby and reachability table [TD]
 
