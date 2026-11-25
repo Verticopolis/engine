@@ -81,6 +81,7 @@ checklist lived until 2026-11-20, unless they name another repository.
 - Housekeeping fields six simulated maids per unit on stairs and service elevators, with no 1994 long-trip pathfinding decay and no housekeeping build cap (1.54, 1.57). [Help](https://help.verticopolis.com/differences/#housekeeping-maids)
 - Cockroach infestations are visible rooms with a full lifecycle; Classic cures only by bulldozing (1.53). [Help](https://help.verticopolis.com/differences/#cockroaches-you-can-see)
 - Shop and restaurant patronage comes from the reachable nearby population; the original's opaque per-venue counters are not reproduced (#393). [Help](https://help.verticopolis.com/differences/#shoppers-come-from-nearby-floors)
+- In a Classic tower some of those customers also walk in from the street, or a Metro platform, and ride up in person, as many a day as the 1994 game served (25 to 30 a shop, 35 to 50 a restaurant or fast food, half for a venue far from the street). One who finds a full car's load already waiting at the door stays away, and one who waits 15 minutes walks back out, so the tenants board first (Verticopolis/web#2631).
 - A rule-set (Classic or Modern) is chosen at founding and fixed for the tower's life; saves with no mode load as Classic. [Help](https://help.verticopolis.com/differences/#two-ways-to-play)
 - Modern builds while paused; Classic refuses, as 1994 does (#1936). [Help](https://help.verticopolis.com/differences/#building-while-paused)
 

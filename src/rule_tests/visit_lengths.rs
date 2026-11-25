@@ -90,13 +90,17 @@ fn two_days(sim: &mut Simulation) -> Seen {
 
 #[test]
 fn no_one_appears_or_vanishes_on_a_venues_floor() {
-    // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
-    crate::facilities::set_walk_ins_for_test(true);
     for mode in [GameMode::Classic, GameMode::Modern] {
         let (mut sim, cinema, shop) = venue_tower(mode);
         let seen = two_days(&mut sim);
         assert!(!seen.stays[&cinema].is_empty(), "{mode:?}: filmgoers came");
-        assert!(!seen.stays[&shop].is_empty(), "{mode:?}: shoppers came");
+        // Shoppers walk in from the street in Classic only
+        // (`GameMode::shoppers_walk_in`).
+        assert_eq!(
+            seen.stays.get(&shop).is_some_and(|s| !s.is_empty()),
+            mode.shoppers_walk_in(),
+            "{mode:?}: shoppers came"
+        );
         for floor in [CINEMA_FLOOR, SHOP_FLOOR] {
             assert!(
                 !seen.first_floors.contains(&floor),
@@ -112,8 +116,6 @@ fn no_one_appears_or_vanishes_on_a_venues_floor() {
 
 #[test]
 fn a_film_lasts_90_to_120_minutes_and_a_shop_visit_30_to_60() {
-    // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
-    crate::facilities::set_walk_ins_for_test(true);
     for mode in [GameMode::Classic, GameMode::Modern] {
         let (mut sim, cinema, shop) = venue_tower(mode);
         let seen = two_days(&mut sim);
@@ -134,6 +136,9 @@ fn a_film_lasts_90_to_120_minutes_and_a_shop_visit_30_to_60() {
                 (89.0..=121.0).contains(len),
                 "{mode:?}: a film of {len} minutes"
             );
+        }
+        if !mode.shoppers_walk_in() {
+            continue;
         }
         // A shopper who finds the shop full turns straight back out; the
         // rest browse half an hour to an hour.

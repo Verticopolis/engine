@@ -262,7 +262,9 @@ const nearCapacity = (card: Card): boolean => card.slots[CARD_NEAR_CAPACITY] ===
  *  floor 18 and guts no cinema, restaurant or shop. Once Classic venues
  *  bid for demand at the Modern figures (Verticopolis/web#2631), the Classic
  *  ransom scenario's threat comes at hour 376 and the corpus reaches an
- *  inert cinema and shop again. */
+ *  inert cinema and shop again. Once shoppers walked in from the street at
+ *  the 1994 daily counts, the threat comes at hour 544 and the corpus
+ *  reaches no inert cinema or shop. */
 const CORPUS_SECTIONS: readonly string[] = [
   "commercial:lobbyFar:false",
   "commercial:lobbyFar:true",
@@ -277,7 +279,6 @@ const CORPUS_SECTIONS: readonly string[] = [
   "housekeeping:observedShortfall",
   "inert:amusements",
   "inert:boutiqueBay",
-  "inert:cinema",
   "inert:daycare",
   "inert:fastFood",
   "inert:foodHall",
@@ -285,7 +286,6 @@ const CORPUS_SECTIONS: readonly string[] = [
   "inert:nightclub",
   "inert:parking",
   "inert:parkingRamp",
-  "inert:shop",
   "inert:skyBar",
   "inert:spa",
   "parking:connected",

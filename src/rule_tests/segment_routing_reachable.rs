@@ -17,9 +17,19 @@ use crate::tower::UnitState;
 
 use super::{at_time, place_seated, shaft, strip_tower};
 
-/// A lobby `width` wide and floor 2 laid over `runs` only.
+/// A Modern lobby `width` wide and floor 2 laid over `runs` only.
 fn split_floor(seed: u32, width: i64, runs: &[std::ops::Range<i64>]) -> Simulation {
-    let mut sim = strip_tower(seed, GameMode::Modern, width, 1);
+    split_floor_in(GameMode::Modern, seed, width, runs)
+}
+
+/// [`split_floor`] in a `mode` tower.
+fn split_floor_in(
+    mode: GameMode,
+    seed: u32,
+    width: i64,
+    runs: &[std::ops::Range<i64>],
+) -> Simulation {
+    let mut sim = strip_tower(seed, mode, width, 1);
     for run in runs {
         for x in run.clone() {
             assert!(sim.tower.place(Kind::Floor, 2, x).ok, "floor 2 at {x}");
@@ -89,7 +99,12 @@ fn a_maid_rides_round_to_a_room_on_the_far_run() {
 /// 59) has no transport. An office and a shop on the left, a shop on the
 /// right. Returns the sim, the reachable shop and the stranded one.
 fn stranded_venue() -> (Simulation, i64, i64) {
-    let mut sim = split_floor(9, 60, &[0..30, 40..60]);
+    stranded_venue_in(GameMode::Modern)
+}
+
+/// [`stranded_venue`] in a `mode` tower.
+fn stranded_venue_in(mode: GameMode) -> (Simulation, i64, i64) {
+    let mut sim = split_floor_in(mode, 9, 60, &[0..30, 40..60]);
     shaft(&mut sim, Kind::ElevatorStandard, 0, 1, 2);
     let staff = Kind::Office.facility().population;
     place_seated(&mut sim, Kind::Office, 2, 5, UnitState::Occupied, staff);
@@ -124,9 +139,9 @@ fn only_the_reachable_venue_shares_the_demand_pool() {
 /// which nobody can reach, and both draw only who is inside.
 #[test]
 fn traffic_sends_shoppers_to_the_reachable_venue_and_none_to_the_stranded_one() {
-    // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
-    crate::facilities::set_walk_ins_for_test(true);
-    let (mut sim, near, far) = stranded_venue();
+    // Shoppers walk in from the street in Classic only
+    // (`GameMode::shoppers_walk_in`).
+    let (mut sim, near, far) = stranded_venue_in(GameMode::Classic);
     for hour in 10..18 {
         at_time(&mut sim, 0, hour);
         sim.collect_traffic_income();

@@ -1,19 +1,30 @@
 //! Customers who come in from outside the tower to a shop or restaurant (a
-//! kind that [`Kind::takes_walk_ins`]): as many as its demand sends (owner,
-//! 2026-11-14, "Full demand", picked over the 1994 daily visitor counts
-//! after both were measured with the no-vanishing rule in place).
+//! kind that [`Kind::takes_walk_ins`]), as many a day as the 1994 game
+//! served ([`daily_walk_ins`]): about 25 to 30 for a shop and 35 to 50 for
+//! a restaurant or fast food (party, 2026-11-25, Verticopolis/web#2631).
+//! Classic towers only for now (`GameMode::shoppers_walk_in`).
+//! Full demand in person jammed the elevators of older towers, so it was
+//! switched off on 2026-11-14; the original's counts are the load the 1994
+//! game ran under.
 //!
 //! Each hour the traffic pass works out how many customers each open venue
-//! should see that hour and books that many arrivals at random minutes of
-//! the hour (`Crowd::book_walk_ins`). Every step starts the arrivals whose
-//! minute has come (`start_walk_ins`): each one enters at the ground lobby,
-//! or at a Metro platform the tower's riders can reach, and walks and rides
-//! to the venue like anyone else. They are not part of the 140-person
-//! sample (`MAX_PEOPLE`); only `MAX_WALK_INS` bounds them, a ceiling a
-//! working tower never reaches (owner, 2026-11-14: "Yes, both modes").
-//! They split between the lobby and the stations by what each entrance's
-//! transport can carry.
+//! should see that hour, holds that to the hour's share of the day's walk-in
+//! count, and books that many arrivals at random minutes of the hour
+//! (`Crowd::book_walk_ins`). The venue's income and its patronage still
+//! follow the demand; the walk-ins are the share of those customers a
+//! player sees arrive. Every step starts the arrivals whose minute has
+//! come (`start_walk_ins`): each one enters at the ground lobby, or at a
+//! Metro platform the tower's riders can reach, and walks and rides to the
+//! venue like anyone else. They split between the lobby and the stations by
+//! what each entrance's transport can carry.
 //!
+//! The door keeps them out of the way of the tenants: a walk-in whose
+//! entrance already has a full load of riders waiting stays away, and one
+//! who waits [`WALK_IN_GIVE_UP`] at the door walks back out it
+//! (`motion`). Neither ever vanishes on a car or a floor partway up.
+//!
+//! They are not part of the 140-person sample (`MAX_PEOPLE`); only
+//! `MAX_WALK_INS` bounds them, a ceiling a working tower never reaches.
 //! The bookings are saved with the crowd (`save.rs`), so a reload keeps
 //! the rest of the hour's arrivals. A save without them starts with none,
 //! and the next hour books again.
@@ -21,8 +32,10 @@
 //! None of this runs while [`crate::facilities::WALK_INS_ON`] is off.
 
 use super::spawn::{add, inside_x, venue_has_room};
-use super::Crowd;
+use super::{Crowd, PState, CROWD_SECONDS_PER_MINUTE};
 use crate::clock::Clock;
+use crate::economy::visitors::daily_visitor_cap;
+use crate::facilities::Kind;
 use crate::tower::Tower;
 
 /// The most walk-ins in the tower at once, on their way or inside. A
@@ -30,6 +43,18 @@ use crate::tower::Tower;
 /// working tower holds: the crowd benchmark moves 5,000 people for about
 /// 3 ms a step in the browser.
 pub const MAX_WALK_INS: i64 = 4_000;
+
+/// The crowd seconds a walk-in waits for a car at the door before walking
+/// back out of it: fifteen game minutes, a visitor's patience, where a
+/// tenant waits an hour (`GIVE_UP`).
+pub const WALK_IN_GIVE_UP: f64 = 15.0 * CROWD_SECONDS_PER_MINUTE;
+
+/// How many customers come in person to a `kind` on a day: the 1994 game's
+/// daily visitors for a shop, fast food or restaurant
+/// ([`daily_visitor_cap`]). `None` for a kind that takes none.
+pub fn daily_walk_ins(kind: Kind, weekend: bool) -> Option<f64> {
+    daily_visitor_cap(kind, weekend).map(|n| n as f64)
+}
 
 /// An arrival booked for `unit_id` at clock minute `at`.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -74,6 +99,7 @@ pub fn start_walk_ins(crowd: &mut Crowd, tower: &Tower, clock: &Clock) {
     }
     let (hour, minute) = (clock.hour(), clock.minute_of_day());
     let doors = entrances(tower);
+    let mut lines = DoorLines::count(crowd, &doors);
     while let Some(w) = crowd.walk_ins.last().copied() {
         if w.at > now {
             break;
@@ -82,7 +108,44 @@ pub fn start_walk_ins(crowd: &mut Crowd, tower: &Tower, clock: &Clock) {
         if now - w.at > 60.0 || crowd.walk_in_count >= MAX_WALK_INS {
             continue;
         }
-        start_walk_in(crowd, tower, &doors, w.unit_id, (hour, minute));
+        start_walk_in(crowd, tower, &doors, &mut lines, w.unit_id, (hour, minute));
+    }
+}
+
+/// The riders waiting for a car at each way in, counted once a step before
+/// the step's walk-ins start, plus the walk-ins started since.
+struct DoorLines {
+    lobby: f64,
+    stations: Vec<f64>,
+}
+
+impl DoorLines {
+    /// One pass over the crowd, only on a step that starts a walk-in.
+    fn count(crowd: &Crowd, doors: &Entrances) -> Self {
+        let mut lines = DoorLines {
+            lobby: 0.0,
+            stations: vec![0.0; doors.stations.len()],
+        };
+        for p in crowd.people.iter().filter(|p| p.state == PState::Waiting) {
+            if p.floor == 1 {
+                lines.lobby += 1.0;
+            }
+            for (k, s) in doors.stations.iter().enumerate() {
+                if p.floor == s.floor {
+                    lines.stations[k] += 1.0;
+                }
+            }
+        }
+        lines
+    }
+
+    /// The line at the way in `station` (`None` for the ground lobby), and
+    /// the one load its transport takes.
+    fn at(&mut self, doors: &Entrances, station: Option<i64>) -> (&mut f64, f64) {
+        match station.and_then(|sid| doors.stations.iter().position(|s| s.id == sid)) {
+            Some(k) => (&mut self.stations[k], doors.stations[k].load),
+            None => (&mut self.lobby, doors.lobby),
+        }
     }
 }
 
@@ -90,13 +153,14 @@ fn start_walk_in(
     crowd: &mut Crowd,
     tower: &Tower,
     doors: &Entrances,
+    lines: &mut DoorLines,
     unit_id: i64,
     (hour, minute): (i64, f64),
 ) {
     let Some(venue) = tower.get_unit(unit_id) else {
         return;
     };
-    if !venue.kind.takes_walk_ins()
+    if !venue.kind.takes_walk_ins(tower.mode)
         || !venue.is_tenanted()
         || !venue.open_for_business(hour, tower.mode)
         || !venue_has_room(venue, tower.mode)
@@ -108,6 +172,13 @@ fn start_walk_in(
     // Nobody steps onto a platform no train stands at: that walk-in stays
     // away (`metro_train`).
     if station.is_some_and(|sid| !super::metro_train::train_in_at(tower, minute, sid)) {
+        return;
+    }
+    // The tenants come first: a shopper who finds a full load already
+    // waiting at the way in stays away, so a walk-in never joins a line
+    // the next car cannot clear.
+    let (line, load) = lines.at(doors, station);
+    if *line >= load {
         return;
     }
     // From the station's own platform, or the ground lobby nearest the
@@ -124,6 +195,7 @@ fn start_walk_in(
     crowd.people[i].meal_venue_id = Some(unit_id);
     crowd.people[i].walk_in = true;
     crowd.walk_in_count += 1;
+    *line += 1.0;
     if let Some(sid) = station {
         let st = tower.get_unit(sid).unwrap().clone();
         crowd.people[i].x = inside_x(crowd, &st, 2) as f64;
@@ -138,8 +210,16 @@ fn start_walk_in(
 /// that capacity, so a station with one small elevator gets a small share.
 pub(super) struct Entrances {
     lobby: f64,
-    stations: Vec<(i64, f64)>,
+    stations: Vec<Station>,
     total: f64,
+}
+
+/// A Metro station walk-ins can come in by: its id, the floor its riders
+/// wait on, and the riders its transport takes in one load.
+struct Station {
+    id: i64,
+    floor: i64,
+    load: f64,
 }
 
 impl Entrances {
@@ -152,25 +232,29 @@ impl Entrances {
         if r < 0.0 {
             return None;
         }
-        for &(id, cap) in &self.stations {
-            if r < cap {
-                return Some(id);
+        for s in &self.stations {
+            if r < s.load {
+                return Some(s.id);
             }
-            r -= cap;
+            r -= s.load;
         }
-        self.stations.last().map(|s| s.0)
+        self.stations.last().map(|s| s.id)
     }
 }
 
 pub(super) fn entrances(tower: &Tower) -> Entrances {
     let lobby = boarding_capacity(tower, 1);
-    let stations: Vec<(i64, f64)> = tower
+    let stations: Vec<Station> = tower
         .metro_stations()
         .filter(|u| tower.is_metro_platform_served(u))
-        .map(|u| (u.id, boarding_capacity(tower, u.floor + 1)))
-        .filter(|s| s.1 > 0.0)
+        .map(|u| Station {
+            id: u.id,
+            floor: u.floor + 1,
+            load: boarding_capacity(tower, u.floor + 1),
+        })
+        .filter(|s| s.load > 0.0)
         .collect();
-    let total = lobby + stations.iter().map(|s| s.1).sum::<f64>();
+    let total = lobby + stations.iter().map(|s| s.load).sum::<f64>();
     Entrances {
         lobby,
         stations,

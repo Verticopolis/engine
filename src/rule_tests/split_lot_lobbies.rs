@@ -170,9 +170,9 @@ fn a_single_lobby_picks_the_same_tile_as_before() {
 /// the basement.
 #[test]
 fn shoppers_use_the_lobby_under_their_shop() {
-    // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
-    crate::facilities::set_walk_ins_for_test(true);
-    for mode in [GameMode::Classic, GameMode::Modern] {
+    // Shoppers walk in from the street in Classic only
+    // (`GameMode::shoppers_walk_in`).
+    for mode in [GameMode::Classic] {
         let (mut sim, _) = three_towers(mode);
         let c = TOWERS[2];
         let staff = Kind::Office.facility().population;

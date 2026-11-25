@@ -14,6 +14,7 @@ impl Simulation {
     /// for a meal. Runs once the tower is loaded.
     pub(crate) fn adopt_saved_crowd(&mut self, saved: Option<&Value>) {
         let Some(saved) = saved else { return };
+        let mode = self.tower.mode;
         self.crowd.restore(saved);
         self.crowd.bound_gone_desks(&self.tower);
         let crowd = &mut self.crowd;
@@ -57,14 +58,14 @@ impl Simulation {
                 touched_meals = true;
             }
             let venue = venue.and_then(|id| self.tower.marked_by_id(id));
-            match venue.filter(|(v, _)| v.kind.counts_visitors()) {
+            match venue.filter(|(v, _)| v.kind.counts_visitors(mode)) {
                 Some((v, at)) => {
                     v.set_customers_in(at, Some(v.customers_in.unwrap_or(0) + 1));
                     if hotel_guest {
                         let n = v.hotel_customers_in.unwrap_or(0) + 1;
                         v.set_hotel_customers_in(at, Some(n));
                     }
-                    v.sync_visitor_occupants(at);
+                    v.sync_visitor_occupants(at, mode);
                     touched_meals = true;
                 }
                 // A venue that is gone (or, in a hand edit, a room that

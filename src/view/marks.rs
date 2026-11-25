@@ -240,16 +240,16 @@ impl Unit {
     /// The head count of a room that counts its visitors, or `None` for a
     /// kind whose head count follows its own rule. An attendance venue's is
     /// [`Unit::attendance_occupants`]. A meal venue's or a shop's (a
-    /// [`Kind::is_meal_venue`] or a kind that [`Kind::takes_walk_ins`]) is
-    /// the customers inside it (`customers_in`, the people who walked in and
+    /// [`Kind::is_meal_venue`] or a kind that [`Kind::takes_walk_ins`] in a
+    /// `mode` tower) is the customers inside it (`customers_in`, the people who walked in and
     /// have not left) while it stands, so the room draws the people who are
     /// really there. A kind no trip is sent to keeps its own rule, or it
     /// would always draw empty.
-    pub(crate) fn visitor_occupants(&self) -> Option<i64> {
+    pub(crate) fn visitor_occupants(&self, mode: crate::clock::GameMode) -> Option<i64> {
         if self.kind.attendance_cap().is_some() {
             return self.attendance_occupants();
         }
-        if !self.kind.is_meal_venue() && !self.kind.takes_walk_ins() {
+        if !self.kind.is_meal_venue() && !self.kind.takes_walk_ins(mode) {
             return None;
         }
         Some(if self.is_operational() {
@@ -262,8 +262,8 @@ impl Unit {
     /// Sets the head count of a room that counts its visitors
     /// ([`Unit::visitor_occupants`]) through the head count's setter; any
     /// other room is left as it is.
-    pub(crate) fn sync_visitor_occupants(&mut self, at: Mark<'_>) {
-        if let Some(occupants) = self.visitor_occupants() {
+    pub(crate) fn sync_visitor_occupants(&mut self, at: Mark<'_>, mode: crate::clock::GameMode) {
+        if let Some(occupants) = self.visitor_occupants(mode) {
             self.set_occupants(at, occupants);
         }
     }

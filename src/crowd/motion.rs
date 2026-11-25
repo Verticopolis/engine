@@ -9,6 +9,7 @@ use super::visits::{begin_dwell, leave_venue};
 use super::walk::{
     find_another_way, is_still_setting_out, reach_on_run, reroute, turn_back, walk_to, way_is_cut,
 };
+use super::walk_ins::WALK_IN_GIVE_UP;
 use super::workplace;
 use super::{Crowd, PState, StaffResult, GIVE_UP, STAFF_GIVE_UP, STRESS_WAIT};
 use crate::jsmath;
@@ -31,7 +32,13 @@ pub fn advance(crowd: &mut Crowd, dt_sec: f64, tower: &mut Tower) {
             crowd.people[i].age += dt_sec;
         }
         let p = &crowd.people[i];
-        let patience = if p.staff { STAFF_GIVE_UP } else { GIVE_UP };
+        let patience = if p.staff {
+            STAFF_GIVE_UP
+        } else if p.walk_in {
+            WALK_IN_GIVE_UP
+        } else {
+            GIVE_UP
+        };
         if p.age > patience && p.state == PState::Waiting {
             if p.staff {
                 give_up(crowd, i, tower);
@@ -42,8 +49,12 @@ pub fn advance(crowd: &mut Crowd, dt_sec: f64, tower: &mut Tower) {
             // came. Anyone past their first ride keeps going, since a floor
             // partway up has no way out.
             if is_still_setting_out(p) {
-                frustrated += 1;
-                travelling += 1;
+                // A shopper from outside is no tenant: their wait moves no
+                // one's mood (`finish`).
+                if !p.walk_in {
+                    frustrated += 1;
+                    travelling += 1;
+                }
                 turn_back(crowd, i);
                 crowd.people[i].gave_up = true;
                 continue;
@@ -55,6 +66,7 @@ pub fn advance(crowd: &mut Crowd, dt_sec: f64, tower: &mut Tower) {
         let p = &crowd.people[i];
         lines.see(p);
         if !p.staff
+            && !p.walk_in
             && matches!(
                 p.state,
                 PState::Waiting | PState::Riding | PState::ToShaft | PState::Climbing

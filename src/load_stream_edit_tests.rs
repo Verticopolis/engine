@@ -52,8 +52,11 @@ const JSON_BYTES: &[u8] = b"{}[],:\"0-.e\\ ";
 /// the estimate's seats in each car (`estimateSeats`, #2397), for that
 /// reason again. 160 became 148 when an Auto shaft's load rings started
 /// carrying the demand at the top of the hour (`hourStart`, #2466), for
-/// that reason again.
-const STREAMED: usize = 148;
+/// that reason again. 148 became 153 when Classic shoppers walked in from
+/// the street again at the 1994 daily counts (`WALK_INS_ON`): the Classic
+/// base saves change, so the edits shift. No reader disagreement came with
+/// it.
+const STREAMED: usize = 153;
 
 /// Seeded edits of engine saves, a few bytes each: dropped, inserted,
 /// changed or copied, or the text cut short. Whatever comes out, both

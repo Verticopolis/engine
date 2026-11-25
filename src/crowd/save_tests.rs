@@ -357,7 +357,7 @@ fn a_hand_edit_cannot_seat_a_visitor_or_a_housekeeper_in_the_wrong_room() {
         .tower
         .units
         .iter()
-        .find(|u| !u.kind.counts_visitors() && !u.kind.is_hotel())
+        .find(|u| !u.kind.seats_visitors() && !u.kind.is_hotel())
         .unwrap()
         .id;
     let mut save = tower.serialize();

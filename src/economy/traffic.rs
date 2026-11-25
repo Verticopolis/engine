@@ -58,7 +58,7 @@ impl Simulation {
             if !draws || !open {
                 if state == UnitState::Occupied {
                     let (u, at) = self.tower.marked(i);
-                    let occupants = u.visitor_occupants().unwrap_or(0);
+                    let occupants = u.visitor_occupants(mode).unwrap_or(0);
                     u.set_occupants(at, occupants);
                 }
                 continue;
@@ -66,7 +66,9 @@ impl Simulation {
             {
                 let (u, at) = self.tower.marked(i);
                 u.set_state(at, UnitState::Occupied);
-                let occupants = u.visitor_occupants().unwrap_or(kind.facility().population);
+                let occupants = u
+                    .visitor_occupants(mode)
+                    .unwrap_or(kind.facility().population);
                 u.set_occupants(at, occupants);
             }
             let customers = self.tower.units[i].customers_in.unwrap_or(0);
@@ -125,16 +127,15 @@ impl Simulation {
                 let expected =
                     cust_per_hour * frac * rain_mult * lobby_mult * weekend_mult * traffic_factor;
                 let mut tally = u.extras_mut();
-                if kind.takes_walk_ins() {
-                    // These customers come in person, as many as demand
-                    // sends (owner, 2026-11-14): the hour's share is booked
-                    // as walk-ins, and each one counts as it arrives
-                    // (`visits::begin_dwell`).
-                    tally.patronage_today.get_or_insert(0.0);
+                tally.patronage_today = Some(tally.patronage_today.unwrap_or(0.0) + expected);
+                // Some of these customers come in person: the hour's share of
+                // the 1994 game's daily visitors at most (`walk_ins`).
+                if let Some(daily) = crate::crowd::walk_ins::daily_walk_ins(kind, is_weekend)
+                    .filter(|_| kind.takes_walk_ins(mode))
+                {
+                    let in_person = expected.min(daily / open_h * lobby_mult);
                     self.crowd
-                        .book_walk_ins(id, expected, walk_in_from, walk_in_until);
-                } else {
-                    tally.patronage_today = Some(tally.patronage_today.unwrap_or(0.0) + expected);
+                        .book_walk_ins(id, in_person, walk_in_from, walk_in_until);
                 }
             }
             if u.pending_income >= 1.0 {

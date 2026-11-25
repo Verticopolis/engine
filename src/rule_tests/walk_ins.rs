@@ -1,9 +1,13 @@
 //! Shops and restaurants take real customers from outside the tower
 //! (`crowd::walk_ins`): each hour books its share of the day's visitors,
-//! each one comes in at the ground lobby (or a Metro platform), rides to the
-//! venue, and counts in Today's patronage at the door. The venue draws only
-//! who is inside, and the walk-ins never crowd the tenants' sample out.
+//! up to the 1994 game's daily visitors, each one comes in at the ground
+//! lobby (or a Metro platform) and rides to the venue, and Today's patronage
+//! still follows the demand. The venue draws only who is inside, and the
+//! walk-ins never crowd the tenants' sample out.
 use crate::clock::GameMode;
+use crate::crowd::motion::advance;
+use crate::crowd::spawn::add;
+use crate::crowd::walk_ins::{start_walk_ins, WalkIn, WALK_IN_GIVE_UP};
 use crate::crowd::{PState, MAX_PEOPLE};
 use crate::facilities::Kind;
 use crate::sim::Simulation;
@@ -38,9 +42,7 @@ fn shop_customers(sim: &Simulation, shop: i64) -> (i64, i64, f64) {
 }
 
 #[test]
-fn shoppers_walk_in_from_the_lobby_and_count_at_the_door() {
-    // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
-    crate::facilities::set_walk_ins_for_test(true);
+fn shoppers_walk_in_from_the_lobby_and_patronage_follows_the_demand() {
     let (mut sim, shop) = shop_tower(7);
     at_time(&mut sim, 0, 10);
     let mut seen = std::collections::HashSet::new();
@@ -69,19 +71,18 @@ fn shoppers_walk_in_from_the_lobby_and_count_at_the_door() {
     }
     assert!(!arrived.is_empty(), "shoppers reached the shop");
     let (_, _, patronage) = shop_customers(&sim, shop);
-    assert_eq!(
-        patronage,
-        arrived.len() as f64,
-        "Today's patronage is who came"
+    assert!(
+        patronage >= arrived.len() as f64,
+        "the shoppers who came are some of Today's {patronage}"
     );
 }
 
 /// A shop on floor 2 under `office_floors` floors of offices. Returns the
-/// day's walk-ins booked for it (10:00 to 20:00, each hour's bookings read
-/// on their own) and its demand fraction.
-fn day_of_bookings(office_floors: i64) -> (usize, f64) {
+/// walk-ins booked for it from 10:00 to 20:00, each hour's bookings read on
+/// their own.
+fn day_of_bookings(seed: u32, office_floors: i64) -> usize {
     let top = 2 + office_floors;
-    let mut sim = strip_tower(11, GameMode::Classic, 40, top);
+    let mut sim = strip_tower(seed, GameMode::Classic, 40, top);
     shaft(&mut sim, Kind::ElevatorStandard, 36, 1, top);
     let shop = place_seated(&mut sim, Kind::Shop, 2, 0, UnitState::Occupied, 0);
     let staff = Kind::Office.facility().population;
@@ -90,7 +91,6 @@ fn day_of_bookings(office_floors: i64) -> (usize, f64) {
             place_seated(&mut sim, Kind::Office, floor, x, UnitState::Occupied, staff);
         }
     }
-    let frac = crate::demand::compute_demand_map(&mut sim).fraction_by_unit[&shop];
     let mut booked = 0;
     for hour in 10..21 {
         at_time(&mut sim, 0, hour);
@@ -103,28 +103,27 @@ fn day_of_bookings(office_floors: i64) -> (usize, f64) {
             .filter(|w| w.unit_id == shop)
             .count();
     }
-    (booked, frac)
+    booked
 }
 
 #[test]
-fn a_day_books_as_many_shoppers_as_demand_sends() {
-    // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
-    crate::facilities::set_walk_ins_for_test(true);
-    let (busy, busy_frac) = day_of_bookings(2);
-    let (quiet, quiet_frac) = day_of_bookings(1);
-    assert!(busy_frac > quiet_frac && quiet_frac > 0.0);
-    // No 1994 cap: the busy shop books far past the original's 25 a day.
-    assert!(busy > 100, "{busy} booked");
-    // The bookings follow the demand: per unit of it, the two shops book
-    // within the hourly traffic draw's spread of each other.
-    let (a, b) = (busy as f64 / busy_frac, quiet as f64 / quiet_frac);
-    assert!((a / b - 1.0).abs() < 0.2, "{a:.0} against {b:.0}");
+fn a_day_books_the_shoppers_the_1994_game_served() {
+    // About 25 a weekday for a shop: each hour books its share of the day,
+    // rounded up or down at random, however many offices stand above it.
+    let day = crate::crowd::walk_ins::daily_walk_ins(Kind::Shop, false).unwrap();
+    assert_eq!(day, 25.0);
+    for seed in 0..6 {
+        for office_floors in [1, 6] {
+            let booked = day_of_bookings(seed, office_floors) as f64;
+            assert!((booked - day).abs() <= 5.0, "{booked} booked");
+        }
+    }
+    // A shop nobody in the tower shops at books nobody.
+    assert_eq!(day_of_bookings(0, 0), 0);
 }
 
 #[test]
 fn walk_ins_leave_room_for_the_tenants_sample() {
-    // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
-    crate::facilities::set_walk_ins_for_test(true);
     let (mut sim, shop) = shop_tower(3);
     at_time(&mut sim, 0, 12);
     for _ in 0..30 {
@@ -139,8 +138,6 @@ fn walk_ins_leave_room_for_the_tenants_sample() {
 
 #[test]
 fn a_shop_that_closes_takes_no_more_bookings_and_its_shoppers_go_home() {
-    // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
-    crate::facilities::set_walk_ins_for_test(true);
     let (mut sim, shop) = shop_tower(5);
     at_time(&mut sim, 0, 20);
     for _ in 0..(3 * 60) {
@@ -158,8 +155,6 @@ fn a_shop_that_closes_takes_no_more_bookings_and_its_shoppers_go_home() {
 
 #[test]
 fn shoppers_split_between_the_lobby_and_a_served_metro_platform() {
-    // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
-    crate::facilities::set_walk_ins_for_test(true);
     use super::metro_shoppers::{b, metro_tower};
     let mut sim = metro_tower(GameMode::Classic, true);
     for x in [10, 30, 50, 70] {
@@ -190,5 +185,82 @@ fn shoppers_split_between_the_lobby_and_a_served_metro_platform() {
     assert!(
         by_metro > 0 && by_lobby > by_metro,
         "{by_lobby} / {by_metro}"
+    );
+}
+
+/// Books `n` walk-ins to `shop` for this minute and starts the ones the
+/// door lets in. Returns how many started.
+fn start_now(sim: &mut Simulation, shop: i64, n: usize) -> usize {
+    let before = sim.crowd.walk_in_count;
+    let now = sim.clock.minutes;
+    sim.crowd.walk_ins.clear();
+    for _ in 0..n {
+        sim.crowd.walk_ins.push(WalkIn {
+            at: now,
+            unit_id: shop,
+        });
+    }
+    start_walk_ins(&mut sim.crowd, &sim.tower, &sim.clock);
+    (sim.crowd.walk_in_count - before) as usize
+}
+
+#[test]
+fn a_full_lobby_line_keeps_the_shoppers_away() {
+    let (mut sim, shop) = shop_tower(9);
+    let lift = sim
+        .tower
+        .transports
+        .iter()
+        .find(|t| t.kind.is_elevator())
+        .unwrap();
+    assert_eq!(lift.cars, 1, "one car takes one load from the lobby");
+    let load = Kind::ElevatorStandard.car_capacity() as usize;
+    at_time(&mut sim, 0, 12);
+    // A car's load less one already waits in the lobby: one shopper joins
+    // the line, and the rest stay away.
+    for _ in 0..load - 1 {
+        let i = add(&mut sim.crowd, &sim.tower, 1, 2, None, None).unwrap();
+        sim.crowd.people[i].state = PState::Waiting;
+    }
+    assert_eq!(start_now(&mut sim, shop, 5), 1);
+    assert!(
+        sim.crowd.walk_ins.is_empty(),
+        "the turned-away bookings are spent"
+    );
+    // With the line gone, the shoppers come in again.
+    for p in sim.crowd.people.iter_mut().filter(|p| !p.walk_in) {
+        p.state = PState::Done;
+    }
+    assert_eq!(start_now(&mut sim, shop, 5), 5);
+}
+
+#[test]
+fn a_shopper_who_waits_too_long_at_the_door_walks_back_out() {
+    let (mut sim, shop) = shop_tower(4);
+    at_time(&mut sim, 0, 12);
+    assert_eq!(start_now(&mut sim, shop, 1), 1);
+    let tenant = add(&mut sim.crowd, &sim.tower, 1, 2, None, None).unwrap();
+    let shopper = sim.crowd.people.iter().position(|p| p.walk_in).unwrap();
+    // Both have waited past a shopper's patience, well short of a tenant's
+    // (`GIVE_UP`).
+    for i in [tenant, shopper] {
+        let p = &mut sim.crowd.people[i];
+        p.state = PState::Waiting;
+        p.age = WALK_IN_GIVE_UP + 1.0;
+    }
+    // The shopper's long wait would sour the tower's mood if it counted;
+    // the tenant has only just come to the line.
+    sim.crowd.people[shopper].wait = WALK_IN_GIVE_UP + 1.0;
+    sim.crowd.people[tenant].wait = 0.0;
+    sim.crowd.frustration = 0.0;
+    advance(&mut sim.crowd, 0.1, &mut sim.tower);
+    assert!(sim.crowd.people[shopper].gave_up, "the shopper turns back");
+    assert!(
+        !sim.crowd.people[tenant].gave_up,
+        "the tenant keeps waiting"
+    );
+    assert_eq!(
+        sim.crowd.frustration, 0.0,
+        "only tenants' waits weigh on the mood"
     );
 }
