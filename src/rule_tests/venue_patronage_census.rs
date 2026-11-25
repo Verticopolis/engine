@@ -143,18 +143,18 @@ fn a_saved_spa_keeps_its_tally_and_its_census() {
 #[test]
 fn the_card_shows_a_live_count_only_where_people_come_in_person() {
     let (mut sim, spa, _, food) = venue_tower();
+    let detail = |sim: &mut Simulation, id| sim.unit_detail(id).unwrap()["customersIn"].clone();
+    // A fast food nobody has reached yet reads 0 people inside, not null.
+    assert_eq!(sim.tower.get_unit(food).unwrap().customers_in, None);
+    assert_eq!(detail(&mut sim, food), 0);
+    // A spa reads null even with a count on the unit: nobody is sent to one in
+    // person, so the card has no live head count to show.
+    let (u, at) = sim.tower.marked_by_id(spa).unwrap();
+    u.set_customers_in(at, Some(5));
+    assert!(detail(&mut sim, spa).is_null());
     for _ in 0..12 {
         sim.tick(60.0);
     }
-    let detail = |sim: &mut Simulation, id| sim.unit_detail(id).unwrap()["customersIn"].clone();
-    assert!(
-        detail(&mut sim, spa).is_null(),
-        "nobody is sent to a spa in person"
-    );
-    assert!(
-        detail(&mut sim, food).is_i64(),
-        "diners walk into a fast food"
-    );
     let facts = serde_json::to_value(sim.service_diagnostic_facts(spa).unwrap()).unwrap();
     assert_eq!(
         facts["retail"]["active"], true,

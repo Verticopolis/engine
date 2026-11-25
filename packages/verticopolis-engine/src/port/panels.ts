@@ -130,6 +130,10 @@ export interface UnitDetail {
   readonly state: UnitState;
   readonly satisfaction: number;
   readonly occupants: number;
+  /** The customers inside right now, for a venue people come to in person (a
+   *  meal venue, a show, or a walk-in venue while walk-ins are on). Null for
+   *  every other kind, a spa or a shop included: it has no live head count, so
+   *  read its patronage block instead. */
   readonly customersIn: number | null;
   readonly residents: number | null;
   readonly everOccupied: boolean;
