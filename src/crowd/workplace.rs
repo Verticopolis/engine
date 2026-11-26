@@ -20,11 +20,11 @@ use crate::clock::GameMode;
 use crate::tower::{Tower, Unit, UnitState};
 
 /// The hour the first workers set out, and the hour by which all are booked.
-pub(super) const ARRIVE_FROM: i64 = 7;
+pub(crate) const ARRIVE_FROM: i64 = 7;
 pub(super) const ARRIVE_BY: i64 = 10;
 /// The hour the first workers leave, and the hour by which all are booked.
 pub(super) const LEAVE_FROM: i64 = 16;
-pub(super) const LEAVE_BY: i64 = 19;
+pub(crate) const LEAVE_BY: i64 = 19;
 
 /// Whether office workers come in at `hour` (weekdays, 7 AM to 4 PM)
 /// instead of going home.

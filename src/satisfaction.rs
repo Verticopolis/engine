@@ -19,6 +19,7 @@ pub(crate) use halo_floors::note_halo_venue;
 use halo_floors::{halo_row, nearest_floor_dist};
 pub mod shortfall;
 mod update;
+mod wait_notice;
 
 use shortfall::{shortfall_drain, ServiceShort, ServiceShortfalls};
 

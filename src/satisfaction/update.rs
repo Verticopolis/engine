@@ -1,6 +1,7 @@
 //! The hourly satisfaction pass and the notices it raises.
 
 use super::shortfall::ServiceShort;
+use super::wait_notice;
 use super::{vacate_reason_text, NOISE_CAP, VACATE_NOTICE_MINUTES, VACATE_RESCIND};
 use crate::econ::{rent_config, rent_of};
 use crate::facilities::Kind;
@@ -35,7 +36,15 @@ impl Simulation {
             // by reference and writes nothing to it, so the copy taken before
             // it equals the unit once the new satisfaction is stored.
             let mut u = self.tower.units[i].clone();
-            let r = self.satisfaction_step(&u, u.satisfaction, &mut ctx);
+            let mut r = self.satisfaction_step(&u, u.satisfaction, &mut ctx);
+            if wait_notice::on_wait_notice(&u) {
+                let weekend = self.clock.is_weekend();
+                r.next = wait_notice::held_satisfaction(u.satisfaction, r.next, weekend, ctx.hour);
+                let at = u.extras().vacate_at.unwrap_or(0.0);
+                let held = wait_notice::held_deadline(at, weekend);
+                self.tower.units[i].extras_mut().vacate_at = Some(held);
+                u.extras_mut().vacate_at = Some(held);
+            }
             self.tower.units[i].satisfaction = r.next;
             u.satisfaction = r.next;
             debug_assert!(

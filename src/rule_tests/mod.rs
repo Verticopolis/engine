@@ -98,6 +98,7 @@ mod noise_reach_table;
 mod office_commute;
 mod office_commute_metro;
 mod office_evening_outings;
+mod office_wait_notice;
 mod party_hall_two_floor;
 mod person_census;
 mod person_round_trip;
