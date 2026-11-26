@@ -40,6 +40,8 @@ export interface SerializedGame {
    *  (export/import, cross-device). Absent/false for towers started in 2.0 or
    *  later. Drives the splash "Ground floor" badge. */
   founder?: boolean;
+  /** A free-build tower (written only when true). */
+  creative?: boolean;
 
   /** "Bridge floors between placements" toggle, flipped mid-game. Written only
    *  when turned OFF (default on), so an absent value loads as on, the shipped

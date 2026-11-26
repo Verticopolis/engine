@@ -424,6 +424,24 @@ impl Engine {
     pub(crate) fn port_founder(&self) -> bool {
         self.sim.founder
     }
+
+    /// Whether this is a free-build tower ([`crate::creative`]).
+    pub(crate) fn port_creative(&self) -> bool {
+        self.sim.creative
+    }
+
+    /// Turns free building on or off, with the value after.
+    pub(crate) fn port_set_creative(&mut self, on: bool) -> Vec<f64> {
+        self.reason = None;
+        let before = self.sim.money;
+        self.sim.set_creative(on);
+        self.finish(
+            before,
+            true,
+            None,
+            &[f64::from(u8::from(self.sim.creative))],
+        )
+    }
 }
 
 #[cfg(test)]

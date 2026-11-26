@@ -153,4 +153,13 @@ impl Engine {
     pub fn tick(&mut self, dt_minutes: f64) {
         self.sim.tick(dt_minutes);
     }
+    /// `creative()`: whether this is a free-build tower.
+    pub fn creative(&self) -> bool {
+        self.port_creative()
+    }
+    /// `setCreative(on)`: turns free building on or off.
+    #[wasm_bindgen(js_name = setCreative)]
+    pub fn set_creative(&mut self, on: bool) -> Vec<f64> {
+        self.port_set_creative(on)
+    }
 }

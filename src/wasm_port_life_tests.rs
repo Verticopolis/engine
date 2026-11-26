@@ -496,3 +496,17 @@ fn the_schedule_queries_refuse_a_stair_a_bad_header_and_a_name_in_another_case()
     assert_eq!(facts(&e, id, &bad, false)["status"], "invalid-draft");
     assert_eq!(preset(&e, id, "Rush")["status"], "unknown-preset");
 }
+
+#[test]
+fn a_host_turns_free_building_on_and_off_through_the_port() {
+    let mut e = engine();
+    assert!(!e.port_creative());
+    let on = e.port_set_creative(true);
+    assert_eq!(on[crate::wasm::port::STATUS], 1.0);
+    assert_eq!(on.last(), Some(&1.0), "the record says it is on");
+    assert!(e.port_creative());
+    assert_eq!(e.sim.money, crate::creative::CREATIVE_FUNDS);
+    let off = e.port_set_creative(false);
+    assert_eq!(off.last(), Some(&0.0));
+    assert!(!e.port_creative());
+}

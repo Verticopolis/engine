@@ -386,6 +386,10 @@ export interface EnginePortQueries {
   schedulePreset(id: number, preset: SchedulePresetName): PresetProposal;
   /** Whether the tower came from a pre-2.0 save (the founder's welcome). */
   founder(): boolean;
+  /** Whether this is a free-build tower: every kind unlocked and funds that never run out. */
+  creative(): boolean;
+  /** Turns free building on or off; the record's own value is 1 when it is on. */
+  setCreative(on: boolean): PortRecord;
   statsStrip(): PortRecord;
   hotspot(): PortRecord;
   /** Bits in the layout's `onboarding` order. */

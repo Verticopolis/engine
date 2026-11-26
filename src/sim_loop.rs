@@ -64,6 +64,7 @@ impl Simulation {
             self.advance_step(step);
             remaining -= step;
         }
+        self.refill_creative_funds();
     }
 
     #[doc(hidden)]

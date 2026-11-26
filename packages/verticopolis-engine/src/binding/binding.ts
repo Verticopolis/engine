@@ -218,6 +218,9 @@ export const INSTANCE_METHODS = [
   "quoteRentBatch",
   "shaftSchedule",
   "founder",
+  // A free-build tower: every kind unlocked and funds that never run out.
+  "creative",
+  "setCreative",
   // The read-only Auto-tune proposal (#1550).
   "autoTuneProposal",
   "scheduleFacts",

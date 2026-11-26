@@ -200,6 +200,9 @@ pub struct Simulation {
     /// Whether the tower was started before saves carried a build stamp. The
     /// web game shows these towers a founder badge.
     pub founder: bool,
+    /// Whether this is a free-build tower: every kind unlocked and money that
+    /// never runs out ([`crate::creative`]).
+    pub creative: bool,
     /// The game clock: day, hour, minute, quarter and year.
     pub clock: Clock,
     /// The people moving through the tower.
@@ -339,6 +342,7 @@ impl Simulation {
                 true
             },
             founder: false,
+            creative: false,
             clock: Clock::new(0.0, resolve_calendar(mode, modern_calendar)),
             crowd: Crowd::new(seed),
             events: EventSystem::new(seed),
@@ -402,41 +406,6 @@ impl Simulation {
     /// ratings count.
     pub fn population(&self) -> i64 {
         self.tower.total_population()
-    }
-
-    #[doc(hidden)]
-    /// `floorReachable(floor)`: memoized per tower revision, no rng.
-    pub fn floor_reachable(&mut self, floor: i64) -> bool {
-        if floor == 1 {
-            return true;
-        }
-        if self.reach_memo.0 != self.tower.revision {
-            self.reach_memo = (self.tower.revision, Default::default());
-        }
-        if let Some(&hit) = self.reach_memo.1.get(&floor) {
-            return hit;
-        }
-        let hit = self.crowd.floor_reachable(&self.tower, floor);
-        self.reach_memo.1.insert(floor, hit);
-        hit
-    }
-
-    #[doc(hidden)]
-    /// `positionReachable(floor, x)`.
-    pub fn position_reachable(&mut self, floor: i64, x: i64) -> bool {
-        if floor == 1 {
-            return true;
-        }
-        if self.tower.segment_run_count(floor) <= 1 {
-            return self.floor_reachable(floor);
-        }
-        self.crowd.position_reachable(&self.tower, floor, x)
-    }
-
-    #[doc(hidden)]
-    /// `unitReachable` (the retired TypeScript `src/engine/sim/demand.ts`).
-    pub fn unit_reachable(&mut self, floor: i64, x: i64) -> bool {
-        self.position_reachable(floor, x)
     }
 
     /// Starts a new game: an empty lot, [`STARTING_MONEY`], 07:00 on day 0.
