@@ -19,6 +19,22 @@ raised the version, so they are documentation only.
 There is no entry for 0.17.0, which only
 existed as a step inside a stacked branch.
 
+## 1.62.0 (2026-11-26)
+
+- **minor**: A free-build tower: `Simulation::set_creative` and the binding's
+  `setCreative(on)` and `creative()`. A creative tower has every kind its
+  mode offers unlocked whatever its star rating, a Sky Bridge ignores its
+  star bar, and its funds fill back to `creative::CREATIVE_FUNDS` after every
+  step of play. The save leaves it out, so a host turns it on each time it
+  opens the tower. Nothing else about the simulation changes, and no host
+  has to offer it. The view layout goes to version 35 for the new
+  `setCreative` command record.
+- **patch**: An office on notice for crowded elevators recovers only in its workers'
+  hours (weekdays, 7 AM to 7 PM), so a quiet night no longer cancels the
+  notice while the elevators stay as bad. Its notice clock stands still over
+  a weekend. A real fix still reaches the rescind bar within a working day.
+  Towers whose offices wait too long for elevators now lose tenants.
+
 ## 1.61.1 (2026-11-26)
 
 - **patch**: In a Classic tower, shops and restaurants take customers in person from
