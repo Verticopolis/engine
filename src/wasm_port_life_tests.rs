@@ -510,3 +510,16 @@ fn a_host_turns_free_building_on_and_off_through_the_port() {
     assert_eq!(off.last(), Some(&0.0));
     assert!(!e.port_creative());
 }
+
+#[test]
+fn the_layout_names_the_free_building_record() {
+    let mut layout = crate::view::layout_json();
+    crate::wasm::port::add_records(&mut layout);
+    let slots = layout["records"]["setCreative"].as_array().unwrap().clone();
+    assert_eq!(slots, ["status", "delta", "value"]);
+    let mut e = engine();
+    let on = e.port_set_creative(true);
+    let value = slots.iter().position(|s| s == "value").unwrap();
+    assert_eq!(on.len(), slots.len(), "the record is the layout's length");
+    assert_eq!(on[value], 1.0, "the value slot reads it is on");
+}

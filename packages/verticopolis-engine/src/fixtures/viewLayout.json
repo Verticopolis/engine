@@ -391,6 +391,11 @@
       "delta",
       "cost"
     ],
+    "setCreative": [
+      "status",
+      "delta",
+      "value"
+    ],
     "quoteBuild": [
       "ok",
       "cost"

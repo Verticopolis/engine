@@ -62,7 +62,7 @@ pub(crate) const ONBOARDING_FLAGS: [u8; 5] = [
 ];
 
 /// Each command's own slots after [`DELTA`], for the view layout.
-pub(crate) const COMMAND_RECORDS: [(&str, &[&str]); 32] = [
+pub(crate) const COMMAND_RECORDS: [(&str, &[&str]); 33] = [
     ("buildAt", &[]),
     ("paintTiles", &["placed"]),
     ("buildSkyBridge", &["tiles"]),
@@ -95,6 +95,7 @@ pub(crate) const COMMAND_RECORDS: [(&str, &[&str]); 32] = [
     ("logLine", &[]),
     ("scheduleShaft", &[]),
     ("callFireRescue", &["cost"]),
+    ("setCreative", &["value"]),
 ];
 
 /// Each query record's slots, for the view layout.
