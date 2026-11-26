@@ -23,10 +23,12 @@ existed as a step inside a stacked branch.
 
 - **minor**: A free-build tower: `Simulation::set_creative` and the binding's
   `setCreative(on)` and `creative()`. A creative tower has every kind its
-  mode offers unlocked whatever its star rating, and its funds fill back to
-  `creative::CREATIVE_FUNDS` after every step of play. The save keeps it
-  (`"creative": true`, written only when on). Nothing else about the
-  simulation changes, and no host has to offer it.
+  mode offers unlocked whatever its star rating, a Sky Bridge ignores its
+  star bar, and its funds fill back to `creative::CREATIVE_FUNDS` after every
+  step of play. The save leaves it out, so a host turns it on each time it
+  opens the tower. Nothing else about the simulation changes, and no host
+  has to offer it. The view layout goes to version 35 for the new
+  `setCreative` command record.
 - **patch**: An office on notice for crowded elevators recovers only in its workers'
   hours (weekdays, 7 AM to 7 PM), so a quiet night no longer cancels the
   notice while the elevators stay as bad. Its notice clock stands still over
