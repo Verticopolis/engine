@@ -200,6 +200,9 @@ fn start_now(sim: &mut Simulation, shop: i64, n: usize) -> usize {
             unit_id: shop,
         });
     }
+    // The door reads the step's queue view; a test that moved people by
+    // hand builds it again, as the next step would.
+    sim.crowd.queue_cache = None;
     start_walk_ins(&mut sim.crowd, &sim.tower, &sim.clock);
     (sim.crowd.walk_in_count - before) as usize
 }
@@ -262,5 +265,55 @@ fn a_shopper_who_waits_too_long_at_the_door_walks_back_out() {
     assert_eq!(
         sim.crowd.frustration, 0.0,
         "only tenants' waits weigh on the mood"
+    );
+}
+
+#[test]
+fn shoppers_on_their_way_to_the_car_count_in_its_line() {
+    let (mut sim, shop) = shop_tower(9);
+    at_time(&mut sim, 0, 12);
+    let load = Kind::ElevatorStandard.car_capacity() as usize;
+    // One step lets in a full load, and no more.
+    assert_eq!(start_now(&mut sim, shop, load + 3), load);
+    assert!(sim
+        .crowd
+        .people
+        .iter()
+        .filter(|p| p.walk_in)
+        .all(|p| p.state == PState::ToShaft));
+    // The next step still sees them walking to the car, so nobody joins.
+    assert_eq!(start_now(&mut sim, shop, 3), 0);
+}
+
+#[test]
+fn a_shop_up_a_flight_of_stairs_forms_no_line_at_the_door() {
+    // No elevator stops here, only stairs, where nobody queues.
+    let mut sim = strip_tower(5, GameMode::Classic, 40, 2);
+    sim.star = 3;
+    shaft(&mut sim, Kind::Stairs, 30, 1, 2);
+    let shop = place_seated(&mut sim, Kind::Shop, 2, 0, UnitState::Occupied, 0);
+    at_time(&mut sim, 0, 12);
+    let load = Kind::ElevatorStandard.car_capacity() as usize;
+    assert_eq!(start_now(&mut sim, shop, load + 3), load + 3);
+}
+
+#[test]
+fn a_modern_save_with_walk_ins_in_flight_keeps_a_tenants_patience() {
+    // A Modern save from before walk-ins went off may still carry some.
+    let (mut sim, shop) = shop_tower(4);
+    at_time(&mut sim, 0, 12);
+    assert_eq!(start_now(&mut sim, shop, 1), 1);
+    sim.tower.mode = GameMode::Modern;
+    let shopper = sim.crowd.people.iter().position(|p| p.walk_in).unwrap();
+    let p = &mut sim.crowd.people[shopper];
+    p.state = PState::Waiting;
+    p.age = WALK_IN_GIVE_UP + 1.0;
+    p.wait = WALK_IN_GIVE_UP + 1.0;
+    sim.crowd.frustration = 0.0;
+    advance(&mut sim.crowd, 0.1, &mut sim.tower);
+    assert!(!sim.crowd.people[shopper].gave_up, "they wait as before");
+    assert!(
+        sim.crowd.frustration > 0.0,
+        "and their wait counts, as before"
     );
 }

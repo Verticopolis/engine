@@ -119,8 +119,8 @@ impl Tower {
     }
 
     /// Each parking space a working ramp reaches (`fill_parking`), from the
-    /// hold while an hourly pass runs.
-    pub(crate) fn reached_parking(&self) -> std::sync::Arc<[i64]> {
+    /// hold while an hourly pass runs and filled afresh outside it.
+    pub(crate) fn reached_parking(&self) -> ReachedParking {
         let held = self.memo.borrow().parking_held.clone();
         match held {
             Some(Some(spaces)) => {
@@ -129,14 +129,14 @@ impl Tower {
                     *self.fill_parking(),
                     "a held parking fill went stale"
                 );
-                spaces
+                ReachedParking::Held(spaces)
             }
             Some(None) => {
                 let spaces: std::sync::Arc<[i64]> = self.fill_parking().into();
                 self.memo.borrow_mut().parking_held = Some(Some(spaces.clone()));
-                spaces
+                ReachedParking::Held(spaces)
             }
-            None => self.fill_parking().into(),
+            None => ReachedParking::Fresh(self.fill_parking()),
         }
     }
 }
@@ -283,6 +283,23 @@ impl Tower {
             }
         }
         self.segment_runs(floor).len()
+    }
+}
+
+/// The parking spaces a working ramp reaches: the hourly pass's held fill,
+/// shared without a copy, or a fill of its own outside the pass.
+pub(crate) enum ReachedParking {
+    Held(std::sync::Arc<[i64]>),
+    Fresh(Vec<i64>),
+}
+
+impl std::ops::Deref for ReachedParking {
+    type Target = [i64];
+    fn deref(&self) -> &[i64] {
+        match self {
+            ReachedParking::Held(spaces) => spaces,
+            ReachedParking::Fresh(spaces) => spaces,
+        }
     }
 }
 

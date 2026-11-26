@@ -22,6 +22,10 @@ pub fn advance(crowd: &mut Crowd, dt_sec: f64, tower: &mut Tower) {
     let mut landings = Landings::refill(crowd, tower);
     let room = super::expected_time::spare_lines(crowd);
     let mut lines = super::line_count::LineCount::new(tower, room);
+    // A Modern save from before walk-ins went off (2026-11-14) may still
+    // carry some in flight; they keep a tenant's patience and mood there,
+    // as before, since only a Classic tower takes walk-ins.
+    let shoppers = tower.mode.shoppers_walk_in();
     for i in 0..crowd.people.len() {
         // A trip's patience counts only the time spent waiting for a car
         // (#2386): walking, climbing a flight and riding use none of it, so
@@ -34,7 +38,7 @@ pub fn advance(crowd: &mut Crowd, dt_sec: f64, tower: &mut Tower) {
         let p = &crowd.people[i];
         let patience = if p.staff {
             STAFF_GIVE_UP
-        } else if p.walk_in {
+        } else if p.walk_in && shoppers {
             WALK_IN_GIVE_UP
         } else {
             GIVE_UP
@@ -51,7 +55,7 @@ pub fn advance(crowd: &mut Crowd, dt_sec: f64, tower: &mut Tower) {
             if is_still_setting_out(p) {
                 // A shopper from outside is no tenant: their wait moves no
                 // one's mood (`finish`).
-                if !p.walk_in {
+                if !(p.walk_in && shoppers) {
                     frustrated += 1;
                     travelling += 1;
                 }
@@ -66,7 +70,7 @@ pub fn advance(crowd: &mut Crowd, dt_sec: f64, tower: &mut Tower) {
         let p = &crowd.people[i];
         lines.see(p);
         if !p.staff
-            && !p.walk_in
+            && !(p.walk_in && shoppers)
             && matches!(
                 p.state,
                 PState::Waiting | PState::Riding | PState::ToShaft | PState::Climbing

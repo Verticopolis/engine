@@ -332,3 +332,49 @@ fn office_workers_come_and_go_by_their_own_towers_lobby() {
         assert_eq!(tower_of(lobby_x), 2, "worker {id} used another lobby");
     }
 }
+
+/// A shopper waits for the car under their own shop: a full line at that
+/// tower's elevator keeps them away even while the other lobbies stand
+/// empty, and a full line elsewhere does not (`walk_ins::DoorLines`).
+#[test]
+fn a_full_line_at_the_shops_own_lobby_keeps_its_shoppers_away() {
+    use crate::crowd::walk_ins::{start_walk_ins, WalkIn};
+    let (mut sim, lifts) = three_towers(GameMode::Classic);
+    let shop = place_seated(
+        &mut sim,
+        Kind::Shop,
+        5,
+        TOWERS[2] + 20,
+        UnitState::Occupied,
+        0,
+    );
+    at_time(&mut sim, 0, 12);
+    let load = Kind::ElevatorStandard.car_capacity() as usize;
+    let queue = |sim: &mut Simulation, tower: usize| {
+        for _ in 0..load {
+            let x = TOWERS[tower] + 5;
+            let i = add(&mut sim.crowd, &sim.tower, 1, 3, Some(x), Some(x)).unwrap();
+            assert_eq!(sim.crowd.people[i].shaft_id, Some(lifts[tower]));
+            sim.crowd.people[i].state = PState::Waiting;
+        }
+    };
+    let start_now = |sim: &mut Simulation, n: usize| {
+        let before = sim.crowd.walk_in_count;
+        let at = sim.clock.minutes;
+        sim.crowd.walk_ins = vec![WalkIn { at, unit_id: shop }; n];
+        sim.crowd.queue_cache = None;
+        start_walk_ins(&mut sim.crowd, &sim.tower, &sim.clock);
+        (sim.crowd.walk_in_count - before) as usize
+    };
+    queue(&mut sim, 2);
+    assert_eq!(start_now(&mut sim, 5), 0, "the shop's own line is full");
+    for p in sim.crowd.people.iter_mut() {
+        p.state = PState::Done;
+    }
+    queue(&mut sim, 0);
+    assert_eq!(
+        start_now(&mut sim, 5),
+        5,
+        "another tower's line is not theirs"
+    );
+}

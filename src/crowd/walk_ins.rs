@@ -19,7 +19,8 @@
 //! what each entrance's transport can carry.
 //!
 //! The door keeps them out of the way of the tenants: a walk-in whose
-//! entrance already has a full load of riders waiting stays away, and one
+//! first car already has a full load of riders waiting for it at the way
+//! in stays away (each lobby of a split lot boards its own cars), and one
 //! who waits [`WALK_IN_GIVE_UP`] at the door walks back out it
 //! (`motion`). Neither ever vanishes on a car or a floor partway up.
 //!
@@ -31,8 +32,9 @@
 //!
 //! None of this runs while [`crate::facilities::WALK_INS_ON`] is off.
 
-use super::spawn::{add, inside_x, venue_has_room};
-use super::{Crowd, PState, CROWD_SECONDS_PER_MINUTE};
+use super::fasthash::FastMap;
+use super::spawn::{inside_x, make_person, plan, venue_has_room};
+use super::{Crowd, CROWD_SECONDS_PER_MINUTE};
 use crate::clock::Clock;
 use crate::economy::visitors::daily_visitor_cap;
 use crate::facilities::Kind;
@@ -99,7 +101,8 @@ pub fn start_walk_ins(crowd: &mut Crowd, tower: &Tower, clock: &Clock) {
     }
     let (hour, minute) = (clock.hour(), clock.minute_of_day());
     let doors = entrances(tower);
-    let mut lines = DoorLines::count(crowd, &doors);
+    crowd.queue_view(tower);
+    let mut lines = DoorLines::default();
     while let Some(w) = crowd.walk_ins.last().copied() {
         if w.at > now {
             break;
@@ -112,41 +115,32 @@ pub fn start_walk_ins(crowd: &mut Crowd, tower: &Tower, clock: &Clock) {
     }
 }
 
-/// The riders waiting for a car at each way in, counted once a step before
-/// the step's walk-ins start, plus the walk-ins started since.
+/// The walk-ins started this step, by the elevator they head for and the
+/// floor they board it on. The riders already waiting or on their way come
+/// from the step's queue view (`Crowd::queue_view`), so the door walks no
+/// crowd of its own.
+#[derive(Default)]
 struct DoorLines {
-    lobby: f64,
-    stations: Vec<f64>,
+    started: FastMap<(i64, i64), f64>,
 }
 
-impl DoorLines {
-    /// One pass over the crowd, only on a step that starts a walk-in.
-    fn count(crowd: &Crowd, doors: &Entrances) -> Self {
-        let mut lines = DoorLines {
-            lobby: 0.0,
-            stations: vec![0.0; doors.stations.len()],
-        };
-        for p in crowd.people.iter().filter(|p| p.state == PState::Waiting) {
-            if p.floor == 1 {
-                lines.lobby += 1.0;
-            }
-            for (k, s) in doors.stations.iter().enumerate() {
-                if p.floor == s.floor {
-                    lines.stations[k] += 1.0;
-                }
-            }
-        }
-        lines
-    }
-
-    /// The line at the way in `station` (`None` for the ground lobby), and
-    /// the one load its transport takes.
-    fn at(&mut self, doors: &Entrances, station: Option<i64>) -> (&mut f64, f64) {
-        match station.and_then(|sid| doors.stations.iter().position(|s| s.id == sid)) {
-            Some(k) => (&mut self.stations[k], doors.stations[k].load),
-            None => (&mut self.lobby, doors.lobby),
-        }
-    }
+/// The riders waiting for elevator `shaft` on `floor` at the start of the
+/// step, with the walk-ins still walking to it from the door.
+fn door_line(crowd: &Crowd, shaft: i64, floor: i64) -> f64 {
+    let Some((_, view)) = crowd.queue_cache.as_ref() else {
+        return 0.0;
+    };
+    let waiting = view
+        .landings
+        .get(&shaft)
+        .and_then(|floors| floors.get(&floor))
+        .map_or(0, |l| l.count);
+    let heading = view
+        .walk_ins_heading
+        .get(&(shaft, floor))
+        .copied()
+        .unwrap_or(0);
+    (waiting + heading) as f64
 }
 
 fn start_walk_in(
@@ -174,31 +168,38 @@ fn start_walk_in(
     if station.is_some_and(|sid| !super::metro_train::train_in_at(tower, minute, sid)) {
         return;
     }
-    // The tenants come first: a shopper who finds a full load already
-    // waiting at the way in stays away, so a walk-in never joins a line
-    // the next car cannot clear.
-    let (line, load) = lines.at(doors, station);
-    if *line >= load {
-        return;
-    }
     // From the station's own platform, or the ground lobby nearest the
-    // venue (`add` picks it), so a lot of separate towers is entered under
+    // venue (`plan` picks it), so a lot of separate towers is entered under
     // the venue.
     let (from, from_x) = match station.and_then(|sid| tower.get_unit(sid)) {
         Some(st) => (st.floor + 1, Some(st.x + st.width / 2)),
         None => (1, None),
     };
-    let Some(i) = add(crowd, tower, from, vf, from_x, Some(vx)) else {
+    let Some((route, route_from_x, route_to_x)) = plan(crowd, tower, from, vf, from_x, Some(vx))
+    else {
         return;
     };
+    // The tenants come first: a shopper whose first elevator already has
+    // a full load waiting for it here (one load for each of its cars), or
+    // on the way from the door, stays away, so a walk-in never joins a line
+    // the elevator cannot clear at once. A route that starts on foot or by
+    // stairs or escalator forms no line.
+    let first = route.shafts.first().and_then(|&s| tower.get_transport(s));
+    if let Some(car) = first.filter(|t| t.kind.is_elevator()) {
+        let started = *lines.started.get_or_insert_with((car.id, from), || 0.0);
+        if door_line(crowd, car.id, from) + started >= load_of(car) {
+            return;
+        }
+        *lines.started.get_or_insert_with((car.id, from), || 0.0) += 1.0;
+    }
+    let i = make_person(crowd, tower, route, route_to_x as f64, Some(route_from_x));
     crowd.people[i].dest_x = crowd.rng.int(vx, vx + vw - 1) as f64;
     crowd.people[i].meal_venue_id = Some(unit_id);
     crowd.people[i].walk_in = true;
     crowd.walk_in_count += 1;
-    *line += 1.0;
     if let Some(sid) = station {
-        let st = tower.get_unit(sid).unwrap().clone();
-        crowd.people[i].x = inside_x(crowd, &st, 2) as f64;
+        let st = tower.get_unit(sid).unwrap();
+        crowd.people[i].x = inside_x(crowd, st, 2) as f64;
         crowd.people[i].start_x = crowd.people[i].x;
         crowd.people[i].from_metro = true;
     }
@@ -214,11 +215,10 @@ pub(super) struct Entrances {
     total: f64,
 }
 
-/// A Metro station walk-ins can come in by: its id, the floor its riders
-/// wait on, and the riders its transport takes in one load.
+/// A Metro station walk-ins can come in by: its id and the riders its
+/// transport takes in one load.
 struct Station {
     id: i64,
-    floor: i64,
     load: f64,
 }
 
@@ -249,7 +249,6 @@ pub(super) fn entrances(tower: &Tower) -> Entrances {
         .filter(|u| tower.is_metro_platform_served(u))
         .map(|u| Station {
             id: u.id,
-            floor: u.floor + 1,
             load: boarding_capacity(tower, u.floor + 1),
         })
         .filter(|s| s.load > 0.0)
@@ -270,9 +269,12 @@ fn boarding_capacity(tower: &Tower, floor: i64) -> f64 {
         .transports
         .iter()
         .filter(|t| !t.kind.facility().staff_only && t.stops_at(floor))
-        .map(|t| {
-            let cars = if t.kind.is_elevator() { t.cars } else { 1 };
-            cars as f64 * t.kind.car_capacity()
-        })
+        .map(load_of)
         .sum()
+}
+
+/// The riders transport `t` takes in one load: each of its cars once.
+fn load_of(t: &crate::tower::Transport) -> f64 {
+    let cars = if t.kind.is_elevator() { t.cars } else { 1 };
+    cars as f64 * t.kind.car_capacity()
 }
