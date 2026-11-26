@@ -3,7 +3,7 @@
 //! while the elevators stay as bad, and a real fix still saves the tenant.
 use crate::clock::GameMode;
 use crate::facilities::Kind;
-use crate::sim::Simulation;
+use crate::sim::{Simulation, LOG_RING_CAP};
 use crate::tower::UnitState;
 
 use super::{lay_row, MID};
@@ -66,31 +66,25 @@ fn on_notice(sim: &Simulation) -> usize {
         .count()
 }
 
+/// Plays one hour and counts the offices that left in it. A replacement
+/// tenant can move in within the same hour, so the count reads the
+/// departure messages rather than the rooms' states.
+fn hour_departures(sim: &mut Simulation) -> usize {
+    sim.log.clear();
+    sim.tick(60.0);
+    assert!(sim.log.len() < LOG_RING_CAP, "the hour's messages all fit");
+    sim.log
+        .iter()
+        .filter(|e| e.text.starts_with("A tenant left Office"))
+        .count()
+}
+
 #[test]
 fn offices_leave_a_tower_whose_one_car_never_keeps_up() {
     let (mut sim, shaft) = rented_office_tower();
     assert!(sim.tower.set_cars(shaft, 1));
-    let mut left = 0;
-    for _ in 0..6 * 24 {
-        let before: Vec<i64> = vacating_ids(&sim);
-        sim.tick(60.0);
-        left += before
-            .iter()
-            .filter(|&&id| sim.tower.get_unit(id).unwrap().state == UnitState::Empty)
-            .count();
-    }
+    let left: usize = (0..6 * 24).map(|_| hour_departures(&mut sim)).sum();
     assert!(left > 0, "a quiet night cancelled every notice");
-}
-
-fn vacating_ids(sim: &Simulation) -> Vec<i64> {
-    let vacating =
-        |u: &&crate::tower::Unit| u.kind == Kind::Office && u.state == UnitState::Vacating;
-    sim.tower
-        .units
-        .iter()
-        .filter(vacating)
-        .map(|u| u.id)
-        .collect()
 }
 
 #[test]
@@ -99,18 +93,17 @@ fn more_cars_after_the_notices_keep_the_tenants() {
     assert!(sim.tower.set_cars(shaft, 1));
     let mut hours = 0;
     while on_notice(&sim) == 0 {
-        sim.tick(60.0);
+        assert_eq!(
+            hour_departures(&mut sim),
+            0,
+            "an office left before any notice"
+        );
         hours += 1;
         assert!(hours < 3 * 24, "nobody gave notice on one car");
     }
     assert!(sim.tower.set_cars(shaft, 8));
-    for _ in 0..6 * 24 {
-        sim.tick(60.0);
-    }
-    assert_eq!(
-        tenanted(&sim),
-        OFFICES,
-        "the fix saved every tenant on notice"
-    );
+    let left: usize = (0..6 * 24).map(|_| hour_departures(&mut sim)).sum();
+    assert_eq!(left, 0, "the fix saved every tenant on notice");
+    assert_eq!(tenanted(&sim), OFFICES, "every office is still rented");
     assert_eq!(on_notice(&sim), 0, "every notice was rescinded");
 }
