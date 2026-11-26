@@ -114,7 +114,7 @@ const layout = (): Layout => {
 describe("the engine view through the binding (Verticopolis/web#1213)", () => {
   it("hands over its layout by name, every slot named once", () => {
     const l = layout();
-    expect(l.version).toBe(34);
+    expect(l.version).toBe(35);
     const tables: [Slots, number][] = [
       [l.header, l.headerWidth],
       [l.person, l.personWidth],
