@@ -198,6 +198,7 @@ impl Engine {
         if count.fract() != 0.0 || !(0.0..=MAX_TOOL_OCCUPANTS).contains(&count) {
             return false;
         }
+        let mode = self.sim.tower.mode;
         let Some((unit, at)) = whole_id(id).and_then(|id| self.sim.tower.marked_by_id(id)) else {
             return false;
         };
@@ -205,7 +206,7 @@ impl Engine {
         // meal venue mirrors the tally into its occupants, and the meal
         // overlay moves.
         unit.set_customers_in(at, Some(count as i64));
-        unit.sync_visitor_occupants(at);
+        unit.sync_visitor_occupants(at, mode);
         self.sim.tower.bump_meal_overlay_revision();
         true
     }

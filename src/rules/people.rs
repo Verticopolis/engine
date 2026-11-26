@@ -41,6 +41,15 @@ impl GameMode {
         self == GameMode::Modern
     }
 
+    /// Whether a shop, fast food or restaurant takes some of its customers
+    /// in person from the street (`crowd::walk_ins`), as many a day as the
+    /// 1994 game served. Classic only for now: a Modern tower routes every
+    /// rider by the live lines, and its slowest steps ran 3 to 10% slower
+    /// with them (owner, 2026-11-26, Verticopolis/web#2631).
+    pub fn shoppers_walk_in(self) -> bool {
+        self == GameMode::Classic
+    }
+
     /// Whether people walk the street between two ground lobbies that do not
     /// touch, out of one and along the sidewalk into the other, as part of a
     /// trip (`crowd::street`). Classic keeps to the 1994 game, where a trip

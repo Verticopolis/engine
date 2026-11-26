@@ -24,8 +24,8 @@ impl Unit {
     /// nobody is left to settle. The customers and diners inside it left
     /// with it, so their counts start empty, and a venue's attendance is
     /// read again from them, as a load does (`load/reader.rs`).
-    pub(crate) fn returning(&self) -> Unit {
-        let counted = self.kind.counts_visitors() || self.kind.is_structural();
+    pub(crate) fn returning(&self, mode: crate::clock::GameMode) -> Unit {
+        let counted = self.kind.counts_visitors(mode) || self.kind.is_structural();
         Unit {
             customers_in: None,
             hotel_customers_in: None,

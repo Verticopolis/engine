@@ -33,7 +33,7 @@ fn reference(u: &Unit) -> Value {
     if u.satisfaction != 1.0 {
         m.insert("satisfaction".into(), json!(u.satisfaction));
     }
-    if u.occupants != 0 && !u.kind.counts_visitors() {
+    if u.occupants != 0 && !u.kind.seats_visitors() {
         m.insert("occupants".into(), json!(u.occupants));
     }
     if u.ever_occupied {

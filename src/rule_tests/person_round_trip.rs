@@ -390,9 +390,10 @@ fn a_heavy_lunch_never_overfills_a_lone_fast_food() {
 /// Stamps a venue's live tally the way the tooling `setCustomersIn` does: an
 /// attendance or meal venue mirrors it into its occupants.
 fn stamp(sim: &mut Simulation, id: i64, n: i64) {
+    let mode = sim.tower.mode;
     let (u, at) = sim.tower.marked_by_id(id).unwrap();
     u.set_customers_in(at, Some(n));
-    u.sync_visitor_occupants(at);
+    u.sync_visitor_occupants(at, mode);
     sim.tower.bump_meal_overlay_revision();
 }
 

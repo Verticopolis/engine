@@ -326,7 +326,7 @@ impl Simulation {
                 (UnitChange::PutBack(want), None) => {
                     // The undo check dates the unit by this return (#1846).
                     self.tower.returned.record(img.id, self.tower.next_id);
-                    let unit = want.returning();
+                    let unit = want.returning(self.tower.mode);
                     let entered = UnitUse::of(&unit);
                     inserts.push((img.at, unit));
                     (UnitChange::TakeOut(entered), img.at)

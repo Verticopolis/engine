@@ -315,18 +315,13 @@ pub fn begin_dwell(crowd: &mut Crowd, tower: &mut Tower, i: usize) {
             .origin_unit_id
             .and_then(|id| tower.get_unit(id))
             .is_some_and(|u| u.kind.is_hotel());
+        let mode = tower.mode;
         let (v, at) = tower.marked_by_id(vid).unwrap();
         v.set_customers_in(at, Some(customers + 1));
-        v.sync_visitor_occupants(at);
+        v.sync_visitor_occupants(at, mode);
         if origin_is_hotel {
             crowd.people[i].counted_hotel_guest = true;
             v.set_hotel_customers_in(at, Some(v.hotel_customers_in.unwrap_or(0) + 1));
-        }
-        // A venue whose customers come in person counts each one at the
-        // door, so Today's patronage is who really came.
-        if kind.takes_walk_ins() && crate::economy::visitors::keeps_patronage(kind) {
-            let mut tally = v.extras_mut();
-            tally.patronage_today = Some(tally.patronage_today.unwrap_or(0.0) + 1.0);
         }
         tower.bump_meal_overlay_revision();
     } else if crowd.people[i].walk_in {
@@ -340,9 +335,10 @@ pub fn begin_dwell(crowd: &mut Crowd, tower: &mut Tower, i: usize) {
         };
         if gate && customers < cap {
             crowd.people[i].venue_unit_id = Some(vid);
+            let mode = tower.mode;
             let (v, at) = tower.marked_by_id(vid).unwrap();
             v.set_customers_in(at, Some(customers + 1));
-            v.sync_visitor_occupants(at);
+            v.sync_visitor_occupants(at, mode);
             tower.bump_meal_overlay_revision();
         }
     }
@@ -357,10 +353,11 @@ pub(super) fn leave_venue(crowd: &mut Crowd, tower: &mut Tower, i: usize) {
         return;
     };
     let counted_hotel = p.counted_hotel_guest;
+    let mode = tower.mode;
     if let Some((venue, at)) = tower.marked_by_id(vid) {
         if venue.customers_in.unwrap_or(0) > 0 {
             venue.set_customers_in(at, Some(venue.customers_in.unwrap_or(0) - 1));
-            venue.sync_visitor_occupants(at);
+            venue.sync_visitor_occupants(at, mode);
             if counted_hotel && venue.hotel_customers_in.unwrap_or(0) > 0 {
                 let n = venue.hotel_customers_in.unwrap_or(0) - 1;
                 venue.set_hotel_customers_in(at, Some(n));

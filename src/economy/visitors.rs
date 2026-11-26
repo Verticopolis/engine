@@ -133,10 +133,11 @@ pub fn keeps_patronage(kind: Kind) -> bool {
 /// to its population (owner, 2026-11-25): a venue that keeps a patronage
 /// tally, has no daily visitor count of its own, and whose customers no
 /// meal trip, show or walk-in brings in person, so it has no live head
-/// count to show. While walk-ins are off that is the amusements, boutique
-/// bay, nightclub, spa, sky bar and daycare.
+/// count to show: the amusements, boutique bay, nightclub, spa, sky bar and
+/// daycare. A shop's or restaurant's walk-ins (`crowd::walk_ins`) never
+/// reach these, since those venues count their daily visitors.
 pub fn census_counts_patronage(kind: Kind) -> bool {
-    keeps_patronage(kind) && !counts_daily_visitors(kind) && !kind.counts_visitors()
+    keeps_patronage(kind) && !counts_daily_visitors(kind) && !kind.seats_visitors()
 }
 
 /// The census a venue that counts its patronage carries into the next day:
@@ -151,8 +152,8 @@ pub fn patronage_census(kind: Kind, patronage: f64) -> i64 {
 }
 
 /// Whether `kind`'s census is the customers inside it right now: a venue
-/// whose census does not follow the day (the Modern food hall, while
-/// walk-ins are off). Every Classic room's census
+/// whose census does not follow the day (the Modern food hall). Every
+/// Classic room's census
 /// follows the day or counts the people who live or work there.
 /// The tests pin `Unit::recycling_census_share` against it; the share
 /// decides the same in one pass.

@@ -51,7 +51,8 @@ impl ElevatorDispatch {
             let waits = match last {
                 Some((kind, waits)) if kind == u.kind => waits,
                 _ => {
-                    let waits = !(u.kind.counts_visitors() || u.kind.arrives_in_person(tower.mode));
+                    let waits = !(u.kind.counts_visitors(tower.mode)
+                        || u.kind.arrives_in_person(tower.mode));
                     last = Some((u.kind, waits));
                     waits
                 }

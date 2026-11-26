@@ -32,8 +32,16 @@ const PINNED: Record<string, Nonzero> = {
   // by the events and fire-rescue runs. Shop-only floors forgetting their
   // wait averages after the hour put it on a path that lights one, gutting
   // thirteen rooms, and wait averages starting from no wait (Verticopolis/web#2435) onto one
-  // that lights none.
-  "scenarios/holidays-classic.json": { santaFxSeq: 2, thiefSeq: 1, thiefCaught: 1, thiefFloor: 77 },
+  // that lights none. Shoppers walking in from the street at the 1994 daily
+  // counts (Verticopolis/web#2631) put it on one that lights one, gutting one room.
+  "scenarios/holidays-classic.json": {
+    santaFxSeq: 2,
+    thiefSeq: 1,
+    thiefCaught: 1,
+    thiefFloor: 77,
+    fires: 1,
+    firesGutRooms: 1,
+  },
   "scenarios/events-classic.json": {
     explosionSeq: 1,
     explosionFloor: 5,

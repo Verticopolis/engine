@@ -26,6 +26,11 @@ pub struct QueueLanding {
 pub struct QueueView {
     pub landings: FastIndexMap<i64, FastIndexMap<i64, QueueLanding>>,
     pub boarded: Vec<(i64, Vec<i64>)>,
+    /// The shoppers from outside still walking from the door to their
+    /// first elevator, by shaft and floor, whom the door counts with the
+    /// line they will join (`crowd::walk_ins`). The renderer draws only
+    /// the waiting lines.
+    pub walk_ins_heading: FastIndexMap<(i64, i64), i64>,
 }
 
 /// `waitTier`: 2 once the wait reaches `STRESS_WAIT`, 1 at half of it.
@@ -118,11 +123,16 @@ impl Crowd {
             floors.clear();
             self.queue_spare.push(floors);
         }
+        view.walk_ins_heading.clear();
         let (landings, spare) = (&mut view.landings, &mut self.queue_spare);
+        let heading = &mut view.walk_ins_heading;
         let stops = tower.stop_bits();
         for p in &self.people {
             let Some(shaft_id) = p.shaft_id else { continue };
             if p.state != PState::Waiting {
+                if p.walk_in && p.leg == 0 && p.state == PState::ToShaft {
+                    *heading.entry((shaft_id, p.floor)).or_default() += 1;
+                }
                 continue;
             }
             let Some(index) = tower.transport_index(shaft_id) else {

@@ -100,6 +100,45 @@ pub struct Memo {
         (i64, usize),
         Option<std::sync::Arc<crate::tower::ShaftColumns>>,
     )>,
+    /// The parking spaces a working ramp reaches, held through one hourly
+    /// pass (`Tower::hold_parking`); `Some(None)` until the pass reads them.
+    pub parking_held: Option<Option<std::sync::Arc<[i64]>>>,
+}
+
+impl Tower {
+    /// Hold the parking fill for the hourly pass, which reads it four
+    /// times: nothing in the pass builds, burns or finishes a room, so the
+    /// spaces a ramp reaches stay the same until `release_parking`.
+    pub(crate) fn hold_parking(&self) {
+        self.memo.borrow_mut().parking_held = Some(None);
+    }
+
+    /// End the hold `hold_parking` began; later reads fill afresh.
+    pub(crate) fn release_parking(&self) {
+        self.memo.borrow_mut().parking_held = None;
+    }
+
+    /// Each parking space a working ramp reaches (`fill_parking`), from the
+    /// hold while an hourly pass runs and filled afresh outside it.
+    pub(crate) fn reached_parking(&self) -> ReachedParking {
+        let held = self.memo.borrow().parking_held.clone();
+        match held {
+            Some(Some(spaces)) => {
+                debug_assert_eq!(
+                    *spaces,
+                    *self.fill_parking(),
+                    "a held parking fill went stale"
+                );
+                ReachedParking::Held(spaces)
+            }
+            Some(None) => {
+                let spaces: std::sync::Arc<[i64]> = self.fill_parking().into();
+                self.memo.borrow_mut().parking_held = Some(Some(spaces.clone()));
+                ReachedParking::Held(spaces)
+            }
+            None => ReachedParking::Fresh(self.fill_parking()),
+        }
+    }
 }
 
 // ---- unit state predicates (types.ts) --------------------------------------
@@ -244,6 +283,23 @@ impl Tower {
             }
         }
         self.segment_runs(floor).len()
+    }
+}
+
+/// The parking spaces a working ramp reaches: the hourly pass's held fill,
+/// shared without a copy, or a fill of its own outside the pass.
+pub(crate) enum ReachedParking {
+    Held(std::sync::Arc<[i64]>),
+    Fresh(Vec<i64>),
+}
+
+impl std::ops::Deref for ReachedParking {
+    type Target = [i64];
+    fn deref(&self) -> &[i64] {
+        match self {
+            ReachedParking::Held(spaces) => spaces,
+            ReachedParking::Fresh(spaces) => spaces,
+        }
     }
 }
 

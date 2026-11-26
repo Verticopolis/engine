@@ -1,5 +1,6 @@
 //! Port of the retired TypeScript `src/engine/crowd/motion.ts`: the per-slice person state machine.
 
+pub(super) use super::car_seats::{mark_full, release_seat};
 use super::commuters;
 use super::doors::route_out_nearest;
 use super::landing::Landings;
@@ -9,6 +10,7 @@ use super::visits::{begin_dwell, leave_venue};
 use super::walk::{
     find_another_way, is_still_setting_out, reach_on_run, reroute, turn_back, walk_to, way_is_cut,
 };
+use super::walk_ins::WALK_IN_GIVE_UP;
 use super::workplace;
 use super::{Crowd, PState, StaffResult, GIVE_UP, STAFF_GIVE_UP, STRESS_WAIT};
 use crate::jsmath;
@@ -21,6 +23,10 @@ pub fn advance(crowd: &mut Crowd, dt_sec: f64, tower: &mut Tower) {
     let mut landings = Landings::refill(crowd, tower);
     let room = super::expected_time::spare_lines(crowd);
     let mut lines = super::line_count::LineCount::new(tower, room);
+    // A Modern save from before walk-ins went off (2026-11-14) may still
+    // carry some in flight; they keep a tenant's patience and mood there,
+    // as before, since only a Classic tower takes walk-ins.
+    let shoppers = tower.mode.shoppers_walk_in();
     for i in 0..crowd.people.len() {
         // A trip's patience counts only the time spent waiting for a car
         // (#2386): walking, climbing a flight and riding use none of it, so
@@ -31,7 +37,13 @@ pub fn advance(crowd: &mut Crowd, dt_sec: f64, tower: &mut Tower) {
             crowd.people[i].age += dt_sec;
         }
         let p = &crowd.people[i];
-        let patience = if p.staff { STAFF_GIVE_UP } else { GIVE_UP };
+        let patience = if p.staff {
+            STAFF_GIVE_UP
+        } else if p.walk_in && shoppers {
+            WALK_IN_GIVE_UP
+        } else {
+            GIVE_UP
+        };
         if p.age > patience && p.state == PState::Waiting {
             if p.staff {
                 give_up(crowd, i, tower);
@@ -42,8 +54,12 @@ pub fn advance(crowd: &mut Crowd, dt_sec: f64, tower: &mut Tower) {
             // came. Anyone past their first ride keeps going, since a floor
             // partway up has no way out.
             if is_still_setting_out(p) {
-                frustrated += 1;
-                travelling += 1;
+                // A shopper from outside is no tenant: their wait moves no
+                // one's mood (`finish`).
+                if !(p.walk_in && shoppers) {
+                    frustrated += 1;
+                    travelling += 1;
+                }
                 turn_back(crowd, i);
                 crowd.people[i].gave_up = true;
                 continue;
@@ -55,6 +71,7 @@ pub fn advance(crowd: &mut Crowd, dt_sec: f64, tower: &mut Tower) {
         let p = &crowd.people[i];
         lines.see(p);
         if !p.staff
+            && !(p.walk_in && shoppers)
             && matches!(
                 p.state,
                 PState::Waiting | PState::Riding | PState::ToShaft | PState::Climbing
@@ -393,35 +410,6 @@ fn transition_to_return(crowd: &mut Crowd, tower: &mut Tower, i: usize) {
         crowd.people[i].dest_x = pick_x(tower, origin_floor, seed) as f64;
     }
     crowd.people[i].returning = true;
-}
-
-/// Notes that car `key` (shaft, car) is full where full cars pass hall calls
-/// (`full_cars`), until a seat is left (`release_seat`). Rare, so cold.
-#[cold]
-#[inline(never)]
-pub(super) fn mark_full(crowd: &mut Crowd, tower: &Tower, key: (i64, i64)) {
-    if !tower.mode.full_cars_pass_hall_calls() {
-        return;
-    }
-    if let Err(at) = crowd.full_cars.binary_search(&key) {
-        crowd.full_cars.insert(at, key);
-    }
-}
-
-pub(super) fn release_seat(crowd: &mut Crowd, i: usize) {
-    let p = &mut crowd.people[i];
-    let (Some(ci), Some(sid)) = (p.car_index, p.shaft_id) else {
-        return;
-    };
-    let key = (sid, ci);
-    let n = crowd.car_riders.get(&key).copied().unwrap_or(1);
-    crowd.car_riders.insert(key, (n - 1).max(0));
-    if !crowd.full_cars.is_empty() {
-        if let Ok(at) = crowd.full_cars.binary_search(&key) {
-            crowd.full_cars.remove(at);
-        }
-    }
-    crowd.people[i].car_index = None;
 }
 
 /// Someone whose trip cannot go on: a housekeeper out of patience, or

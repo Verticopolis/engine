@@ -101,6 +101,20 @@ pub fn add(
     from_x: Option<i64>,
     to_x: Option<i64>,
 ) -> Option<usize> {
+    let (r, fx, tx) = plan(crowd, tower, from, to, from_x, to_x)?;
+    Some(make_person(crowd, tower, r, tx as f64, Some(fx)))
+}
+
+/// The route [`add`] gives a trip, with the tiles it starts and ends on, so
+/// a caller can look at the first leg before the person sets out.
+pub fn plan(
+    crowd: &mut Crowd,
+    tower: &Tower,
+    from: i64,
+    to: i64,
+    from_x: Option<i64>,
+    to_x: Option<i64>,
+) -> Option<(Route, i64, i64)> {
     let seed = seed_for(crowd.next_id);
     // An open end takes the run of its floor nearest the trip's other end
     // that a route reaches (`doors`), so a lobby on a split lot is the one
@@ -110,9 +124,9 @@ pub fn add(
         (Some(fx), None) => doors::route_open_end(crowd, tower, to, (from, fx as f64), false, seed),
         _ => None,
     };
-    let (r, route_from_x, route_to_x) = match (open, from_x, to_x) {
-        (Some((r, x)), None, Some(tx)) => (r, x, tx),
-        (Some((r, x)), Some(fx), _) => (r, fx, x),
+    match (open, from_x, to_x) {
+        (Some((r, x)), None, Some(tx)) => Some((r, x, tx)),
+        (Some((r, x)), Some(fx), _) => Some((r, fx, x)),
         _ => {
             let route_from_x = from_x.unwrap_or_else(|| pick_x(tower, from, seed));
             let route_to_x = to_x.unwrap_or_else(|| pick_x(tower, to, seed));
@@ -123,16 +137,9 @@ pub fn add(
                 Some(route_from_x as f64),
                 Some(route_to_x as f64),
             )?;
-            (r, route_from_x, route_to_x)
+            Some((r, route_from_x, route_to_x))
         }
-    };
-    Some(make_person(
-        crowd,
-        tower,
-        r,
-        route_to_x as f64,
-        Some(route_from_x),
-    ))
+    }
 }
 
 fn abs_seed(seed: i32) -> usize {

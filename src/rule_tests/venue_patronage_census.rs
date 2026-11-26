@@ -1,6 +1,6 @@
 //! A Modern venue whose customers no meal trip, show or walk-in brings in
 //! person (the amusements, boutique bay, nightclub, spa, sky bar and
-//! daycare while walk-ins are off) keeps a patronage tally like a shop, shows
+//! daycare) keeps a patronage tally like a shop, shows
 //! it on its card, and counts the customers it served the day before toward
 //! the population, held to its size (owner, 2026-11-25). Its card no longer
 //! offers a live head count that nobody ever raises: a player reported spas
@@ -13,7 +13,7 @@ use crate::tower::UnitState;
 
 use super::{at_time, room, served_tower, LEFT};
 
-/// The venues that count their patronage while walk-ins are off.
+/// The venues that count their patronage.
 const PATRONAGE_VENUES: [Kind; 6] = [
     Kind::Amusements,
     Kind::BoutiqueBay,
@@ -164,23 +164,15 @@ fn the_card_shows_a_live_count_only_where_people_come_in_person() {
 }
 
 #[test]
-fn with_walk_ins_on_the_venues_count_their_live_customers_again() {
-    // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
-    crate::facilities::set_walk_ins_for_test(true);
-    for kind in [
-        Kind::Amusements,
-        Kind::BoutiqueBay,
-        Kind::Nightclub,
-        Kind::Spa,
-        Kind::SkyBar,
-    ] {
-        assert!(!census_counts_patronage(kind), "{kind:?}");
-        assert!(!census_follows_the_day(kind), "{kind:?}");
+fn a_modern_tower_takes_no_walk_ins_so_its_venues_keep_their_patronage() {
+    // Shoppers walk in from the street in Classic only
+    // (`GameMode::shoppers_walk_in`), and these venues are Modern rooms.
+    for kind in PATRONAGE_VENUES {
+        assert!(!kind.takes_walk_ins(GameMode::Modern), "{kind:?}");
+        assert!(!kind.takes_walk_ins(GameMode::Classic), "{kind:?}");
+        assert!(census_counts_patronage(kind), "{kind:?}");
+        assert!(census_follows_the_day(kind), "{kind:?}");
     }
-    // Nobody brings a daycare's children as walk-ins, so it still counts
-    // its patronage.
-    assert!(census_counts_patronage(Kind::Daycare));
-    crate::facilities::set_walk_ins_for_test(false);
 }
 
 #[test]

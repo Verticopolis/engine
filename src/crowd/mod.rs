@@ -5,6 +5,7 @@
 
 pub(crate) mod adopt;
 pub mod banks;
+mod car_seats;
 mod commute_stress;
 pub mod commuters;
 pub(crate) mod commuters_save;
@@ -19,6 +20,7 @@ pub mod line_count;
 pub mod meals;
 pub mod metro_train;
 pub mod motion;
+pub mod route_memo;
 pub mod routines;
 pub mod routing;
 pub(crate) mod save;
@@ -278,6 +280,8 @@ pub struct Crowd {
     pub commute_wait_by_floor: fasthash::FastMap<i64, f64>,
     pub commute_revision: u32,
     pub adj: Option<(i64, AdjGraph)>,
+    /// The passenger routes found on `adj` (`route_memo`). Never saved.
+    pub route_memo: route_memo::RouteMemo,
     /// The staff graph and the part of it each segment lies in, keyed on
     /// the tower revision (`staff_adjacency`). Never saved.
     pub staff_adj: Option<(i64, AdjGraph, StaffParts)>,
@@ -370,6 +374,7 @@ impl Crowd {
             commute_wait_by_floor: Default::default(),
             commute_revision: 0,
             adj: None,
+            route_memo: Default::default(),
             staff_adj: None,
             shaft_banks: None,
             passenger_parts: None,

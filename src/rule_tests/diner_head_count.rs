@@ -55,9 +55,10 @@ fn food_tower() -> (Simulation, i64, i64) {
 
 /// Seats `n` diners at `id` the way a counted arrival does.
 fn seat(sim: &mut Simulation, id: i64, n: i64) {
+    let mode = sim.tower.mode;
     let (u, at) = sim.tower.marked_by_id(id).unwrap();
     u.set_customers_in(at, Some(n));
-    u.sync_visitor_occupants(at);
+    u.sync_visitor_occupants(at, mode);
 }
 
 fn occupants(sim: &Simulation, id: i64) -> i64 {
@@ -66,22 +67,29 @@ fn occupants(sim: &Simulation, id: i64) -> i64 {
 
 #[test]
 fn only_venues_people_come_to_count_their_visitors() {
-    // Walk-ins are off in play (`WALK_INS_ON`); this covers them on.
-    crate::facilities::set_walk_ins_for_test(true);
-    for kind in [
-        Kind::FastFood,
-        Kind::Restaurant,
-        Kind::FoodHall,
-        Kind::Cinema,
-        Kind::PartyHall,
-        Kind::Shop,
-        Kind::BoutiqueBay,
-    ] {
-        assert!(kind.counts_visitors(), "{kind:?}");
+    for mode in [GameMode::Classic, GameMode::Modern] {
+        for kind in [
+            Kind::FastFood,
+            Kind::Restaurant,
+            Kind::FoodHall,
+            Kind::Cinema,
+            Kind::PartyHall,
+        ] {
+            assert!(kind.counts_visitors(mode), "{kind:?} {mode:?}");
+        }
+        for kind in [
+            Kind::BoutiqueBay,
+            Kind::Daycare,
+            Kind::Office,
+            Kind::HotelSingle,
+        ] {
+            assert!(!kind.counts_visitors(mode), "{kind:?} {mode:?}");
+        }
     }
-    for kind in [Kind::Daycare, Kind::Office, Kind::HotelSingle] {
-        assert!(!kind.counts_visitors(), "{kind:?}");
-    }
+    // A shop's shoppers walk in from the street only in Classic
+    // (`GameMode::shoppers_walk_in`).
+    assert!(Kind::Shop.counts_visitors(GameMode::Classic));
+    assert!(!Kind::Shop.counts_visitors(GameMode::Modern));
 }
 
 #[test]
@@ -131,11 +139,15 @@ fn an_older_save_with_a_diner_head_count_loads_it_at_zero() {
 fn an_undone_meal_venue_comes_back_with_nobody_inside() {
     let (mut sim, food, hotel) = food_tower();
     seat(&mut sim, food, 5);
-    let returned = sim.tower.get_unit(food).unwrap().returning();
+    let returned = sim.tower.get_unit(food).unwrap().returning(sim.tower.mode);
     assert_eq!((returned.customers_in, returned.occupants), (None, 0));
     let guests = Kind::HotelSingle.facility().population;
     assert_eq!(
-        sim.tower.get_unit(hotel).unwrap().returning().occupants,
+        sim.tower
+            .get_unit(hotel)
+            .unwrap()
+            .returning(sim.tower.mode)
+            .occupants,
         guests
     );
 }

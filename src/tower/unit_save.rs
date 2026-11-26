@@ -31,7 +31,9 @@ impl SaveEntries for Unit {
         if self.satisfaction != 1.0 {
             put("satisfaction", EntryValue::Float(self.satisfaction))?;
         }
-        if self.occupants != 0 && !self.kind.counts_visitors() {
+        // A Classic shop saves its live count too, which a load reads again
+        // from the crowd, since the entry does not know the tower's mode.
+        if self.occupants != 0 && !self.kind.seats_visitors() {
             put("occupants", EntryValue::Int(self.occupants))?;
         }
         if self.ever_occupied {

@@ -1,7 +1,7 @@
 //! A commercial venue's hourly head count: a meal venue shows the customers
-//! inside it while open and nobody once they leave, a shop (which no trip
-//! is sent to while walk-ins are off) draws its full population while
-//! open, every venue shows 0 outside its hours, a never-visited venue opens
+//! inside it while open and nobody once they leave, a shop shows its
+//! shoppers the same way (and its full population while walk-ins are off,
+//! since no trip is sent to it then), every venue shows 0 outside its hours, a never-visited venue opens
 //! in the hour traffic first reaches it, and the floor congestion reads the
 //! live customers rather than the catalog population.
 use crate::clock::GameMode;
@@ -24,9 +24,10 @@ fn venue(kind: Kind, hour: i64, state: UnitState) -> (Simulation, i64) {
 }
 
 fn seat(sim: &mut Simulation, id: i64, n: i64) {
+    let mode = sim.tower.mode;
     let (u, at) = sim.tower.marked_by_id(id).unwrap();
     u.set_customers_in(at, Some(n));
-    u.sync_visitor_occupants(at);
+    u.sync_visitor_occupants(at, mode);
 }
 
 fn customers(sim: &Simulation, id: i64) -> i64 {
@@ -63,7 +64,18 @@ fn an_open_meal_venue_shows_its_customers_not_its_population() {
 }
 
 #[test]
+fn an_open_shop_shows_its_shoppers_not_its_population() {
+    let (mut sim, shop) = venue(Kind::Shop, 13, UnitState::Occupied);
+    seat(&mut sim, shop, 2);
+    next_hour(&mut sim);
+    assert_eq!(occupants(&sim, shop), customers(&sim, shop));
+    assert!(occupants(&sim, shop) < Kind::Shop.facility().population);
+}
+
+#[test]
 fn an_open_shop_draws_its_full_population_while_walk_ins_are_off() {
+    // Walk-ins are on in play (`WALK_INS_ON`); this covers them off.
+    crate::facilities::set_walk_ins_for_test(false);
     let (mut sim, shop) = venue(Kind::Shop, 13, UnitState::Occupied);
     seat(&mut sim, shop, 2);
     next_hour(&mut sim);
@@ -113,7 +125,7 @@ fn a_never_visited_venue_opens_in_the_hour_traffic_first_reaches_it() {
     let (mut sim, shop) = venue(Kind::Shop, 9, UnitState::Empty);
     next_hour(&mut sim);
     assert_eq!(sim.tower.get_unit(shop).unwrap().state, UnitState::Occupied);
-    assert_eq!(occupants(&sim, shop), Kind::Shop.facility().population);
+    assert_eq!(occupants(&sim, shop), customers(&sim, shop));
 }
 
 #[test]

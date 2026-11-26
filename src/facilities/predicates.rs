@@ -5,11 +5,13 @@
 use super::*;
 
 /// Whether shop and restaurant customers come in person from outside the
-/// tower (`crowd::walk_ins`). Off for now (owner, 2026-11-14): at full
-/// demand they jammed the elevators of towers built before 3.12.0 and
-/// tenants moved out over congestion. While it is off, those venues count
-/// their customers from demand as 3.11 did, with nobody shown arriving.
-pub const WALK_INS_ON: bool = false;
+/// tower (`crowd::walk_ins`). They were off from 2026-11-14, when at full
+/// demand they jammed the elevators of older towers and tenants moved out
+/// over congestion. They came back in Classic towers at the 1994 daily
+/// counts (`walk_ins::daily_walk_ins`, Verticopolis/web#2631), with a door
+/// that turns them away from a full lobby line; a Modern tower takes none
+/// yet (`GameMode::shoppers_walk_in`).
+pub const WALK_INS_ON: bool = true;
 
 /// A per-thread stand-in for [`WALK_INS_ON`] in tests.
 #[cfg(test)]
@@ -20,8 +22,8 @@ fn walk_ins_switch() -> &'static std::thread::LocalKey<std::cell::Cell<bool>> {
     &ON
 }
 
-/// Turns walk-ins on or off for the calling test's thread, so their own
-/// tests keep running while [`WALK_INS_ON`] is off.
+/// Turns walk-ins on or off for the calling test's thread, so a test can
+/// cover the other setting from [`WALK_INS_ON`].
 #[cfg(test)]
 pub fn set_walk_ins_for_test(on: bool) {
     walk_ins_switch().with(|w| w.set(on));
@@ -111,38 +113,36 @@ impl Kind {
     }
 
     #[doc(hidden)]
-    /// A shop or restaurant whose customers come in from outside the tower
-    /// at the rate its demand sets (`crowd::walk_ins`): every kind with a
-    /// spend per customer but the daycare, whose children are not shoppers.
-    /// Each walk-in comes through the lobby or the Metro and rides the cars
-    /// like anyone else, and the day's patronage counts the ones who got
-    /// there. None does while [`WALK_INS_ON`] is off.
-    pub fn takes_walk_ins(self) -> bool {
+    /// A shop or restaurant some of whose customers come in from outside
+    /// the tower in a `mode` tower (`crowd::walk_ins`): the kinds the 1994
+    /// game counted daily visitors for, in a mode whose shoppers walk in
+    /// ([`GameMode::shoppers_walk_in`]). Each walk-in comes through the
+    /// lobby or the Metro and rides the cars like anyone else. None does
+    /// while [`WALK_INS_ON`] is off.
+    ///
+    /// [`GameMode::shoppers_walk_in`]: crate::clock::GameMode::shoppers_walk_in
+    pub fn takes_walk_ins(self, mode: crate::clock::GameMode) -> bool {
         walk_ins_on()
-            && matches!(
-                self,
-                Kind::FastFood
-                    | Kind::Restaurant
-                    | Kind::FoodHall
-                    | Kind::Amusements
-                    | Kind::BoutiqueBay
-                    | Kind::Nightclub
-                    | Kind::Spa
-                    | Kind::SkyBar
-                    | Kind::Shop
-            )
+            && mode.shoppers_walk_in()
+            && matches!(self, Kind::FastFood | Kind::Restaurant | Kind::Shop)
     }
 
     #[doc(hidden)]
-    /// A kind whose head count mirrors the visitors inside it (an
-    /// attendance venue, a [`Kind::is_meal_venue`] or a kind that
-    /// [`Kind::takes_walk_ins`]). The count lives
-    /// in the unsaved `customers_in`, which a load counts again from the
-    /// visitors the save's crowd carries (`crowd::save`) and an undo starts
-    /// at 0, and the dispatch estimate skips it, since those visitors ride
-    /// as real people.
-    pub fn counts_visitors(self) -> bool {
-        self.attendance_cap().is_some() || self.is_meal_venue() || self.takes_walk_ins()
+    /// A kind whose head count mirrors the visitors inside it in every
+    /// mode: an attendance venue or a [`Kind::is_meal_venue`].
+    pub fn seats_visitors(self) -> bool {
+        self.attendance_cap().is_some() || self.is_meal_venue()
+    }
+
+    #[doc(hidden)]
+    /// A kind whose head count mirrors the visitors inside it in a `mode`
+    /// tower (one that [`Kind::seats_visitors`], or a shop that
+    /// [`Kind::takes_walk_ins`]). The count lives in the unsaved
+    /// `customers_in`, which a load counts again from the visitors the
+    /// save's crowd carries (`crowd::save`) and an undo starts at 0, and the
+    /// dispatch estimate skips it, since those visitors ride as real people.
+    pub fn counts_visitors(self, mode: crate::clock::GameMode) -> bool {
+        self.seats_visitors() || self.takes_walk_ins(mode)
     }
 
     #[doc(hidden)]

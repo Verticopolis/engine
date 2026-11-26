@@ -99,7 +99,9 @@ fn the_tallies_match_the_live_crowd_through_a_mixed_day() {
 #[test]
 fn a_bulldozed_hotel_room_leaves_its_guest_to_drain_in_balance() {
     let mut sim = mixed_tower();
-    set_clock(&mut sim, 0, 18);
+    // From 17:00, when the hall opens, so a guest finds room in it before
+    // the evening crowd fills it.
+    set_clock(&mut sim, 0, 17);
     let hall = unit_id(&sim, Kind::PartyHall);
     let room = unit_id(&sim, Kind::HotelSingle);
     let mingling = |sim: &Simulation| {

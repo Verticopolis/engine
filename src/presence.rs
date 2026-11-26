@@ -66,7 +66,7 @@ impl Simulation {
             let f = u.kind.facility();
             if u.is_dormant() {
                 if u.state == UnitState::Empty && f.attendance.is_some() {
-                    u.sync_visitor_occupants(at);
+                    u.sync_visitor_occupants(at, mode);
                 } else {
                     u.set_occupants(at, 0);
                 }
@@ -97,7 +97,7 @@ impl Simulation {
                     })
                 }
                 // A venue, shop or restaurant holds the visitors inside it.
-                _ => u.visitor_occupants().or(Some(
+                _ => u.visitor_occupants(mode).or(Some(
                     if u.state == UnitState::Occupied && u.open_for_business(hour, mode) {
                         f.population
                     } else {

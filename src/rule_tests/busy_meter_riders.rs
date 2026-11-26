@@ -129,6 +129,12 @@ fn a_save_from_before_the_seats_were_kept_reads_its_cars_load_as_the_estimates()
             t.car_load.iter().flatten().sum()
         };
         let counted = old.elevators.riders_aboard(t, &old.crowd);
-        assert_eq!(counted, load + riders as f64, "shaft {}", t.id);
+        // Per car or all at once, the sums differ only in rounding.
+        let expected = load + riders as f64;
+        assert!(
+            (counted - expected).abs() < 1e-9,
+            "shaft {}: {counted} vs {expected}",
+            t.id
+        );
     }
 }
