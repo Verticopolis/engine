@@ -1,5 +1,5 @@
 {
-  "version": 34,
+  "version": 35,
   "header": {
     "minutes": 0,
     "towerRevision": 1,
@@ -390,6 +390,11 @@
       "status",
       "delta",
       "cost"
+    ],
+    "setCreative": [
+      "status",
+      "delta",
+      "value"
     ],
     "quoteBuild": [
       "ok",

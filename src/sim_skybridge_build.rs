@@ -63,7 +63,7 @@ impl Simulation {
         if !self.mode.builds_skybridges() {
             return SkybridgeQuote::refuse(MODERN_ONLY);
         }
-        if self.star < SKYBRIDGE_MIN_STAR {
+        if !self.creative && self.star < SKYBRIDGE_MIN_STAR {
             return SkybridgeQuote::refuse(&format!(
                 "Sky Bridge unlocks at {SKYBRIDGE_MIN_STAR}★."
             ));

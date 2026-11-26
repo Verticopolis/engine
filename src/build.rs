@@ -103,7 +103,7 @@ impl Simulation {
     #[doc(hidden)]
     pub fn is_unlocked(&self, kind: Kind) -> bool {
         let f = kind.facility();
-        f.available_in(self.mode) && self.star >= f.min_star
+        f.available_in(self.mode) && (self.creative || self.star >= f.min_star)
     }
 
     /// The price of the tile a structural placement lays at `(floor, x)`: a

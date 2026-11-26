@@ -101,6 +101,7 @@ pub mod charges;
 #[doc(hidden)]
 pub mod churn;
 pub mod clock;
+pub mod creative;
 #[doc(hidden)]
 pub mod crowd;
 #[doc(hidden)]
@@ -202,6 +203,7 @@ pub mod sim;
 #[doc(hidden)]
 pub mod sim_loop;
 mod sim_period_marks;
+mod sim_reach;
 mod sim_save;
 pub mod snapshot;
 #[doc(hidden)]
