@@ -5,6 +5,7 @@
 
 pub(crate) mod adopt;
 pub mod banks;
+mod car_seats;
 mod commute_stress;
 pub mod commuters;
 pub(crate) mod commuters_save;
