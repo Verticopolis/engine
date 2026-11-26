@@ -201,7 +201,7 @@ pub struct Simulation {
     /// web game shows these towers a founder badge.
     pub founder: bool,
     /// Whether this is a free-build tower: every kind unlocked and money that
-    /// never runs out ([`crate::creative`]).
+    /// never runs out ([`crate::creative`]). The save leaves it out.
     pub creative: bool,
     /// The game clock: day, hour, minute, quarter and year.
     pub clock: Clock,

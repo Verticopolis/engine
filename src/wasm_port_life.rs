@@ -430,7 +430,9 @@ impl Engine {
         self.sim.creative
     }
 
-    /// Turns free building on or off, with the value after.
+    /// Turns free building on or off, with the value after. The record's
+    /// delta is the funds topping up to [`crate::creative::CREATIVE_FUNDS`],
+    /// not a cost or income to announce.
     pub(crate) fn port_set_creative(&mut self, on: bool) -> Vec<f64> {
         self.reason = None;
         let before = self.sim.money;

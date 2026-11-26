@@ -44,7 +44,6 @@ pub(crate) fn assemble(
     } else {
         true
     };
-    sim.creative = data.get("creative") == Some(&Value::Bool(true));
     if let Some(s) = finite_num(data.get("initialSeed")) {
         sim.rng.initial_seed = to_uint32(s);
     }

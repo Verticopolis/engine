@@ -1,9 +1,13 @@
 //! Creative play: a free-build tower. Every facility the mode offers is
 //! unlocked from the start, whatever the star rating, and the money never
-//! runs out. A host turns it on for a tower it offers as a sandbox, and the
-//! tower keeps it in its save. Nothing else changes: the tower still earns,
-//! pays, rates and grows by the mode's rules, and the stars still count for
-//! everything but what may be built.
+//! runs out, and the Sky Bridge's star bar is lifted too. A host turns it on
+//! for a tower it offers as a sandbox, each time it opens that tower: the save
+//! leaves it out, so a tower saved in a sandbox opens as a plain tower
+//! anywhere else (with the funds it was saved with). Nothing else changes:
+//! the tower still earns, pays, rates and grows by the mode's rules, and the
+//! stars still count for everything but what may be built. A host that reads
+//! the catalog's star bars (`rules.sky_bridge.min_star`, each facility's
+//! `min_star`) should also read [`Simulation::creative`] before it shows one.
 
 use crate::sim::Simulation;
 
@@ -86,13 +90,38 @@ mod tests {
     }
 
     #[test]
-    fn the_save_keeps_it() {
+    fn the_save_leaves_it_out() {
         let mut sim = Simulation::new_game(3, GameMode::Classic);
         let plain = sim.serialize();
-        assert!(!deserialize(&plain).unwrap().creative);
         sim.set_creative(true);
-        let back = deserialize(&sim.serialize()).unwrap();
-        assert!(back.creative);
-        assert!(back.is_unlocked(Kind::HotelSingle));
+        sim.money = 42.0;
+        let free = sim.serialize();
+        sim.set_creative(false);
+        sim.money = 42.0;
+        assert_eq!(free, sim.serialize(), "the save carries no creative mark");
+        let back = deserialize(&free).unwrap();
+        assert!(!back.creative, "a loaded tower is a plain tower");
+        assert!(!back.is_unlocked(Kind::HotelSingle));
+        assert!(!deserialize(&plain).unwrap().creative);
+    }
+
+    #[test]
+    fn a_creative_tower_builds_a_sky_bridge_at_any_star() {
+        let mut sim = Simulation::new_game(3, GameMode::Modern);
+        assert!(sim.star < crate::tower::SKYBRIDGE_MIN_STAR);
+        let refused = sim.quote_skybridge(15, 120);
+        assert!(!refused.ok);
+        assert!(refused
+            .reason
+            .as_deref()
+            .unwrap_or("")
+            .contains("unlocks at"));
+        sim.set_creative(true);
+        let quote = sim.quote_skybridge(15, 120);
+        assert!(
+            !quote.reason.as_deref().unwrap_or("").contains("unlocks at"),
+            "the star bar is lifted: {:?}",
+            quote.reason
+        );
     }
 }
