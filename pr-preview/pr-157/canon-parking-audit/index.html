@@ -1,0 +1,524 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-theme="dark" data-has-toc data-has-sidebar class="astro-g5ptsecz"><head><meta name="robots" content="noindex"><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Parking and hotel suite audit | Verticopolis engine</title><link rel="canonical" href="https://docs.verticopolis.com/pr-preview/pr-157/canon-parking-audit/"/><link rel="sitemap" href="/pr-preview/pr-157/sitemap-index.xml"/><style>@layer starlight, vc;</style><script>(function(){try{var d=document.documentElement,s=null;try{s=localStorage.getItem("vc-docs-scheme")}catch(e){}if(["standard","skyline","high_contrast"].indexOf(s)<0){var m=/(?:^|; *)vc_scheme=([a-z_]+)/.exec(document.cookie);s=m?m[1]:null}if(s!=="standard"&&["standard","skyline","high_contrast"].indexOf(s)>=0)d.setAttribute("data-scheme",s);}catch(e){}})();</script><link rel="shortcut icon" href="/pr-preview/pr-157/favicon.png" type="image/png"/><meta name="generator" content="Astro v7.4.12"/><meta name="generator" content="Starlight v0.42.7"/><meta property="og:title" content="Parking and hotel suite audit"/><meta property="og:type" content="article"/><meta property="og:url" content="https://docs.verticopolis.com/pr-preview/pr-157/canon-parking-audit/"/><meta property="og:locale" content="en"/><meta property="og:description" content="Parking and hotel suites: the claim under test, the sources and the experiments (2026-10-30)."/><meta property="og:site_name" content="Verticopolis engine"/><meta name="twitter:card" content="summary_large_image"/><meta name="description" content="Parking and hotel suites: the claim under test, the sources and the experiments (2026-10-30)."/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg><svg aria-hidden="true" class="dark astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg><svg aria-hidden="true" class="auto astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg></template><link rel="stylesheet" href="/pr-preview/pr-157/_astro/print.ehPL0gv-.css" media="print"><style>@layer vc.tokens{:root{--bg:var(--r-desktop);--panel:var(--r-face);--ink:var(--r-ink);--accent:var(--r-title);--panel-light:#d7d7d7;--muted:#2f2f38;--good:#15722e;--bad:#b01023;--bad-ink:#9a0e1f;--money:#005000;--line:#7a7a7a;--r-face:silver;--r-shadow:gray;--r-dark:#000;--r-light:#dfdfdf;--r-hi:#fff;--r-title:navy;--r-title-fg:#fff;--r-ink:#000;--r-desktop:teal;--r-workspace:var(--r-face);--r-font:"MS Sans Serif", "Tahoma", "Geneva", "Segoe UI", sans-serif;--bevel-out:inset -1px -1px var(--r-dark), inset 1px 1px var(--r-hi), inset -2px -2px var(--r-shadow), inset 2px 2px var(--r-light);--bevel-in:inset 1px 1px var(--r-dark), inset -1px -1px var(--r-hi), inset 2px 2px var(--r-shadow), inset -2px -2px var(--r-light);--win-shadow:2px 2px 0 #0006;--rung-vlow:#2048b0;--rung-low:#1e7a2e;--rung-avg:#c8a000;--rung-high:#b02020;--splash-sky:linear-gradient(#161634 0%, #241f4c 34%, #5b3560 62%, #c65a63 86%, #ef8560 100%);--splash-amber:#ffc94a;--splash-sun:radial-gradient(circle, #ffe6a0 0%, var(--splash-amber) 52%, #f18f4b 100%);--splash-sun-glow:#ffb35742;--splash-building:#201643;--splash-cream:#e6dcc0;--splash-plate-ink:#20204a;--splash-ink:#0d0d10;--splash-wordmark:#f7f1e4;--splash-tagline:#ffd9a8;--splash-premise:#e7ddf5}html[data-scheme=skyline]{--r-face:#ebe7dc;--r-light:#f7f5ef;--r-hi:#fff;--r-shadow:#a59fb4;--r-dark:#4a4560;--r-title:#33378f;--r-desktop:#3b3c7a;--panel-light:#f4f2ec;--line:#8b8698;--muted:#3c3850;--money:#0b5a1f;--sky-line:#8b8698;--sky-title:linear-gradient(180deg, #5a63c8 0%, #3d429e 42%, #2a2766 100%);--sky-title-off:linear-gradient(180deg, #77739a 0%, #66618a 45%, #555075 100%);--sky-btn:linear-gradient(#fff, #e4e0d5);--sky-btn-down:linear-gradient(#d8d3c6, #efece4);--sky-violet:linear-gradient(#7880dc, #4a50b0);--sky-rose:linear-gradient(#d06a7c, #9c3048);--bevel-out:inset 0 0 0 1px var(--sky-line);--bevel-in:inset 0 0 0 1px var(--sky-line), inset 1px 1px 0 1px #4a45602e;--win-shadow:2px 3px 0 #14103252}html[data-scheme=high_contrast]{--r-face:#000;--r-light:#000;--r-hi:#fff;--r-shadow:#fff;--r-dark:#fff;--r-title:#ff0;--r-title-fg:#000;--r-ink:#fff;--r-desktop:#000;--panel-light:#000;--ink:#fff;--muted:#fff;--line:#fff;--good:#7dff7d;--bad:#ff8a8a;--bad-ink:#ff8a8a;--money:#7dff7d;--bevel-out:inset 0 0 0 2px #fff;--bevel-in:inset 0 0 0 2px #ff0;--win-shadow:0 0 0 1px #fff}}@layer vc.base,vc.components,vc.page,vc.components.button,vc.components.window,vc.components.well,vc.components.kv;@layer vc.components.menu-bar{.menubar{z-index:30;background:var(--r-face);box-shadow:inset 0 -1px var(--r-shadow);font-family:var(--r-font);color:var(--r-ink);flex:none;align-items:center;padding:1px 2px;font-size:12px;display:flex;position:relative}.menubar-brand{display:none}.mb-menu{position:relative}.mb-title{font:inherit;color:inherit;cursor:default;background:0 0;border:0;padding:3px 8px}.mb-title u{text-decoration:underline}.mb-title[aria-expanded=true]{box-shadow:inset 1px 1px var(--r-shadow), inset -1px -1px var(--r-hi)}.mb-title:focus-visible,.mb-item:focus-visible{outline:1px dotted var(--r-ink);outline-offset:-3px}.mb-pop{background:var(--r-face);min-width:220px;box-shadow:var(--bevel-out), var(--win-shadow);flex-direction:column;padding:3px;display:flex;position:absolute;top:100%;left:0}.mb-pop[hidden]{display:none}.mb-item{font:inherit;color:var(--r-ink);text-align:left;cursor:default;white-space:nowrap;background:0 0;border:0;justify-content:space-between;gap:24px;padding:4px 12px 4px 22px;display:flex;position:relative}a.mb-item{text-decoration:none}.mb-item[hidden]{display:none}.mb-item:hover,.mb-item:focus-visible{background:var(--r-title);color:var(--r-title-fg)}.mb-item[aria-disabled=true]{color:var(--r-shadow);background:0 0}.mb-item[aria-checked=true]:before{content:"✓";position:absolute;left:7px}.mb-item kbd{font:inherit;opacity:.8}.mb-sep{border:0;border-top:1px solid var(--r-shadow);border-bottom:1px solid var(--r-hi);margin:3px 2px}.mb-sep[hidden]{display:none}}
+</style><link rel="stylesheet" href="/pr-preview/pr-157/_astro/common.uZlCg_iS.css"><style>@layer starlight.components{svg:where(.astro-hkc32dio){color:var(--sl-icon-color);font-size:var(--sl-icon-size,1em);width:1em;height:1em;overflow:visible}}
+</style><script type="module" src="/pr-preview/pr-157/_astro/page.cNngjUgL.js"></script></head><body class="astro-g5ptsecz"><a class="sl-skip-link astro-qb7clj6f" href="#_top">Skip to content</a><div class="page sl-flex astro-yntsjkba"><header class="header astro-yntsjkba"><div id="docs-menubar-host"></div><script type="module" src="/pr-preview/pr-157/_astro/MenuBar.astro_astro_type_script_index_0_lang.DUHbsqr-.js"></script><div class="vc-bar"><a href="/pr-preview/pr-157/" class="site-title vc-bar-title"><img src="/pr-preview/pr-157/_astro/logo.C84ECWbg.png" width="1024" height="1024" alt=""><span class="vc-name" translate="no"><span class="vc-full">Verticopolis engine</span><span class="vc-short" aria-hidden="true">Engine docs</span></span></a><div class="vc-bar-search print:hidden"><site-search class=" astro-b5kgnn7o" data-translations="{&quot;placeholder&quot;:&quot;Search&quot;}"><button data-open-modal disabled aria-label="Search" aria-keyshortcuts="Control+K" class="astro-b5kgnn7o"><svg aria-hidden="true" class="astro-b5kgnn7o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg><span class="sl-hidden md:sl-block astro-b5kgnn7o" aria-hidden="true">Search</span><kbd class="sl-hidden md:sl-flex astro-b5kgnn7o" style="display: none;"><kbd class="astro-b5kgnn7o">Ctrl</kbd><kbd class="astro-b5kgnn7o">K</kbd></kbd></button><dialog style="padding:0" aria-label="Search" class="astro-b5kgnn7o"><div class="dialog-frame sl-flex astro-b5kgnn7o"><button data-close-modal class="sl-flex md:sl-hidden astro-b5kgnn7o">Cancel</button><div class="search-container astro-b5kgnn7o"><div id="starlight__search" class="astro-b5kgnn7o"></div></div></div></dialog></site-search><script>
+	(() => {
+		const openBtn = document.querySelector('button[data-open-modal]');
+		const shortcut = openBtn?.querySelector('kbd');
+		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+		const platformKey = shortcut.querySelector('kbd');
+		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+			platformKey.textContent = '⌘';
+			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+		}
+		shortcut.style.display = '';
+	})();
+</script><script type="module" src="/pr-preview/pr-157/_astro/Search.astro_astro_type_script_index_0_lang.D-lfHMTt.js"></script></div><div class="vc-bar-links print:hidden"><a class="vc-bar-game" href="https://verticopolis.com/" data-game-link><span class="vc-full">Play the game</span><span class="vc-short" aria-hidden="true">Play</span></a><a class="vc-bar-github" href="https://github.com/Verticopolis/engine"><span class="vc-sr-only">GitHub</span><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"></path></svg></a><div class="vc-bar-theme"><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script><script type="module">var e=`starlight-theme`,t=e=>e===`auto`||e===`dark`||e===`light`?e:`auto`,n=()=>t(typeof localStorage<`u`&&localStorage.getItem(e));function r(t){typeof localStorage<`u`&&localStorage.setItem(e,t===`light`||t===`dark`?t:``)}var i=()=>matchMedia(`(prefers-color-scheme: light)`).matches?`light`:`dark`;function a(e){StarlightThemeProvider.updatePickers(e),document.documentElement.dataset.theme=e===`auto`?i():e,r(e)}matchMedia(`(prefers-color-scheme: light)`).addEventListener(`change`,()=>{n()===`auto`&&a(`auto`)});var o=class extends HTMLElement{constructor(){super(),a(n()),this.querySelector(`select`)?.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&a(t(e.currentTarget.value))})}};customElements.define(`starlight-theme-select`,o);</script></div></div></div><script type="module" src="/pr-preview/pr-157/_astro/Mermaid.astro_astro_type_script_index_0_lang.C6tK-b8l.js"></script></header><nav class="sidebar print:hidden astro-yntsjkba" aria-label="Main"><button popovertarget="starlight__sidebar" class="sl-menu-button sl-flex md:sl-hidden print:hidden astro-r2osgdlg"><svg aria-hidden="true" class="open-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg><svg aria-hidden="true" class="close-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="m13.41 12 6.3-6.29a1.004 1.004 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1.004 1.004 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 0 1.42.998.998 0 0 0 1.42 0l6.29-6.3 6.29 6.3a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.42L13.41 12Z"/></svg><span class="sr-only astro-r2osgdlg">Menu</span></button><script type="module">var e=class extends HTMLElement{constructor(){super();let e=matchMedia(`(min-width: 50em)`),t=()=>{this.popover=e.matches?null:`auto`};t(),e.addEventListener(`change`,()=>t()),this.addEventListener(`toggle`,({newState:e})=>this.trapFocus(e===`open`))}trapFocus(e){document.querySelectorAll(`.main-frame, .sl-skip-link`).forEach(t=>{t.toggleAttribute(`inert`,e)})}};customElements.define(`sl-sidebar-pane`,e);</script><script type="module">var e=class extends HTMLElement{constructor(){super();let e=this.querySelector(`select`);e&&(e.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&(window.location.pathname=e.currentTarget.value)}),window.addEventListener(`pageshow`,t=>{if(!t.persisted)return;let n=e.querySelector(`option[selected]`)?.index;n!==e.selectedIndex&&(e.selectedIndex=n??0)}))}};customElements.define(`starlight-lang-select`,e);</script><sl-sidebar-pane popover id="starlight__sidebar" class="sidebar-pane astro-yntsjkba"><div class="sidebar-content sl-flex astro-yntsjkba"><sl-sidebar-state-persist data-hash="0uwkhir" class="astro-ipdry5cl"><script aria-hidden="true">
+		(() => {
+			try {
+				if (!matchMedia('(min-width: 50em)').matches) return;
+				/** @type {HTMLElement | null} */
+				const target = document.querySelector('sl-sidebar-state-persist');
+				const state = JSON.parse(sessionStorage.getItem('sl-sidebar-state') || '0');
+				if (!target || !state || target.dataset.hash !== state.hash) return;
+				window._starlightScrollRestore = state.scroll;
+				customElements.define(
+					'sl-sidebar-restore',
+					class SidebarRestore extends HTMLElement {
+						connectedCallback() {
+							try {
+								const idx = parseInt(this.dataset.index || '');
+								const details = this.closest('details');
+								if (details && typeof state.open[idx] === 'boolean') details.open = state.open[idx];
+							} catch {}
+						}
+					}
+				);
+			} catch {}
+		})();
+	</script><ul class="top-level astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/" class="large astro-rmhv4bp6"><span class="astro-rmhv4bp6">Overview</span></a></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Guides</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="0"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/javascript/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">JavaScript package</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/crate/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Rust crate</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/api/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Host API guide</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/conformance/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Conformance suite</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">How it works</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="1"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/architecture/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Architecture</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/engine/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Module map</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/tdt-format/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">The 1994 .TDT save format</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/tdt-byte-map/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">The .TDT byte map</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Classic canon</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="2"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/parity/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Classic parity checklist</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/canon/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Classic canon records</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/canon-shop-audit/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Shop rules audit</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/canon-parking-audit/" aria-current="page" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Parking and hotel suite audit</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/canon-pc-test-spec/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Original-game test spec</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/canon-pc-run-plan/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Original-game run plan</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Reference</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="3"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/rust/verticopolis_engine/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Rust API reference</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/changelog/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Engine changelog</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><a href="https://verticopolis.com/" class="large astro-rmhv4bp6"><span class="astro-rmhv4bp6">Play Verticopolis</span></a></li></ul><script aria-hidden="true">
+		(() => {
+			const scroller = document.getElementById('starlight__sidebar');
+			if (!window._starlightScrollRestore || !scroller) return;
+			scroller.scrollTop = window._starlightScrollRestore;
+			delete window._starlightScrollRestore;
+		})();
+	</script></sl-sidebar-state-persist><div class="md:sl-hidden"><div class="mobile-preferences sl-flex astro-p4azlveh"><div class="social-icons astro-p4azlveh"><a href="https://github.com/Verticopolis/engine" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script></div></div></div></sl-sidebar-pane></nav><div class="main-frame astro-yntsjkba"><script type="module">var e=document.getElementById(`starlight__sidebar`),t=e?.querySelector(`sl-sidebar-state-persist`),n=`sl-sidebar-state`,r=()=>{let r=[],i=t?.dataset.hash||``;try{let e=sessionStorage.getItem(n),t=JSON.parse(e||`{}`);Array.isArray(t.open)&&t.hash===i&&(r=t.open)}catch{}return{hash:i,open:r,scroll:e?.scrollTop||0}},i=e=>{try{sessionStorage.setItem(n,JSON.stringify(e))}catch{}},a=()=>i(r()),o=(e,t)=>{let n=r();n.open[t]=e,i(n)};t?.addEventListener(`click`,e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`summary`)?.closest(`details`);if(!t)return;let n=t.querySelector(`sl-sidebar-restore`),r=parseInt(n?.dataset.index||``);isNaN(r)||o(!t.open,r)}),addEventListener(`visibilitychange`,()=>{document.visibilityState===`hidden`&&a()});</script><div class="lg:sl-flex astro-lrzkfocr"><aside class="right-sidebar-container print:hidden astro-lrzkfocr"><div class="right-sidebar astro-lrzkfocr"><div class="lg:sl-hidden astro-qok35upx"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-66cqc7ze"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-66cqc7ze"><details id="starlight__mobile-toc" class="astro-66cqc7ze"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-66cqc7ze"><span class="toggle sl-flex astro-66cqc7ze">On this page<svg aria-hidden="true" class="caret astro-66cqc7ze astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></span><span class="display-current astro-66cqc7ze"></span></summary><div class="dropdown astro-66cqc7ze"><ul class="isMobile astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#the-claim-under-test" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">The claim under test</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#confidence-scale" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Confidence scale</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#separate-hypotheses" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Separate hypotheses</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-the-engine-does-today" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What the engine does today</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#findings" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Findings</span></a><ul class="isMobile astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#p2-and-p8-transport-to-the-garage" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">P2 and P8: transport to the garage</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#p3-occupied-versus-built-suites" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">P3: occupied versus built suites</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#p4-and-p9-offices-and-the-24-constant" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">P4 and P9: offices and the 24 constant</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#p6-the-per-stall-data" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">P6: the per-stall data</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#p7-the-ramp-flood-against-the-games-connected-list" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">P7: the ramp flood against the game’s connected list</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#the-authors-mechanism-in-our-terms" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">The author’s mechanism, in our terms</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#tests-to-write-before-any-rule-changes" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Tests to write before any rule changes</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#experiments-on-the-original-not-run" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Experiments on the original (not run)</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#smallest-accurate-classic-only-change-once-the-original-is-known" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Smallest accurate Classic-only change, once the original is known</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#recommended-next-steps" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Recommended next steps</span></a></li></ul></div></details></nav></mobile-starlight-toc><script type="module" src="/pr-preview/pr-157/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.C3fM4Kra.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-qok35upx"><div class="sl-container astro-qok35upx"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">On this page</h2><ul class="astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#the-claim-under-test" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">The claim under test</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#confidence-scale" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Confidence scale</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#separate-hypotheses" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Separate hypotheses</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#what-the-engine-does-today" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">What the engine does today</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#findings" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Findings</span></a><ul class="astro-jugkfwgx" style="--depth: 1;"><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#p2-and-p8-transport-to-the-garage" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">P2 and P8: transport to the garage</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#p3-occupied-versus-built-suites" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">P3: occupied versus built suites</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#p4-and-p9-offices-and-the-24-constant" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">P4 and P9: offices and the 24 constant</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#p6-the-per-stall-data" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">P6: the per-stall data</span></a></li><li style="--depth: 1;" class="astro-jugkfwgx"><a href="#p7-the-ramp-flood-against-the-games-connected-list" style="--depth: 1;" class="astro-jugkfwgx"><span style="--depth: 1;" class="astro-jugkfwgx">P7: the ramp flood against the game’s connected list</span></a></li></ul></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#the-authors-mechanism-in-our-terms" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">The author’s mechanism, in our terms</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#tests-to-write-before-any-rule-changes" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Tests to write before any rule changes</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#experiments-on-the-original-not-run" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Experiments on the original (not run)</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#smallest-accurate-classic-only-change-once-the-original-is-known" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Smallest accurate Classic-only change, once the original is known</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#recommended-next-steps" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Recommended next steps</span></a></li></ul></nav></starlight-toc><script type="module" src="/pr-preview/pr-157/_astro/TableOfContents.astro_astro_type_script_index_0_lang.BpJaGz7G.js"></script></div></div></div></aside><div class="main-pane astro-lrzkfocr"><main data-pagefind-body class="astro-g5ptsecz" lang="en" dir="ltr"><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><h1 id="_top" class="astro-bebwqqxs">Parking and hotel suite audit</h1></div></div><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><div class="sl-markdown-content"><p>Snapshot of 2026-10-30, revised the same day after the owner’s review. This is a dated research record, not live status. The live record is the engine (<code dir="auto">src/services.rs</code>, <code dir="auto">src/tower_query.rs</code>, <code dir="auto">src/tower.rs</code>) and issue #1524. Nothing here changes a rule, and no gameplay change is authorized. The goal is exact Classic fidelity that keeps existing saves working, so every claim below is graded and every proposal waits for an experiment on the original.</p>
+<p>Windows SimTower 1.1B is the canonical game. Macintosh claims are labeled and kept apart. Sources are named, not copied: the Windows Help file (HELP), the Maxis manual (MAN), the GameFAQs guides by kiwizoid (KZ) and MentalMan (MM), the SimTower wiki (WIKI), the Relentless Optimizer reference (RO) and the Macintosh FAQ by BStuart (BS, Mac). The project files hold the working copies under <code dir="auto">release-3.0/simtower-final-reference-2026-10-30/</code>. The measurements on real saves use the nine fixtures in <code dir="auto">conformance/fixtures/tdt-reddit/</code>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="the-claim-under-test">The claim under test</h2><a class="sl-anchor-link" href="#the-claim-under-test"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “The claim under test”</span></a></div>
+<p><strong>Source:</strong> u/AskPizza, “Hotel Suites and Parking”, r/SimTower, posted 2026-10-30: <a href="https://www.reddit.com/r/SimTower/comments/1xj65d0/hotel_suites_and_parking/">https://www.reddit.com/r/SimTower/comments/1xj65d0/hotel_suites_and_parking/</a>. The thread was supplied by the owner, who read it on Reddit. Reddit blocks the cloud sandbox this audit ran in, so nobody on this side has fetched the page, and what follows is an own-words summary of what the owner reported, not a quotation. The post’s exact wording, its screenshots (if any) and any comments beyond the one below are not in this record. Which game the author plays is not stated in what we have: a commenter asked whether it is the original SimTower or Yoot Tower, and no answer was visible. So the post is not yet evidence about Windows 1.1B at all.</p>
+<p>The account is split in two on purpose. The first part is what the author says they saw. The second is what they think explains it. The audit treats the first as a lead and the second as a set of hypotheses.</p>
+<p><strong>What the author reports seeing (player-observed, unverified by us):</strong></p>
+<ul>
+<li>Hotel suites sometimes turn red and stay red while total parking capacity looks adequate.</li>
+<li>The failures look unpredictable and can show up years into a tower’s life.</li>
+<li>Their workaround is to put suites near the ground lobby, with a dedicated express elevator that serves every parking floor. The post does not say how well it worked.</li>
+<li>The author’s own rough estimate is about one parking space per four offices.</li>
+</ul>
+<p><strong>What the author infers (the author’s mechanism, not observed):</strong></p>
+<ul>
+<li>Each suite guest is given a random space somewhere in the garage.</li>
+<li>That space needs a usable transport route to the guest’s suite.</li>
+<li>A guest given an unreachable space can make the suite’s evaluation collapse, and repeated arrivals make the failures look random.</li>
+<li>Offices do not suffer the same route-dependent penalty.</li>
+</ul>
+<p>None of these inferences has support in our reference set (see P5), and none is marked verified here. The one-space-per-four-offices figure agrees with the 24 workers per space our engine uses if an office holds 6 workers, but it is a second unsourced estimate, so it does not confirm P9.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="confidence-scale">Confidence scale</h2><a class="sl-anchor-link" href="#confidence-scale"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Confidence scale”</span></a></div>
+<ul>
+<li><strong>Documented</strong>: stated by HELP or MAN.</li>
+<li><strong>Guide-reported</strong>: stated by one or more fan guides written for the Windows game, not by HELP or MAN.</li>
+<li><strong>Mac-only</strong>: stated only for the Macintosh game.</li>
+<li><strong>Community-observed</strong>: reported from play, no source text.</li>
+<li><strong>Inferred</strong>: deduced by us from saves or code.</li>
+<li><strong>Unverified</strong>: no evidence either way.</li>
+</ul>
+<div class="sl-heading-wrapper level-h2"><h2 id="separate-hypotheses">Separate hypotheses</h2><a class="sl-anchor-link" href="#separate-hypotheses"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Separate hypotheses”</span></a></div>
+<p>These stay separate. Evidence for one is not evidence for another, and no implementation work combines them until the original shows how they relate.</p>
+<table>
+<thead>
+<tr>
+<th>Id</th>
+<th>Hypothesis</th>
+<th>Today in our engine</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H1</td>
+<td>A stall works only if its ramp column connects up to the ground lobby (#307)</td>
+<td>Not enforced: each ramp seeds its own flood</td>
+</tr>
+<tr>
+<td>H1b</td>
+<td>Connection runs along the parking floor, so a small gap between stalls does not break it</td>
+<td>Strict touching only</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>A stall works only if passenger transport serves its floor</td>
+<td>Not enforced</td>
+</tr>
+<tr>
+<td>H3</td>
+<td>Each guest or worker gets a specific stall and fails if it cannot be used</td>
+<td>No per-guest stall</td>
+</tr>
+<tr>
+<td>H4</td>
+<td>That stall is picked at random</td>
+<td>No assignment at all</td>
+</tr>
+<tr>
+<td>H5</td>
+<td>Suite demand counts occupied suites, not built suites</td>
+<td>Counts built suites</td>
+</tr>
+<tr>
+<td>H6</td>
+<td>Missing office parking lowers office evaluation, at some ratio of offices to stalls</td>
+<td>Halves move-in only</td>
+</tr>
+<tr>
+<td>H7</td>
+<td>Evaluation damage persists after the cause is fixed</td>
+<td>Not modeled</td>
+</tr>
+<tr>
+<td>H8</td>
+<td>Express elevators stop at every underground floor</td>
+<td>Fixed in #2221: an express stops at every basement floor it passes, and a loaded <code dir="auto">.TDT</code> keeps the file’s own basement stops</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h2"><h2 id="what-the-engine-does-today">What the engine does today</h2><a class="sl-anchor-link" href="#what-the-engine-does-today"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “What the engine does today”</span></a></div>
+<p>The Rust engine is the only engine the game runs. The TypeScript reference that once carried the same parking logic was deleted in #1875.</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Rust engine</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What makes a stall working?</td>
+<td>A flood from every operational ramp, sideways along its floor and up or down through ramp tiles (<code dir="auto">Tower::functional_parking_set</code>). Recomputed on each call, not memoized.</td>
+</tr>
+<tr>
+<td>Does the ramp column have to reach the lobby?</td>
+<td>No. Each ramp seeds the flood on its own. Tracked as #307.</td>
+</tr>
+<tr>
+<td>Does the stall’s floor need elevator or stair service?</td>
+<td>No. Nothing in the flood or the shortage test reads transport.</td>
+</tr>
+<tr>
+<td>How is a suite shortage decided?</td>
+<td>Working stalls fewer than the suites that are not under construction, burned or gutted (<code dir="auto">suite_parking_short</code>).</td>
+</tr>
+<tr>
+<td>Is a stall ever assigned to a guest?</td>
+<td>No. There is no per-guest or per-suite stall, and guests are not agents that drive anywhere.</td>
+</tr>
+<tr>
+<td>Is anything about parking random?</td>
+<td>No. The parking reads draw nothing from the RNG.</td>
+</tr>
+<tr>
+<td>What does a suite shortage do?</td>
+<td>One info toast and the VIP outcome: a happy VIP leaves with the “circled the block” line and <code dir="auto">vip_favorable</code> stays false, which holds the 4-star gate (<code dir="auto">maybe_vip_stay</code>). It never touches a suite’s satisfaction, color or move-in.</td>
+</tr>
+<tr>
+<td>What does an office shortage do?</td>
+<td>Halves the daily office move-in chance (<code dir="auto">attempt_move_ins</code>). Suites reserve spaces first. It never touches an office’s satisfaction.</td>
+</tr>
+<tr>
+<td>Does parking appear in evaluation?</td>
+<td>No. <code dir="auto">satisfaction_step</code> has no parking input. The only other reader is a congestion relief of 2 percent per working stall (<code dir="auto">presence.rs</code>).</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h2"><h2 id="findings">Findings</h2><a class="sl-anchor-link" href="#findings"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Findings”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Finding</th>
+<th>Status</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td>Ours has no per-guest stall, so the mechanism the author describes cannot occur. Ours errs optimistic.</td>
+<td>Engine fact</td>
+<td>High</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>A ramp-chained garage counts as working with no transport to its floors.</td>
+<td>Engine fact; Classic rule unknown (H2)</td>
+<td>High (engine), Low (canon)</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>Suite demand counts built suites. MAN says occupied ones. PC guides say one per suite.</td>
+<td>Source conflict (H5)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>WIKI and KZ tie office parking to evaluation. Ours cuts move-in only.</td>
+<td>Likely gap (H6)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>P5</td>
+<td>Random assignment, a per-space route requirement and lasting evaluation damage are the author’s inferences (r/SimTower, 2026-10-30). Nothing in our reference set supports them, and the post does not say which game it is about.</td>
+<td>Unverified (H3, H4, H7)</td>
+<td>None</td>
+</tr>
+<tr>
+<td>P5a</td>
+<td>Suites turning red with adequate total parking, unpredictably and late in a tower’s life, is a player report with no save or screenshot in our hands.</td>
+<td>Community-observed, unverified</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>P5b</td>
+<td>Suites near the lobby with an express serving every parking floor is the author’s workaround.</td>
+<td>Community-observed, untested</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>P6</td>
+<td>The original keeps a value per stall in its saves. What it is, is not known.</td>
+<td>Unknown</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>P7</td>
+<td>Our ramp flood matches the game’s connected-stall list on eight of nine saves; TOWER7 differs by four stalls.</td>
+<td>Lead (H1b)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>P8</td>
+<td>Our loader removes the basement stops the file’s express shafts carry. This alone makes TOWER7, TOWER1 and MYTOWER look like they have unserved parking floors.</td>
+<td>Defect in the loader (H8)</td>
+<td>High</td>
+</tr>
+<tr>
+<td>P9</td>
+<td>The 24-workers-per-space figure comes from an internal design note, not from a source.</td>
+<td>Source unconfirmed (H6)</td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h3"><h3 id="p2-and-p8-transport-to-the-garage">P2 and P8: transport to the garage</h3><a class="sl-anchor-link" href="#p2-and-p8-transport-to-the-garage"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “P2 and P8: transport to the garage”</span></a></div>
+<p>Guide-reported: KZ’s three-star walkthrough says suites take parking spaces, so the elevators must reach down to the parking levels, and that an express shaft must reach B2 or offices on floor 30 and above cannot be reached. MAN says parking needs stairs or elevator access. Neither says what a guest does when a stall’s floor has no service.</p>
+<p>Probe, Rust engine, Classic, 3 stars, seed 7 (scratch test, not committed): lobby on floor 1, three suites on floor 3, a standard elevator on floors 1 to 4, one ramp on B2 with six stalls. Floor reachability of B2 is false, working stalls 6, no shortage, suites check in on day 0 and the VIP is favorable that evening. The same layout with the elevator on B2 to 4 gives the identical result. Connectivity of the stall floors is invisible to the suite, the VIP and the star gate.</p>
+<p><strong>The unserved parking floors in real saves are a loader artifact.</strong> An earlier version of this audit read TOWER7 (five of nine parking floors without a route), MYTOWER (one) and TOWER1 (eight) as a sign the original might not need service on every parking floor. That reading was wrong. The cause is <code dir="auto">Tower::coerce_express_stops</code> (<code dir="auto">src/tower.rs</code>), which on every load re-skips each non-lobby floor strictly inside an express shaft’s span, basements included. The imported JSON still carries the file’s own stops. After load, TOWER7’s two express shafts stop on no basement floor except their bottom. MAN says an express stops on every floor that can hold a lobby and on all underground floors, and the file agrees: its express floor entries cover every basement floor.</p>
+<p>Counterfactual, same scratch test with the file’s own express stops restored after load:</p>
+<table>
+<thead>
+<tr>
+<th>Save</th>
+<th>Parking floors unserved as loaded</th>
+<th>Unserved with the file’s express stops</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MYTOWER</td>
+<td>1 (B7)</td>
+<td>0</td>
+</tr>
+<tr>
+<td>TOWER1</td>
+<td>8</td>
+<td>0</td>
+</tr>
+<tr>
+<td>TOWER2 to TOWER6</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>TOWER7</td>
+<td>5 (B4 to B8)</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>So all nine real towers keep every parking floor served by passenger transport in the original. That fits KZ, but it does not prove the game requires it: players may simply build it. It does mean TOWER7 is a compatibility case. Any rule that drops stalls on unserved floors would wrongly drop TOWER7’s, MYTOWER’s and TOWER1’s unless the express-stop loader behavior is fixed first. That is row 24 of <code dir="auto">classic-shop-audit.md</code> (express stops), which the Classic rules thread owns, now with a concrete import consequence.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="p3-occupied-versus-built-suites">P3: occupied versus built suites</h3><a class="sl-anchor-link" href="#p3-occupied-versus-built-suites"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “P3: occupied versus built suites”</span></a></div>
+<p>MAN’s suite entry says a suite holds two guests and that occupied rooms need a parking place. KZ, MM and others say one space per suite. BS (Mac) says one or two per room. Ours follows the guides and counts built suites.</p>
+<p>TOWER6 is a 5-star save with 115 suites, 81 stalls and only 27 suites asleep at save time (88 dirty): our rule reads that as a shortage and an occupied-only rule does not. TOWER4 (140 suites, all asleep, 333 stalls) and TOWER2 (101 suites, 81 asleep, 281 stalls) pass either way. A star never decreases, so TOWER6’s 5 stars do not prove the original was satisfied at the save.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="p4-and-p9-offices-and-the-24-constant">P4 and P9: offices and the 24 constant</h3><a class="sl-anchor-link" href="#p4-and-p9-offices-and-the-24-constant"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “P4 and P9: offices and the 24 constant”</span></a></div>
+<p>WIKI and KZ both tie office parking to evaluation, and the wiki lists hotels and offices as wanting parking nearby. Ours reduces new move-ins only.</p>
+<p>The 24-workers-per-space figure (<code dir="auto">PARKING_WORKERS_PER_SPACE</code>, <code dir="auto">src/services.rs</code>, first written in the retired TypeScript engine) was set on 2026-07-06 by the internal parity design note (<code dir="auto">gdd-simtower-parity-2026-07-06.md</code>, section 6.1), which says the original asks for one space per four offices and an office holds 6 workers. The note cites no source, and the final reference set has no row that says “one space per four offices”. Treat the constant as unconfirmed until experiment E6 finds the threshold in the original.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="p6-the-per-stall-data">P6: the per-stall data</h3><a class="sl-anchor-link" href="#p6-the-per-stall-data"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “P6: the per-stall data”</span></a></div>
+<p>The original stores something per stall, in two places, and we do not know what it means. We have not inferred any assignment or randomness from it.</p>
+<ul>
+<li><strong>Tail stall records</strong> (offset 4,012 in the tail, 512 records of 6 bytes): floor index, an ordinal, then a 4-byte value. The value is zero in MYTOWER and TOWER1 and nonzero for some stalls in the other six saves (for example 54 of 125 in TOWER7, 196 of 333 in TOWER4), ranging from 14 to 9,294. It looks like a counter or timer. Nothing links it to a guest.</li>
+<li><strong>Unit record byte 7</strong> on stall units: 0 in six saves, and 1 on a block of stalls in TOWER2 (25), TOWER3 (85) and TOWER4 (85). The flagged stalls form contiguous runs, and the count does not track suites or workers present.</li>
+<li><strong>The connected list</strong> (parking block): ids are record indexes into the tail records, so they need not run from 0 to n. TOWER3 and TOWER4 skip ids 128 to 135, which fits eight deleted records.</li>
+</ul>
+<p>Experiment E9 diffs these fields over time on a tiny tower to learn what they are.</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="p7-the-ramp-flood-against-the-games-connected-list">P7: the ramp flood against the game’s connected list</h3><a class="sl-anchor-link" href="#p7-the-ramp-flood-against-the-games-connected-list"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “P7: the ramp flood against the game’s connected list”</span></a></div>
+<p>The parking block of each save holds a connected-stall count and the connected record indexes. Located by file layout (not by pattern), compared with our working-stall count after load:</p>
+<table>
+<thead>
+<tr>
+<th>Save</th>
+<th>Stalls</th>
+<th>File connected</th>
+<th>Ours working</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MYTOWER</td>
+<td>174</td>
+<td>174</td>
+<td>174</td>
+<td></td>
+</tr>
+<tr>
+<td>TOWER1</td>
+<td>63</td>
+<td>55</td>
+<td>55</td>
+<td>see below</td>
+</tr>
+<tr>
+<td>TOWER2</td>
+<td>281</td>
+<td>281</td>
+<td>281</td>
+<td></td>
+</tr>
+<tr>
+<td>TOWER3</td>
+<td>333</td>
+<td>333</td>
+<td>333</td>
+<td></td>
+</tr>
+<tr>
+<td>TOWER4</td>
+<td>333</td>
+<td>333</td>
+<td>333</td>
+<td></td>
+</tr>
+<tr>
+<td>TOWER5</td>
+<td>81</td>
+<td>81</td>
+<td>81</td>
+<td></td>
+</tr>
+<tr>
+<td>TOWER6</td>
+<td>81</td>
+<td>81</td>
+<td>81</td>
+<td></td>
+</tr>
+<tr>
+<td>TOWER7</td>
+<td>125</td>
+<td>125</td>
+<td>121</td>
+<td>four stalls differ</td>
+</tr>
+<tr>
+<td>TOWER8</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>An earlier version of this audit called TOWER1 “agreement” without saying why 63 stalls give 55. The eight missing spaces are stalls the game itself lists as disconnected: the connected indexes run 0 to 54, and records 55 to 62 are the stalls on file floors 1 to 7 at ordinal 1, plus ordinal 2 on floor 7. Those map to the eight isolated stalls (x 217 and 221, B2 to B8) that our flood also finds dead. So TOWER1 is a match in both count and identity.</p>
+<p>TOWER7 is a real difference. On file floor 5 (our B4) the row has stalls at x 130 to 138, then 141 to 149, then the ramp at 150, so there is a 3-tile and a 1-tile gap. The game still counts all four as connected, and ours does not. Either the game’s list went stale after the player moved stalls, or its connection test tolerates small gaps (H1b). The manual says each space must connect to an adjacent one, which favors the stale list, but a stale list in a shipped save is a guess. Experiment E10 tests gaps directly. Until then our strict touching rule stays.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="the-authors-mechanism-in-our-terms">The author’s mechanism, in our terms</h2><a class="sl-anchor-link" href="#the-authors-mechanism-in-our-terms"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “The author’s mechanism, in our terms”</span></a></div>
+<p>If the original assigns each guest a stall and routes them stall to suite, a suite could fail when its guest draws a stall on a floor the transport does not serve, even though the stall count is fine. That is the author’s inference, restated. The sources do not confirm per-guest assignment, randomness or lasting damage, and the per-stall bytes do not either. Treat the whole chain as unverified.</p>
+<p>Two things to keep apart when reading it. The symptom (red suites with enough stalls) could have causes the author did not consider, such as H5 (demand counted differently) or H2 (the garage floor is not served) with no per-guest stall at all. And the workaround (a dedicated express to every parking floor) would help under H2 or H8 as well as under the author’s theory, so its working would not distinguish them. E2 and E3 are built to tell these apart.</p>
+<p>No gameplay rule changes on the strength of the post. A rule changes only when Windows 1.1B shows it in a PC run with the save or screenshot kept in the project files (PK1 to PK10).</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="tests-to-write-before-any-rule-changes">Tests to write before any rule changes</h2><a class="sl-anchor-link" href="#tests-to-write-before-any-rule-changes"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Tests to write before any rule changes”</span></a></div>
+<p>All are deterministic, run on the Rust engine, use a fixed seed and a Classic tower, and pin today’s behavior first so a later change shows as a reviewed diff.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Scenario</th>
+<th>Asserts today</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>Garage on B2, elevator B2 to 4, three suites</td>
+<td>6 working stalls, no shortage, VIP favorable</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>Same, elevator 1 to 4 only (sufficient but disconnected)</td>
+<td>same result as T1</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>T2, then an elevator is added down to B2</td>
+<td>nothing changes</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>Two parking floors, one served, suites above the served floor’s capacity</td>
+<td>no shortage</td>
+</tr>
+<tr>
+<td>T5</td>
+<td>24 workers per space short by one, no suites</td>
+<td>move-in chance halved, office satisfaction unchanged</td>
+</tr>
+<tr>
+<td>T6</td>
+<td>Offices and suites together</td>
+<td>suites reserve spaces first</td>
+</tr>
+<tr>
+<td>T7a</td>
+<td>Snapshot <code dir="auto">Rng::seed()</code> before and after each parking read: <code dir="auto">functional_parking_set</code>, <code dir="auto">parking_demand</code>, <code dir="auto">suite_parking_short</code>, <code dir="auto">office_parking_short</code>, <code dir="auto">nudge_service_shortfalls</code>, the parking branch of <code dir="auto">maybe_vip_stay</code>, <code dir="auto">parking_usage</code></td>
+<td>state unchanged by every call</td>
+</tr>
+<tr>
+<td>T7b</td>
+<td>Two otherwise identical sims, garage large versus too small, one call to <code dir="auto">attempt_move_ins</code></td>
+<td>RNG state equal after the call (<code dir="auto">chance</code> draws once whatever its odds)</td>
+</tr>
+<tr>
+<td>T8</td>
+<td>Save and load T2</td>
+<td>parking read identical</td>
+</tr>
+<tr>
+<td>T9</td>
+<td>Import the nine fixtures</td>
+<td>working stalls equal the table above; no suite or office color or star changes for TOWER2 to TOWER6</td>
+</tr>
+<tr>
+<td>T10</td>
+<td>Import TOWER7</td>
+<td>pins the four-stall difference as a known gap, and the express basement stops as lost on load, so the express fix shows as a diff</td>
+</tr>
+</tbody>
+</table>
+<p>T7a and T7b isolate the parking code from everything else in the run. A whole-game comparison would also differ for unrelated reasons, so it is not used.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="experiments-on-the-original-not-run">Experiments on the original (not run)</h2><a class="sl-anchor-link" href="#experiments-on-the-original-not-run"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Experiments on the original (not run)”</span></a></div>
+<p>The full spec is <code dir="auto">release-3.0/classic-parking/pc-experiments-parking-spec-2026-10-30.md</code> in the project files, handed to the Classic rules thread for its combined PC test spec. Each run needs the owner’s go and the PC thread. The matrix keeps ramp connectivity apart from passenger transport:</p>
+<ul>
+<li><strong>E2</strong> crosses ramp column (connected, or broken by bulldozing a middle ramp) with transport to the garage floor (served or not), stalls touching, tight garage. The file’s connected count separates H1 from H2, and the suite colors show which one makes a suite fail.</li>
+<li><strong>E3</strong> puts one served and one unserved parking floor in a tower with more suites than the served floor holds, and watches 14 evenings, repeated from the same save with different start offsets, to see whether failures are a fixed set or vary (H3, H4).</li>
+<li><strong>E4</strong> adds the missing stop afterwards and watches hourly and daily whether red clears (H7).</li>
+<li><strong>E5</strong> builds an express over the basements and loads TOWER7 to settle H8.</li>
+<li><strong>E6</strong> measures office evaluation against stall count for 30, 60 and 120 offices, with and without transport, to test the 24 constant and H6.</li>
+<li><strong>E7</strong> raises rents so few suites are occupied, with stalls between occupied and built (H5).</li>
+<li><strong>E8</strong> loads TOWER7, MYTOWER and TOWER1 unmodified and reads their colors.</li>
+<li><strong>E9</strong> diffs the per-stall fields over game hours (P6).</li>
+<li><strong>E10</strong> tests stall gaps (H1b, P7).</li>
+</ul>
+<div class="sl-heading-wrapper level-h2"><h2 id="smallest-accurate-classic-only-change-once-the-original-is-known">Smallest accurate Classic-only change, once the original is known</h2><a class="sl-anchor-link" href="#smallest-accurate-classic-only-change-once-the-original-is-known"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Smallest accurate Classic-only change, once the original is known”</span></a></div>
+<p>Each step applies only if an experiment shows the rule. They are separate changes in separate PRs, and none touches Modern.</p>
+<ol>
+<li><strong>Express basement stops (H8, P8). Done in #2221, in both modes.</strong> Stop <code dir="auto">coerce_express_stops</code> and <code dir="auto">set_express_stops</code> from dropping underground stops for Classic, to match MAN and the file. This is a loader and rule fix with its own risk (row 24 of <code dir="auto">classic-shop-audit.md</code>) and it must land before step 2 or any rule that reads the service of a floor. Compatibility: changes reachability of basement floors for any imported or saved Classic tower that has an express over its basements, usually toward more service. The conformance lock and the catalog digest may move.</li>
+<li><strong>Transport to the garage floor (H2), only if E2 shows it.</strong> Filter the working-stall set by whether the stall’s floor is in the served-floor set the tower already memoizes per revision (<code dir="auto">is_floor_served</code>). No per-guest search and no new state. Cost: one hash lookup per stall the flood reaches, at most 512 stalls, and the flood itself is the part worth memoizing per revision if profiling asks for it (hot-path checklist applies). Compatibility: after step 1 the nine real saves lose no stalls. A save with an unserved garage floor would read short on its next load, so the existing suite-parking toast and the stats “working” count must say why, and the change takes the next app version because players can notice it.</li>
+<li><strong>Ramp column to the lobby (H1), only if E2 shows it.</strong> This is #307, with its safeguards unchanged: a healing migration that builds the missing ramp so no existing parking dies, one spatial change per load, one honest toast, and no legacy flag in the flood. It does not ride with step 2 unless the experiments show the two are one rule.</li>
+<li><strong>Occupied demand (H5) and office evaluation (H6)</strong>, only if E6 and E7 show them. Demand by occupied suites is a count over units the shortage test already walks. An office evaluation term reads the same shortage flag in <code dir="auto">satisfaction_step</code>.</li>
+<li><strong>Per-guest stall assignment and randomness (H3, H4, H7)</strong> stay out until the original shows them. If it does, the first model to try is an expected-failure fraction per floor, which avoids a path search per guest and keeps the tick within budget.</li>
+</ol>
+<p>Each step needs: a reviewed proposal, deterministic tests for the changed rule and for the nine saves, a before and after cost reading, and <code dir="auto">/gds-code-review</code>.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="recommended-next-steps">Recommended next steps</h2><a class="sl-anchor-link" href="#recommended-next-steps"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Recommended next steps”</span></a></div>
+<ol>
+<li>Ask the author, through the owner, which game they play and for a save or screenshot of a red suite with its garage, if they are willing. Nothing is posted from this repo.</li>
+<li>The Classic rules thread holds E1 to E10 as PK1 to PK10 in its combined PC spec, and the PC thread runs them (the owner approved the run on 2026-10-30).</li>
+<li>Land T1 to T10 as characterization tests once the evidence is in.</li>
+<li>Decide step 1 (express basement stops, #1532) on its own merits. It is a loader defect shown by the file’s own express stops on three of the nine saves, and it does not depend on the Reddit theory. Keep it out of any speculative parking change.</li>
+</ol>
+<p>Nothing here touches the 3.0 release gates.</p>
+</div><footer class="sl-flex astro-ddtxxk7k"><div class="meta sl-flex astro-ddtxxk7k"></div><div class="pagination-links print:hidden astro-b5raizh3" dir="ltr"><a href="/pr-preview/pr-157/canon-shop-audit/" rel="prev" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg><span class="astro-b5raizh3">Previous<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Shop rules audit</span></span></a><a href="/pr-preview/pr-157/canon-pc-test-spec/" rel="next" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg><span class="astro-b5raizh3">Next<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Original-game test spec</span></span></a></div></footer></div></div></main></div></div></div></div></body></html>

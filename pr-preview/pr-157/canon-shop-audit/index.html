@@ -1,0 +1,360 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-theme="dark" data-has-toc data-has-sidebar class="astro-g5ptsecz"><head><meta name="robots" content="noindex"><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Shop rules audit | Verticopolis engine</title><link rel="canonical" href="https://docs.verticopolis.com/pr-preview/pr-157/canon-shop-audit/"/><link rel="sitemap" href="/pr-preview/pr-157/sitemap-index.xml"/><style>@layer starlight, vc;</style><script>(function(){try{var d=document.documentElement,s=null;try{s=localStorage.getItem("vc-docs-scheme")}catch(e){}if(["standard","skyline","high_contrast"].indexOf(s)<0){var m=/(?:^|; *)vc_scheme=([a-z_]+)/.exec(document.cookie);s=m?m[1]:null}if(s!=="standard"&&["standard","skyline","high_contrast"].indexOf(s)>=0)d.setAttribute("data-scheme",s);}catch(e){}})();</script><link rel="shortcut icon" href="/pr-preview/pr-157/favicon.png" type="image/png"/><meta name="generator" content="Astro v7.4.12"/><meta name="generator" content="Starlight v0.42.7"/><meta property="og:title" content="Shop rules audit"/><meta property="og:type" content="article"/><meta property="og:url" content="https://docs.verticopolis.com/pr-preview/pr-157/canon-shop-audit/"/><meta property="og:locale" content="en"/><meta property="og:description" content="The shop, restaurant and entertainment rules against the public SimTower references (2026-10-30)."/><meta property="og:site_name" content="Verticopolis engine"/><meta name="twitter:card" content="summary_large_image"/><meta name="description" content="The shop, restaurant and entertainment rules against the public SimTower references (2026-10-30)."/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg><svg aria-hidden="true" class="dark astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg><svg aria-hidden="true" class="auto astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg></template><link rel="stylesheet" href="/pr-preview/pr-157/_astro/print.ehPL0gv-.css" media="print"><style>@layer vc.tokens{:root{--bg:var(--r-desktop);--panel:var(--r-face);--ink:var(--r-ink);--accent:var(--r-title);--panel-light:#d7d7d7;--muted:#2f2f38;--good:#15722e;--bad:#b01023;--bad-ink:#9a0e1f;--money:#005000;--line:#7a7a7a;--r-face:silver;--r-shadow:gray;--r-dark:#000;--r-light:#dfdfdf;--r-hi:#fff;--r-title:navy;--r-title-fg:#fff;--r-ink:#000;--r-desktop:teal;--r-workspace:var(--r-face);--r-font:"MS Sans Serif", "Tahoma", "Geneva", "Segoe UI", sans-serif;--bevel-out:inset -1px -1px var(--r-dark), inset 1px 1px var(--r-hi), inset -2px -2px var(--r-shadow), inset 2px 2px var(--r-light);--bevel-in:inset 1px 1px var(--r-dark), inset -1px -1px var(--r-hi), inset 2px 2px var(--r-shadow), inset -2px -2px var(--r-light);--win-shadow:2px 2px 0 #0006;--rung-vlow:#2048b0;--rung-low:#1e7a2e;--rung-avg:#c8a000;--rung-high:#b02020;--splash-sky:linear-gradient(#161634 0%, #241f4c 34%, #5b3560 62%, #c65a63 86%, #ef8560 100%);--splash-amber:#ffc94a;--splash-sun:radial-gradient(circle, #ffe6a0 0%, var(--splash-amber) 52%, #f18f4b 100%);--splash-sun-glow:#ffb35742;--splash-building:#201643;--splash-cream:#e6dcc0;--splash-plate-ink:#20204a;--splash-ink:#0d0d10;--splash-wordmark:#f7f1e4;--splash-tagline:#ffd9a8;--splash-premise:#e7ddf5}html[data-scheme=skyline]{--r-face:#ebe7dc;--r-light:#f7f5ef;--r-hi:#fff;--r-shadow:#a59fb4;--r-dark:#4a4560;--r-title:#33378f;--r-desktop:#3b3c7a;--panel-light:#f4f2ec;--line:#8b8698;--muted:#3c3850;--money:#0b5a1f;--sky-line:#8b8698;--sky-title:linear-gradient(180deg, #5a63c8 0%, #3d429e 42%, #2a2766 100%);--sky-title-off:linear-gradient(180deg, #77739a 0%, #66618a 45%, #555075 100%);--sky-btn:linear-gradient(#fff, #e4e0d5);--sky-btn-down:linear-gradient(#d8d3c6, #efece4);--sky-violet:linear-gradient(#7880dc, #4a50b0);--sky-rose:linear-gradient(#d06a7c, #9c3048);--bevel-out:inset 0 0 0 1px var(--sky-line);--bevel-in:inset 0 0 0 1px var(--sky-line), inset 1px 1px 0 1px #4a45602e;--win-shadow:2px 3px 0 #14103252}html[data-scheme=high_contrast]{--r-face:#000;--r-light:#000;--r-hi:#fff;--r-shadow:#fff;--r-dark:#fff;--r-title:#ff0;--r-title-fg:#000;--r-ink:#fff;--r-desktop:#000;--panel-light:#000;--ink:#fff;--muted:#fff;--line:#fff;--good:#7dff7d;--bad:#ff8a8a;--bad-ink:#ff8a8a;--money:#7dff7d;--bevel-out:inset 0 0 0 2px #fff;--bevel-in:inset 0 0 0 2px #ff0;--win-shadow:0 0 0 1px #fff}}@layer vc.base,vc.components,vc.page,vc.components.button,vc.components.window,vc.components.well,vc.components.kv;@layer vc.components.menu-bar{.menubar{z-index:30;background:var(--r-face);box-shadow:inset 0 -1px var(--r-shadow);font-family:var(--r-font);color:var(--r-ink);flex:none;align-items:center;padding:1px 2px;font-size:12px;display:flex;position:relative}.menubar-brand{display:none}.mb-menu{position:relative}.mb-title{font:inherit;color:inherit;cursor:default;background:0 0;border:0;padding:3px 8px}.mb-title u{text-decoration:underline}.mb-title[aria-expanded=true]{box-shadow:inset 1px 1px var(--r-shadow), inset -1px -1px var(--r-hi)}.mb-title:focus-visible,.mb-item:focus-visible{outline:1px dotted var(--r-ink);outline-offset:-3px}.mb-pop{background:var(--r-face);min-width:220px;box-shadow:var(--bevel-out), var(--win-shadow);flex-direction:column;padding:3px;display:flex;position:absolute;top:100%;left:0}.mb-pop[hidden]{display:none}.mb-item{font:inherit;color:var(--r-ink);text-align:left;cursor:default;white-space:nowrap;background:0 0;border:0;justify-content:space-between;gap:24px;padding:4px 12px 4px 22px;display:flex;position:relative}a.mb-item{text-decoration:none}.mb-item[hidden]{display:none}.mb-item:hover,.mb-item:focus-visible{background:var(--r-title);color:var(--r-title-fg)}.mb-item[aria-disabled=true]{color:var(--r-shadow);background:0 0}.mb-item[aria-checked=true]:before{content:"✓";position:absolute;left:7px}.mb-item kbd{font:inherit;opacity:.8}.mb-sep{border:0;border-top:1px solid var(--r-shadow);border-bottom:1px solid var(--r-hi);margin:3px 2px}.mb-sep[hidden]{display:none}}
+</style><link rel="stylesheet" href="/pr-preview/pr-157/_astro/common.uZlCg_iS.css"><style>@layer starlight.components{svg:where(.astro-hkc32dio){color:var(--sl-icon-color);font-size:var(--sl-icon-size,1em);width:1em;height:1em;overflow:visible}}
+</style><script type="module" src="/pr-preview/pr-157/_astro/page.cNngjUgL.js"></script></head><body class="astro-g5ptsecz"><a class="sl-skip-link astro-qb7clj6f" href="#_top">Skip to content</a><div class="page sl-flex astro-yntsjkba"><header class="header astro-yntsjkba"><div id="docs-menubar-host"></div><script type="module" src="/pr-preview/pr-157/_astro/MenuBar.astro_astro_type_script_index_0_lang.DUHbsqr-.js"></script><div class="vc-bar"><a href="/pr-preview/pr-157/" class="site-title vc-bar-title"><img src="/pr-preview/pr-157/_astro/logo.C84ECWbg.png" width="1024" height="1024" alt=""><span class="vc-name" translate="no"><span class="vc-full">Verticopolis engine</span><span class="vc-short" aria-hidden="true">Engine docs</span></span></a><div class="vc-bar-search print:hidden"><site-search class=" astro-b5kgnn7o" data-translations="{&quot;placeholder&quot;:&quot;Search&quot;}"><button data-open-modal disabled aria-label="Search" aria-keyshortcuts="Control+K" class="astro-b5kgnn7o"><svg aria-hidden="true" class="astro-b5kgnn7o astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg><span class="sl-hidden md:sl-block astro-b5kgnn7o" aria-hidden="true">Search</span><kbd class="sl-hidden md:sl-flex astro-b5kgnn7o" style="display: none;"><kbd class="astro-b5kgnn7o">Ctrl</kbd><kbd class="astro-b5kgnn7o">K</kbd></kbd></button><dialog style="padding:0" aria-label="Search" class="astro-b5kgnn7o"><div class="dialog-frame sl-flex astro-b5kgnn7o"><button data-close-modal class="sl-flex md:sl-hidden astro-b5kgnn7o">Cancel</button><div class="search-container astro-b5kgnn7o"><div id="starlight__search" class="astro-b5kgnn7o"></div></div></div></dialog></site-search><script>
+	(() => {
+		const openBtn = document.querySelector('button[data-open-modal]');
+		const shortcut = openBtn?.querySelector('kbd');
+		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+		const platformKey = shortcut.querySelector('kbd');
+		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+			platformKey.textContent = '⌘';
+			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+		}
+		shortcut.style.display = '';
+	})();
+</script><script type="module" src="/pr-preview/pr-157/_astro/Search.astro_astro_type_script_index_0_lang.D-lfHMTt.js"></script></div><div class="vc-bar-links print:hidden"><a class="vc-bar-game" href="https://verticopolis.com/" data-game-link><span class="vc-full">Play the game</span><span class="vc-short" aria-hidden="true">Play</span></a><a class="vc-bar-github" href="https://github.com/Verticopolis/engine"><span class="vc-sr-only">GitHub</span><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"></path></svg></a><div class="vc-bar-theme"><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script><script type="module">var e=`starlight-theme`,t=e=>e===`auto`||e===`dark`||e===`light`?e:`auto`,n=()=>t(typeof localStorage<`u`&&localStorage.getItem(e));function r(t){typeof localStorage<`u`&&localStorage.setItem(e,t===`light`||t===`dark`?t:``)}var i=()=>matchMedia(`(prefers-color-scheme: light)`).matches?`light`:`dark`;function a(e){StarlightThemeProvider.updatePickers(e),document.documentElement.dataset.theme=e===`auto`?i():e,r(e)}matchMedia(`(prefers-color-scheme: light)`).addEventListener(`change`,()=>{n()===`auto`&&a(`auto`)});var o=class extends HTMLElement{constructor(){super(),a(n()),this.querySelector(`select`)?.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&a(t(e.currentTarget.value))})}};customElements.define(`starlight-theme-select`,o);</script></div></div></div><script type="module" src="/pr-preview/pr-157/_astro/Mermaid.astro_astro_type_script_index_0_lang.C6tK-b8l.js"></script></header><nav class="sidebar print:hidden astro-yntsjkba" aria-label="Main"><button popovertarget="starlight__sidebar" class="sl-menu-button sl-flex md:sl-hidden print:hidden astro-r2osgdlg"><svg aria-hidden="true" class="open-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg><svg aria-hidden="true" class="close-menu astro-r2osgdlg astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="m13.41 12 6.3-6.29a1.004 1.004 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1.004 1.004 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 0 1.42.998.998 0 0 0 1.42 0l6.29-6.3 6.29 6.3a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.42L13.41 12Z"/></svg><span class="sr-only astro-r2osgdlg">Menu</span></button><script type="module">var e=class extends HTMLElement{constructor(){super();let e=matchMedia(`(min-width: 50em)`),t=()=>{this.popover=e.matches?null:`auto`};t(),e.addEventListener(`change`,()=>t()),this.addEventListener(`toggle`,({newState:e})=>this.trapFocus(e===`open`))}trapFocus(e){document.querySelectorAll(`.main-frame, .sl-skip-link`).forEach(t=>{t.toggleAttribute(`inert`,e)})}};customElements.define(`sl-sidebar-pane`,e);</script><script type="module">var e=class extends HTMLElement{constructor(){super();let e=this.querySelector(`select`);e&&(e.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&(window.location.pathname=e.currentTarget.value)}),window.addEventListener(`pageshow`,t=>{if(!t.persisted)return;let n=e.querySelector(`option[selected]`)?.index;n!==e.selectedIndex&&(e.selectedIndex=n??0)}))}};customElements.define(`starlight-lang-select`,e);</script><sl-sidebar-pane popover id="starlight__sidebar" class="sidebar-pane astro-yntsjkba"><div class="sidebar-content sl-flex astro-yntsjkba"><sl-sidebar-state-persist data-hash="0uwkhir" class="astro-ipdry5cl"><script aria-hidden="true">
+		(() => {
+			try {
+				if (!matchMedia('(min-width: 50em)').matches) return;
+				/** @type {HTMLElement | null} */
+				const target = document.querySelector('sl-sidebar-state-persist');
+				const state = JSON.parse(sessionStorage.getItem('sl-sidebar-state') || '0');
+				if (!target || !state || target.dataset.hash !== state.hash) return;
+				window._starlightScrollRestore = state.scroll;
+				customElements.define(
+					'sl-sidebar-restore',
+					class SidebarRestore extends HTMLElement {
+						connectedCallback() {
+							try {
+								const idx = parseInt(this.dataset.index || '');
+								const details = this.closest('details');
+								if (details && typeof state.open[idx] === 'boolean') details.open = state.open[idx];
+							} catch {}
+						}
+					}
+				);
+			} catch {}
+		})();
+	</script><ul class="top-level astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/" class="large astro-rmhv4bp6"><span class="astro-rmhv4bp6">Overview</span></a></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Guides</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="0"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/javascript/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">JavaScript package</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/crate/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Rust crate</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/api/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Host API guide</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/conformance/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Conformance suite</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">How it works</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="1"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/architecture/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Architecture</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/engine/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Module map</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/tdt-format/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">The 1994 .TDT save format</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/tdt-byte-map/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">The .TDT byte map</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Classic canon</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="2"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/parity/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Classic parity checklist</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/canon/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Classic canon records</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/canon-shop-audit/" aria-current="page" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Shop rules audit</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/canon-parking-audit/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Parking and hotel suite audit</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/canon-pc-test-spec/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Original-game test spec</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/canon-pc-run-plan/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Original-game run plan</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><details open class="astro-rmhv4bp6"><summary class="astro-rmhv4bp6"><span class="group-label astro-rmhv4bp6"><span class="large astro-rmhv4bp6">Reference</span></span><svg aria-hidden="true" class="caret astro-rmhv4bp6 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="3"></sl-sidebar-restore><ul class="astro-rmhv4bp6"><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/rust/verticopolis_engine/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Rust API reference</span></a></li><li class="astro-rmhv4bp6"><a href="/pr-preview/pr-157/changelog/" class="astro-rmhv4bp6"><span class="astro-rmhv4bp6">Engine changelog</span></a></li></ul></details></li><li class="astro-rmhv4bp6"><a href="https://verticopolis.com/" class="large astro-rmhv4bp6"><span class="astro-rmhv4bp6">Play Verticopolis</span></a></li></ul><script aria-hidden="true">
+		(() => {
+			const scroller = document.getElementById('starlight__sidebar');
+			if (!window._starlightScrollRestore || !scroller) return;
+			scroller.scrollTop = window._starlightScrollRestore;
+			delete window._starlightScrollRestore;
+		})();
+	</script></sl-sidebar-state-persist><div class="md:sl-hidden"><div class="mobile-preferences sl-flex astro-p4azlveh"><div class="social-icons astro-p4azlveh"><a href="https://github.com/Verticopolis/engine" rel="me" class="sl-flex astro-n2mnl6yq"><span class="sr-only astro-n2mnl6yq">GitHub</span><svg aria-hidden="true" class="astro-n2mnl6yq astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-2z5xp7gb"><span class="sr-only astro-2z5xp7gb">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-2z5xp7gb"><option value="dark" class="astro-2z5xp7gb">Dark</option><option value="light" class="astro-2z5xp7gb">Light</option><option value="auto" selected class="astro-2z5xp7gb">Auto</option></select><svg aria-hidden="true" class="icon caret astro-2z5xp7gb astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script></div></div></div></sl-sidebar-pane></nav><div class="main-frame astro-yntsjkba"><script type="module">var e=document.getElementById(`starlight__sidebar`),t=e?.querySelector(`sl-sidebar-state-persist`),n=`sl-sidebar-state`,r=()=>{let r=[],i=t?.dataset.hash||``;try{let e=sessionStorage.getItem(n),t=JSON.parse(e||`{}`);Array.isArray(t.open)&&t.hash===i&&(r=t.open)}catch{}return{hash:i,open:r,scroll:e?.scrollTop||0}},i=e=>{try{sessionStorage.setItem(n,JSON.stringify(e))}catch{}},a=()=>i(r()),o=(e,t)=>{let n=r();n.open[t]=e,i(n)};t?.addEventListener(`click`,e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`summary`)?.closest(`details`);if(!t)return;let n=t.querySelector(`sl-sidebar-restore`),r=parseInt(n?.dataset.index||``);isNaN(r)||o(!t.open,r)}),addEventListener(`visibilitychange`,()=>{document.visibilityState===`hidden`&&a()});</script><div class="lg:sl-flex astro-lrzkfocr"><aside class="right-sidebar-container print:hidden astro-lrzkfocr"><div class="right-sidebar astro-lrzkfocr"><div class="lg:sl-hidden astro-qok35upx"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-66cqc7ze"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-66cqc7ze"><details id="starlight__mobile-toc" class="astro-66cqc7ze"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-66cqc7ze"><span class="toggle sl-flex astro-66cqc7ze">On this page<svg aria-hidden="true" class="caret astro-66cqc7ze astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></span><span class="display-current astro-66cqc7ze"></span></summary><div class="dropdown astro-66cqc7ze"><ul class="isMobile astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#matches" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Matches</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#mismatches" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Mismatches</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#added-by-revision-3-secondary-source-for-the-hours" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Added by revision 3 (secondary source for the hours)</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#added-by-revision-4" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Added by revision 4</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#gaps-pages-not-in-the-reference" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Gaps (pages not in the reference)</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#sources" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Sources</span></a></li></ul></div></details></nav></mobile-starlight-toc><script type="module" src="/pr-preview/pr-157/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.C3fM4Kra.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-qok35upx"><div class="sl-container astro-qok35upx"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">On this page</h2><ul class="astro-jugkfwgx" style="--depth: 0;"><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#_top" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Overview</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#matches" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Matches</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#mismatches" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Mismatches</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#added-by-revision-3-secondary-source-for-the-hours" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Added by revision 3 (secondary source for the hours)</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#added-by-revision-4" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Added by revision 4</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#gaps-pages-not-in-the-reference" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Gaps (pages not in the reference)</span></a></li><li style="--depth: 0;" class="astro-jugkfwgx"><a href="#sources" style="--depth: 0;" class="astro-jugkfwgx"><span style="--depth: 0;" class="astro-jugkfwgx">Sources</span></a></li></ul></nav></starlight-toc><script type="module" src="/pr-preview/pr-157/_astro/TableOfContents.astro_astro_type_script_index_0_lang.BpJaGz7G.js"></script></div></div></div></aside><div class="main-pane astro-lrzkfocr"><main data-pagefind-body class="astro-g5ptsecz" lang="en" dir="ltr"><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><h1 id="_top" class="astro-bebwqqxs">Shop rules audit</h1></div></div><div class="content-panel astro-a7po4psb"><div class="sl-container astro-a7po4psb"><div class="sl-markdown-content"><p>Snapshot of 2026-10-30, written against the public SimTower reference material listed under Sources below. The full text of those sources is not kept in this repository: the wiki is CC-BY-SA, and the GameFAQs guides and the official manual are copyrighted. This file states the rules in our own words and cites each source by name. Facts that come only from a GameFAQs guide (Aristotle47’s timetable, BStuart’s Mac crowd thresholds) are secondary claims and are marked as such. It is a dated record, not a live status; the engine and the backlog are the live source. Cinema, security, medical, recycling, housekeeping and parking are covered only by the wiki’s room tables, so rules that only their own pages would carry are gaps, not findings. Where no source speaks, a rule is recorded as unknown and settled by testing the game, not by guessing.</p>
+<p>Not covered here: facility widths and the metro station’s placement (the .TDT widths work owns them) and the cathedral (its own thread). The Modern column is a proposal for the owner to approve; nothing in Modern changes until he does.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="matches">Matches</h2><a class="sl-anchor-link" href="#matches"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Matches”</span></a></div>
+<p>Fast food, restaurant, shop, cinema and party hall costs, star unlocks, the 1-star fast food and 3-star rest, star thresholds (300, 1,000, 5,000, 10,000, 15,000), security and medical limits of 10, one metro and one cathedral, the 24-shaft elevator pool with 8 cars, the 64-link stairs and escalator pool, the housekeeping shift (noon to 5 pm, no new room after 4:30 pm, six maids a unit), and offices, condos and hotels barred from the basement.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="mismatches">Mismatches</h2><a class="sl-anchor-link" href="#mismatches"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Mismatches”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Rule</th>
+<th>Wiki</th>
+<th>Ours (Classic)</th>
+<th>Fix or ask</th>
+<th>Modern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Metro needs transport on its floors</td>
+<td>The wiki says the metro helps business only when its floors have transportation connected</td>
+<td>Any operating station helped</td>
+<td>Fixed (crate 0.24.4, app 2.65.0)</td>
+<td>Keep current; metro rules are not the shop lane</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Metro helps underground business only</td>
+<td>The wiki says the metro improves business for underground facilities</td>
+<td>+25% demand and rain relief tower-wide</td>
+<td>Ask: needs a per-venue split of the demand pool</td>
+<td>Match Classic once agreed</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Basement bands</td>
+<td>B1 to B4 good for shops, restaurants, fast food; B5 and B6 get no metro help and are unviable; B7 to B9 best for retail</td>
+<td>A business over 2 floors from a lobby floor earns half, so B3 and deeper were halved even beside the metro</td>
+<td>Fixed (2026-11-14): a working metro’s platform (the station’s middle story, B9) counts as a lobby for shoppers, so B7 to B9 earn in full and B5 and B6 stay halved. B3 and B4 stay halved under the 2-floor rule, a separate question</td>
+<td>Same rule, without Classic’s served-platform check</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Fast food payout</td>
+<td>Fixed at 9 pm by the day’s peak crowd: -3,000, 2,000 or 5,000</td>
+<td>Smooth hourly income, 5,000 a day times the demand fraction</td>
+<td>Ask: changes the economy</td>
+<td>Keep current (its own model)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Restaurant payout and hours</td>
+<td>Fixed at 11 pm: -6,000, 4,000 or 10,000; opens at 5 pm so no lunch trade</td>
+<td>Smooth income; open 11 to 14 and 17 to 23</td>
+<td>Ask: hours change crowd traffic</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Retail shop</td>
+<td>Daily rent 4,000 / 10,000 / 15,000 / 20,000 chosen by the player; evaluation from rent and customers; abandoned if low</td>
+<td>No rent choice, income is demand times 20,000</td>
+<td>Ask: new rent control and UI</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Party hall hours</td>
+<td>Parties 1 to 5 pm, 20,000 a day, 50 people</td>
+<td>Open 17 to 24, cap 20</td>
+<td>Ask: hours and the 50 (pending with the owner)</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Cinema crowd</td>
+<td>Cinema page infobox says 60; its prose and the Room table say 120 (source conflict)</td>
+<td>30</td>
+<td>Pending with the owner; no basis to pick 60 or 120 until tested in game</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Combined room limits</td>
+<td>Cinema plus party hall 16 shared (not 16 each); fast food plus restaurant plus shop 512; parking 512</td>
+<td>Cinema 16 and party hall 16 separately; no 512 limits</td>
+<td>Fix, but it changes the catalog pools and the lock, so a separate PR once the owner confirms Modern</td>
+<td>Match Classic: the .TDT slot tables hold these counts in both modes</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Venue capacity</td>
+<td>Fast food 10 to 50, restaurant 20 to 100, shop 20 to 50</td>
+<td>25, 35, 20</td>
+<td>Ask: feeds population and the census</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Movies</td>
+<td>The Cinema page: the info window offers a new movie ($300,000) or a classic ($150,000), with seven new titles in order (Casual Friends, Dino Wars, The Making of a Star, Love in N.Y., Waikiki Moon, My Man of War, Christmas for Both of Us) and seven classics (Big Wave, Farewell to Morocco, Fear of Shark Teeth, Western Sheriff, Revenge of the Big Spider, Northwest Romance, Samurai Cop). The window shows the floor, the film, days playing, daily earnings and one of four ticket-sales lines (It’s a Sellout!, New Movie showing!, Ticket Sales are average., Terrible Sales, change the movie.). No attendance or aging formula is given</td>
+<td>Classic (#1932): no charge each period. A film ages (120, 80, then 40 in the census, from PC runs), and the theater’s card shows New film or Classic film and its days showing, with buttons that change the film for $300,000 or $150,000; a classic never counts more than 80. Modern keeps the monthly film policy (auto, feature, blockbuster) at $150,000 and $300,000, and each booking starts a fresh film. No titles, earnings line or ticket-sales lines</td>
+<td>Done for Classic, apart from the titles and the info window’s lines</td>
+<td>Classic like the original (owner, 2026-11-11); Modern’s prices, ticket prices and more films per theater are #1950</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Upkeep</td>
+<td>Metro 100,000, security 20,000, recycling 50,000, ramp 10,000, escalator 5,000, car 10,000, express car 20,000, housekeeping 10,000, all quarterly</td>
+<td>Monthly figures for service rooms</td>
+<td>Verify against the Classic maintenance spec before touching</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Housekeeping underground</td>
+<td>Hotels and housekeeping cannot be built underground</td>
+<td>Only offices, condos and hotels are barred; housekeeping can go in the basement</td>
+<td>Fixed (crate 0.24.4): housekeeping joins the no-basement kinds; existing basement rooms stay</td>
+<td>Match Classic (done)</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Restaurant price</td>
+<td>Infobox 100,000, Room table 200,000</td>
+<td>200,000</td>
+<td>Keep 200,000 (the FAQ and the Room table agree)</td>
+<td>Same</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h2"><h2 id="added-by-revision-3-secondary-source-for-the-hours">Added by revision 3 (secondary source for the hours)</h2><a class="sl-anchor-link" href="#added-by-revision-3-secondary-source-for-the-hours"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Added by revision 3 (secondary source for the hours)”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Rule</th>
+<th>Source</th>
+<th>Ours (Classic)</th>
+<th>Fix or ask</th>
+<th>Modern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15</td>
+<td>Cinema hours</td>
+<td>Aristotle47 (GameFAQs): screenings 1 to 4 pm and 5 to 8 pm, closing and posting earnings at 8 pm</td>
+<td>Open 12 to 24</td>
+<td>Ask: hours change crowd traffic; verify in game</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Shop and fast food hours</td>
+<td>Aristotle47: open 10 am, close 9 pm, fast food income posted at 9 pm</td>
+<td>Fast food 7 to 22, shop 10 to 21</td>
+<td>Ask: fast food opens at 10 per the guide; verify in game</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>5 (update)</td>
+<td>Restaurant hours</td>
+<td>Wiki and the guide agree: opens at 5 pm, income at 11 pm</td>
+<td>Also opens 11 to 14</td>
+<td>Same ask as row 5, now backed by two sources</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>4 (update)</td>
+<td>Fast food crowd levels</td>
+<td>BStuart (Mac v1.2 only, treat as version-specific): 0 to 24 customers loses 3,000, 25 to 34 earns 2,000, 35 to 80 earns 5,000</td>
+<td>Smooth income</td>
+<td>Needs a PC check before any threshold is coded</td>
+<td>Keep current</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h2"><h2 id="added-by-revision-4">Added by revision 4</h2><a class="sl-anchor-link" href="#added-by-revision-4"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Added by revision 4”</span></a></div>
+<p>Revision 4 adds only a follow-up note (no new wiki pages). It confirms what the audit already says: the Hotel page covers the housekeeping rules we have, Cinema hours and fast food thresholds stay secondary or Mac-only, and the metro’s reach in floors is not stated anywhere. One finding came from re-reading the Hotel page against the engine:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Rule</th>
+<th>Source</th>
+<th>Ours (Classic)</th>
+<th>Fix or ask</th>
+<th>Modern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>17</td>
+<td>Rooms that cannot be deleted</td>
+<td>The Windows Read Me lists housekeeping, security, recycling, the metro, the cathedral and the movie theater as undeletable; the Hotel page and the infoboxes say the same for housekeeping, lobby and cathedral</td>
+<td>Lobby tiles were already refused in both modes; the rest could be bulldozed</td>
+<td>Housekeeping fixed in Classic (crate 0.24.4); security, recycling and the movie theater fixed (crate 1.0.2, app 2.68.0); a burned-out shell can still be cleared. The cathedral (the wedding hall in the game) is fixed too (app 2.72.0). The metro waits for its own change. The medical center is a source conflict (one table says removable), so it stays removable</td>
+<td>Keep current (sellable)</td>
+</tr>
+<tr>
+<td>18</td>
+<td>3-star Security</td>
+<td>The Windows Help file asks for more than one Security Office to reach 3 stars</td>
+<td>One office</td>
+<td>Fixed (crate 1.0.1, app 2.67.0): two offices; a tower that already holds 3 stars keeps them</td>
+<td>Same (parity default)</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Elevator car sizes</td>
+<td>Help file: standard 21, service 17, express 42</td>
+<td>Standard 21, express 42 matched; service was 10</td>
+<td>Fixed (crate 1.0.3, app 2.69.0): service 17. The <code dir="auto">.TDT</code> header byte is unreliable (a PC save showed 21 in a service shaft) and keeps its old value</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Stairs and escalator reach</td>
+<td>Manual: a person uses at most four sets of stairs and seven escalators per trip</td>
+<td><code dir="auto">walkway_willingness</code> is 4 and 7, Classic only</td>
+<td>Matches</td>
+<td>Keeps current</td>
+</tr>
+<tr>
+<td>21</td>
+<td>Escalators serve commercial floors only</td>
+<td>Manual (two guides disagree)</td>
+<td>Refused on office floors in Classic</td>
+<td>Matches</td>
+<td>Escalators allowed on office floors</td>
+</tr>
+<tr>
+<td>22</td>
+<td>Transfers</td>
+<td>Read Me: a person changes transport mode once; two GameFAQs guides say twice</td>
+<td>Any number of changes, fewest-edges route</td>
+<td>Ask: a cap changes which parts of a tower are reachable, so every saved tower could lose tenants. Needs the owner and an in-game test</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>23</td>
+<td>Preference order</td>
+<td>Read Me: escalators, stairs, standard elevator, express; one guide orders it differently</td>
+<td>Fewest edges, first-listed edge wins a tie</td>
+<td>Ask: same reason as row 22</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>24</td>
+<td>Express stops</td>
+<td>Help file: every 15th floor whether or not a lobby is built there, and all underground floors</td>
+<td>Before #1527: express stops at the lobbies, at every basement floor it passes and at the ends of its span; not at a bare 15th floor</td>
+<td>Matched in #1527 after the parity run on SimTower 1.0 (2026-11-15): a Classic express stops at the ground floor, every 15th floor (lobby or not) and every basement, each stop switchable, and an end off those floors is passed. Basements matched earlier in #2221</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>25</td>
+<td>Recycling</td>
+<td>Manual: centers must be adjacent to operate, trucks need a service elevator stop</td>
+<td>Capacity by population only (2,500 per center), no adjacency or truck rule</td>
+<td>Ask: a new rule to model, not a bug</td>
+<td>Keep current</td>
+</tr>
+<tr>
+<td>26</td>
+<td>Post-film shopping</td>
+<td>Manual: movie visitors shop within five floors of the theater</td>
+<td>Not modeled</td>
+<td>Ask: new crowd behavior</td>
+<td>Keep current</td>
+</tr>
+</tbody>
+</table>
+<p>Rows 19 to 26 come from the Windows Help file and Read Me checks of 2026-10-30. “Matches” means the Rust engine already does what the source says. Rows that change how every passenger routes are asks, because they move the whole simulation and need an in-game check first.</p>
+<p>Open source conflicts the note flags and we do not settle: escalator use with offices (kiwizoid says commercial only, furdude2 says offices work) and the cinema’s capacity (60 versus 120). Whether films age is settled by runs of the original on a PC (#1932, <a href="/pr-preview/pr-157/tdt-format/">tdt-format.md</a> section 11).</p>
+<p>The stair reach conflicts between sources (wiki five levels, Aristotle47 four); ours is 4. Left alone until tested.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="gaps-pages-not-in-the-reference">Gaps (pages not in the reference)</h2><a class="sl-anchor-link" href="#gaps-pages-not-in-the-reference"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Gaps (pages not in the reference)”</span></a></div>
+<p>Standalone Security, Medical Center, Recycling Center, Parking, Housekeeping and Escalator pages (the directory lists Housekeeping and Escalator but their text could not be fetched; the others may not exist), the metro’s reach in floors and the crowd thresholds on PC. The cinema’s census audience and its film aging have since been measured on a PC (#1500, #1932). Housekeeping’s 19 rooms each is stated on the Hotel page and is emergent here.</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="sources">Sources</h2><a class="sl-anchor-link" href="#sources"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Sources”</span></a></div>
+<ul>
+<li>Sim Tower Wiki (Fandom), community content under CC-BY-SA: <a href="https://simtower.fandom.com/wiki/Sim_Tower_Wiki">Sim Tower Wiki</a>, in particular the Room, Segment, Hotel, Cinema, Metro station, Steps, Star rating and Evaluation articles.</li>
+<li>GameFAQs guides by Aristotle47, kiwizoid, BStuart (Macintosh), strawhat and furdude2, linked from <a href="https://gamefaqs.gamespot.com/pc/565191-simtower/faqs/">the SimTower guide index</a>. Each is cited by author where a row depends on it.</li>
+<li>The official Maxis manual, the Windows Read Me and the Windows Help file, cited by name where a row depends on them.</li>
+</ul>
+</div><footer class="sl-flex astro-ddtxxk7k"><div class="meta sl-flex astro-ddtxxk7k"></div><div class="pagination-links print:hidden astro-b5raizh3" dir="ltr"><a href="/pr-preview/pr-157/canon/" rel="prev" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg><span class="astro-b5raizh3">Previous<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Classic canon records</span></span></a><a href="/pr-preview/pr-157/canon-parking-audit/" rel="next" class="astro-b5raizh3"><svg aria-hidden="true" class="astro-b5raizh3 astro-hkc32dio" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg><span class="astro-b5raizh3">Next<br class="astro-b5raizh3"><span class="link-title astro-b5raizh3">Parking and hotel suite audit</span></span></a></div></footer></div></div></main></div></div></div></div></body></html>
