@@ -2,8 +2,10 @@
 //! unlocked from the start, whatever the star rating, and the money never
 //! runs out, and the Sky Bridge's star bar is lifted too. A host turns it on
 //! for a tower it offers as a sandbox, each time it opens that tower: the save
-//! leaves it out, so a tower saved in a sandbox opens as a plain tower
-//! anywhere else (with the funds it was saved with). Nothing else changes:
+//! leaves the switch itself out. Turning it on also marks the tower as
+//! free-built for good ([`Simulation::free_built`]), and the save keeps that
+//! mark, so a host can refuse such a tower or open it only as a sandbox; the
+//! mark never turns free building back on by itself. Nothing else changes:
 //! the tower still earns, pays, rates and grows by the mode's rules, and the
 //! stars still count for everything but what may be built. A host that reads
 //! the catalog's star bars (`rules.sky_bridge.min_star`, each facility's
@@ -17,8 +19,9 @@ pub const CREATIVE_FUNDS: f64 = 1_000_000_000_000.0;
 
 impl Simulation {
     /// Turns creative play on or off. On, the funds fill to
-    /// [`CREATIVE_FUNDS`] at once and after every step of play; off, the
-    /// funds stay where they are and the mode's star unlocks apply again.
+    /// [`CREATIVE_FUNDS`] at once and after every step of play, and the tower
+    /// is marked [`Simulation::free_built`] for good; off, the funds stay
+    /// where they are and the mode's star unlocks apply again.
     ///
     /// ```
     /// use verticopolis_engine::clock::GameMode;
@@ -34,6 +37,7 @@ impl Simulation {
     /// ```
     pub fn set_creative(&mut self, on: bool) {
         self.creative = on;
+        self.free_built |= on;
         self.refill_creative_funds();
     }
 
@@ -90,19 +94,48 @@ mod tests {
     }
 
     #[test]
-    fn the_save_leaves_it_out() {
+    fn a_tower_file_carries_the_mark_through_the_export() {
+        let mut sim = Simulation::new_game(5, GameMode::Modern);
+        sim.set_creative(true);
+        let text = crate::canonical::js_json(&sim.serialize());
+        let file = crate::export_stream::encode_vctower_string_as(
+            text,
+            "Sandbox 1.0.0",
+            1_700_000_000_000.0,
+            crate::load::Frame::Binary,
+        )
+        .unwrap();
+        let read = crate::load::decode_vctower_bytes(&file).unwrap();
+        let back = deserialize(&read).unwrap();
+        assert!(back.free_built && !back.creative);
+    }
+
+    #[test]
+    fn the_save_leaves_the_switch_out_and_keeps_the_mark() {
         let mut sim = Simulation::new_game(3, GameMode::Classic);
         let plain = sim.serialize();
+        assert!(
+            plain.get("freeBuilt").is_none(),
+            "a tower built by the rules saves as before"
+        );
         sim.set_creative(true);
         sim.money = 42.0;
         let free = sim.serialize();
         sim.set_creative(false);
         sim.money = 42.0;
-        assert_eq!(free, sim.serialize(), "the save carries no creative mark");
+        assert!(sim.free_built, "turning free building off keeps the mark");
+        assert_eq!(
+            free,
+            sim.serialize(),
+            "the save carries the mark, not the switch"
+        );
+        assert_eq!(free.get("freeBuilt"), Some(&serde_json::json!(true)));
         let back = deserialize(&free).unwrap();
-        assert!(!back.creative, "a loaded tower is a plain tower");
+        assert!(!back.creative, "loading never turns free building on");
+        assert!(back.free_built, "the mark survives a save and a load");
         assert!(!back.is_unlocked(Kind::HotelSingle));
-        assert!(!deserialize(&plain).unwrap().creative);
+        let back_plain = deserialize(&plain).unwrap();
+        assert!(!back_plain.creative && !back_plain.free_built);
     }
 
     #[test]

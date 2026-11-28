@@ -200,6 +200,7 @@ shapes for each one.
 | `callFireRescue()` | Puts the fire rescue offer up again while a fire burns (the player's "Call Fire Rescue" command), as a record with its `cost`. It is refused with `none` when nothing is burning, `pending` while a question already waits and `coming` while a paid helicopter is on its way. Answer the offer with `resolveChoice`: a paid rescue does not end the fire at once, its helicopter lands about 30 game minutes later and puts it out then. `fireResponse()` reads the answer to a fire as JSON (the guards Security sends by the emergency stairs and the helicopter), read again when the frame header's `fireResponseSeq` moves. |
 | `setTowerName(name)`, `towerName()` | The tower's name. |
 | `setCreative(on)`, `creative()` | A free-build tower: every kind the mode offers unlocked whatever the star rating, and funds that fill back up after every step of play. The save leaves it out, so turn it on again each time the tower loads. Turning it off leaves the funds where they are. `setCreative` answers a record whose own value is 1 when it is on; its delta is the top-up, not a cost or income. A Sky Bridge ignores its star bar too, so check `creative()` before showing `rules.skyBridge.minStar`. |
+| `freeBuilt()` | Whether the tower has ever been a free-build tower. `setCreative(true)` sets it for good and the save keeps it, so a host can refuse a tower built with unlimited money, or open it only as a sandbox. Loading the mark never turns free building on. |
 
 ### Reading the game
 

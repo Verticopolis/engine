@@ -454,6 +454,8 @@ pub(crate) fn assemble(
     }
     sim.adopt_milestones();
     sim.founder = detect_founder(raw);
+    // The mark alone; free building stays off until a host turns it on.
+    sim.free_built = data.get("freeBuilt") == Some(&Value::Bool(true));
     // Last, once the tower is whole: the people point at its rooms and cars.
     sim.adopt_saved_crowd(data.get("crowd"));
     if let Some(cars) = data.get("dispatch") {

@@ -430,6 +430,11 @@ impl Engine {
         self.sim.creative
     }
 
+    /// Whether the tower has ever been a free-build tower ([`crate::creative`]).
+    pub(crate) fn port_free_built(&self) -> bool {
+        self.sim.free_built
+    }
+
     /// Turns free building on or off, with the value after. The record's
     /// delta is the funds topping up to [`crate::creative::CREATIVE_FUNDS`],
     /// not a cost or income to announce.

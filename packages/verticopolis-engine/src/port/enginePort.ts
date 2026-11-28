@@ -388,6 +388,10 @@ export interface EnginePortQueries {
   founder(): boolean;
   /** Whether this is a free-build tower: every kind unlocked and funds that never run out. */
   creative(): boolean;
+  /** Whether the tower has ever been a free-build tower. The save keeps this
+   *  mark (`creative()` itself is not saved), so a host can refuse a tower
+   *  built with unlimited money, or open it only as a sandbox. */
+  freeBuilt(): boolean;
   /** Turns free building on or off; the record's own value is 1 when it is on. */
   setCreative(on: boolean): PortRecord;
   statsStrip(): PortRecord;

@@ -204,6 +204,7 @@ export const BINDING_EXPORT_TIERS = {
   schedulePreset: T2,
   founder: T2,
   creative: T2,
+  freeBuilt: T2,
   // Tier 1, a host setting made on the player's behalf, as the tower name is.
   setCreative: T1,
   statsStrip: T2,

@@ -157,6 +157,11 @@ impl Engine {
     pub fn creative(&self) -> bool {
         self.port_creative()
     }
+    /// `freeBuilt()`: whether the tower has ever been a free-build tower.
+    #[wasm_bindgen(js_name = freeBuilt)]
+    pub fn free_built(&self) -> bool {
+        self.port_free_built()
+    }
     /// `setCreative(on)`: turns free building on or off.
     #[wasm_bindgen(js_name = setCreative)]
     pub fn set_creative(&mut self, on: bool) -> Vec<f64> {

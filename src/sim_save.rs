@@ -209,6 +209,10 @@ impl Simulation {
         if self.founder {
             m.push(own("founder", json!(true)));
         }
+        // Written only when set, so a tower built by the rules saves as before.
+        if self.free_built {
+            m.push(own("freeBuilt", json!(true)));
+        }
         m.push(own("lastQuarterMoney", json!(self.last_quarter_money)));
         // Before 10:00 the shops' day is still open from yesterday's 10:00; a
         // save without the mark loads as a day already closed (#1500).

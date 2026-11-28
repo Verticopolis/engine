@@ -41,6 +41,10 @@ export interface SerializedGame {
    *  later. Drives the splash "Ground floor" badge. */
   founder?: boolean;
 
+  /** A tower that has ever been a free-build tower (written only when true).
+   *  Loading it never turns free building on. */
+  freeBuilt?: boolean;
+
   /** "Bridge floors between placements" toggle, flipped mid-game. Written only
    *  when turned OFF (default on), so an absent value loads as on, the shipped
    *  behavior that fills the walkway to a neighbor. Ignored for Classic (always

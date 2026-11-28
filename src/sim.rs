@@ -203,6 +203,11 @@ pub struct Simulation {
     /// Whether this is a free-build tower: every kind unlocked and money that
     /// never runs out ([`crate::creative`]). The save leaves it out.
     pub creative: bool,
+    /// Whether this tower has ever been a free-build tower. Turning free
+    /// building on sets it for good, and the save keeps it, so a host can
+    /// tell a tower built with unlimited money from one built by the rules
+    /// ([`crate::creative`]).
+    pub free_built: bool,
     /// The game clock: day, hour, minute, quarter and year.
     pub clock: Clock,
     /// The people moving through the tower.
@@ -343,6 +348,7 @@ impl Simulation {
             },
             founder: false,
             creative: false,
+            free_built: false,
             clock: Clock::new(0.0, resolve_calendar(mode, modern_calendar)),
             crowd: Crowd::new(seed),
             events: EventSystem::new(seed),
